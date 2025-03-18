@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Sidebar with MongoDB</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background: #f4f4f4;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            /* height: 100%; */
+            height: 100vh;
+            background: #2c3e50;
+            position: fixed;
+            padding-top: 60px;
+            box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #34495e;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px;
+        }
+        .dynamic-content {
+            
+            width: 300px;
+            padding: 45px;
+            margin-top: 10px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        
+
+        
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.6;
+        }
+        .create-tenant-btn {
+            display: inline-block;
+            /* background: #27ae60; */
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .create-superadmin-btn{
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+
+        }
+        .create-addschool-btn{
+            display: inline-block;
+            background: blueviolet;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+
+        }
+
+        .create-tenant-btn:hover {
+            /* background: #219150; */
+            background: #2c3e50;
+        }
+
+        /* Popup Modal */
+         .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        } 
+         
+
+        .popup form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .popup input {
+            margin: 6px 0;
+            /* margin-top: 10px; */
+            /* margin-bottom: 5px; */
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .popup button {
+            /* background: #27ae60; */
+            background: #FB641B;
+            color: white;
+            border: none;
+            margin-top: 4px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .popup button:hover {
+            background: #219150;
+        }
+
+        .close-btn {
+            background: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .close-btn:hover {
+            background: #c0392b;
+        }
+        .adminpopup {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+        transition: 0.3s;
+        width: auto;
+    }     
+
+    .adminpopup:hover {
+        background: #2980b9;
+    }
+    /* Style for select dropdown */
+    .popup select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 8px;
+        margin-top: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background: white;
+        font-size: 12px;
+        color: #555;
+        appearance: none; /* Removes default arrow in some browsers */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    /* Style for dropdown arrow */
+    .popup select:focus {
+        outline: none;
+        border-color: #27ae60;
+    }
+
+    /* Optional: Style dropdown options */
+    .popup select option {
+        background: white;
+        color: #333;
+        padding: 10px;
+    }
+    .user-table {
+    width: 80%;
+    border-collapse: collapse;
+    background: white;
+    /* border-radius: 10px; */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 10px;
+    margin-left: 25px;
+}
+
+.user-table th, .user-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-table th {
+    background: #2c3e50;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.user-table tr:hover {
+    background: #f1f1f1;
+}
+
+
+/* Style for action button */
+.adminpopup {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.adminpopup:hover {
+    background: #2980b9;
+}
+.create-consumer-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    margin-bottom: 15px;
+}
+
+.create-consumer-btn:hover {
+    background-color: #0056b3;
+}
+
+.create-consumer-btn:active {
+    background-color: #003f7f;
+}
+
+
+
+
+</style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="{% url 'sidebar_option' 'users' %}">Users</a>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+
+        {% if option == "tenant" %}
+            <a href="#" id="openTenantPopup" class="create-tenant-btn">Create Tenant</a>
+        {% elif option == "superadmin" %}
+            <a href="#" id="openSuperadminPopup" class="create-superadmin-btn">Create Superadmin</a>
+        {% elif option == "users" %}
+            <a href="#" id="openConsumerPopup" class="create-consumer-btn">Add Consumer</a>
+        {% endif %}
+
+        {% if option == "users" %}
+            <h2>Total Users: {{ total_tenants }}</h2>
+            {% if tenant_data %}
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tenant in tenant_data %}
+                        <tr>
+                            <td>{{ tenant.username }}</td>
+                            <td>{{ tenant.email }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="no-data">Details not found</p>
+            {% endif %}
+        {% endif %} 
+
+    </div>
+
+    <div class="popup" id="popupForm" style="display: none;">
+        <h2>Create User</h2>
+        <form method="POST" action="{% url 'dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" name="option" id="userOption" value="">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Create consumer</button>
+            <button type="button" id="closePopup" class="close-btn">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const popupForm = document.getElementById("popupForm");               
+            const popupTitle = popupForm.querySelector("h2"); 
+            const popupOptionField = document.getElementById("userOption"); 
+
+            function showPopup(title, optionValue) {
+                popupTitle.textContent = title;
+                popupOptionField.value = optionValue;
+                popupForm.style.display = "block";
+
+                document.getElementById("closePopup").addEventListener("click", function () {
+                    popupForm.style.display = "none";
+                });
+            }
+
+            document.getElementById("openSuperadminPopup")?.addEventListener("click", function (event) {
+                event.preventDefault();
+                showPopup("Create Superadmin", "superadmin");
+            });
+
+            document.getElementById("openConsumerPopup")?.addEventListener("click", function (event) {
+                event.preventDefault();
+                showPopup("Add Consumer", "consumer");
+            });
+        });
+    </script>
+
+</body>
+</html>

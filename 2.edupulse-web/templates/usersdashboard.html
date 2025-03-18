@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .burger-menu {
+            font-size: 30px;
+            cursor: pointer;
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+            display: inline-block;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            /* background: linear-gradient(to right, #cce0ff,#2c3e50); */
+            background: #2c3e50;
+            transition: left 0.3s;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+        }
+        .sidebar.active {    
+            left: 0;
+        }
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            
+            /* background-color:  #34495e; */
+        }
+        .sidebar a:hover {
+            background-color: #6699ff;
+            color: #FFFFFF;
+        }
+        .profile-section {
+            text-align: center;
+            padding: 10px;
+            background: #2c3e50;
+
+        }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border:2px solid black;
+            margin: 10px auto;
+            display: block;
+        }
+        .content {
+            margin-left: 20px;
+            padding: 20px;
+            
+        }
+    </style>
+</head>
+<body>
+
+    <div class="burger-menu" onclick="toggleMenu()">☰</div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="profile-section">
+            <img src="{{ user.profile.profile_pic.url }}" alt="" class="profile-pic">
+            <p><strong>{{ user.username }}</strong></p>
+            <p>Score: 100117</p>
+        </div>
+        <hr>
+        <a href="#">Tests</a>
+        <a href="#">Create Test</a>
+        <a href="#">Daily Challenge</a>
+        <a href="#">History</a>
+        <a href="#">Topics</a>
+        <a href="#">Manage Topics</a>
+        <a href="#">Dashboards</a>
+        <a href="#">My Progress</a>
+        <a href="#">Compare</a>
+        <a href="#">Settings</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+
+    <div class="content">
+        <h2>Welcome to Your Dashboard</h2>
+        <p>Manage your tests, topics, and progress from here.</p>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("sidebar").classList.toggle("active");
+        }
+    </script>
+
+</body>
+</html>

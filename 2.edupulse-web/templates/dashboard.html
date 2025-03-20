@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Sidebar with MongoDB</title>
+    <title>EduPulse</title>
     <style>
         /* General Styles */
         * {
@@ -71,6 +71,7 @@
             line-height: 1.6;
         }
         .create-tenant-btn {
+            /*TODO:seems like this is unused. verify and cleanup*/
             display: inline-block;
             /* background: #27ae60; */
             background: #2c3e50;
@@ -92,7 +93,7 @@
             transition: 0.3s;
 
         }
-        .create-addschool-btn{
+        .add-tenant-btn{
             display: inline-block;
             background: blueviolet;
             color: white;
@@ -213,42 +214,27 @@
 <body>
 
 
-         <div class="sidebar">
-            {% if option != "users" %}  
-                <a href="{% url 'sidebar_option' 'school' %}">Tenants</a>
-            {% endif %}
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-        </div>
-        
+    <div class="sidebar">
+        {% if option != "users" %}  
+            <a href="{% url 'sidebar_option' 'school' %}">Tenants</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
 
-
-            
-            
-                
-                <!-- <div class="content">
-                    {% if option == "tenant" %}
-                        <a href="#" id="openPopup" class="create-tenant-btn">Create Tenant</a>
-                    {% elif option == "superadmin" %}
-                        <a href="#" id="openPopup" class="create-superadmin-btn">Create Superadmin</a>
-                    {% elif option == "school" %}
-                        <a href="#" id="openPopup" class="create-addschool-btn">Add Tenant</a>
-                    {% endif %} -->
-
-
-                 
-                 
-
-
-     <div class="content">
+    <div class="content">
+        <h2>Tenant Management</h2>
         {% if option == "tenant" %}
+            <h2>This is Not expected to be seen. verify and delete this portion: </h2>
             <a href="#" id="openPopup" class="create-tenant-btn">Create Tenant</a>
         {% elif option == "superadmin" %}
+            <h2>This is Not expected to be seen. verify and delete this portion: </h2>
             <a href="#" id="openPopup" class="create-superadmin-btn">Create Superadmin</a>
         {% elif option == "school" %}
-            <a href="#" id="openPopup" class="create-addschool-btn">Add Tenant</a>
+            <a href="#" id="openPopup" class="add-tenant-btn">Add Tenant</a>
         {% endif %}
     
         {% if option == "school" %}
+            <!--h2>debug: </h2-->
             <h2>Total Tenants: {{ total_tenants }}</h2>
             {% if tenant_data %}
                 <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
@@ -274,29 +260,41 @@
             {% endif %}
         {% endif %}
     </div>
-    
 
-    
+    <div class="popup" id="popupForm" style="display: none;">
+        <h2>Create Tenant[Not sure why this is for]</h2>
+        <form method="POST" action="{% url 'dashboard' %}">
+            {% csrf_token %}
+            <input type="text" name="schoolName" placeholder="School Name" required>
+            <input type="text" name="branch" placeholder="Branch" required>
+            <input type="text" name="city" placeholder="City" required>
+            <button type="submit">Add Tenant</button>
+            <button type="button" id="closePopup" class="close-btn">Cancel</button>
+        </form>
+    </div>
 
-                
-            </div>
-            <div class="popup" id="popupForm" style="display: none;">
-                <h2>Create Tenant</h2>
-                <form method="POST" action="{% url 'dashboard' %}">
-                    {% csrf_token %}
-                    <input type="text" name="schoolName" placeholder="School Name" required>
-                    <input type="text" name="branch" placeholder="Branch" required>
-                    <input type="text" name="city" placeholder="City" required>
-                    <button type="submit">Add Tenant</button>
-                    <button type="button" id="closePopup" class="close-btn">Cancel</button>
-                </form>
-            </div>
-            
-            
-             
-    <script>
+    <div class="popup" id="addTenantPopupForm" style="display: none;">
+        <h2>Create Tenant</h2>
+        <form method="POST" action="{% url 'SubmitTenant' %}">
+            {% csrf_token %}
+            <input type="hidden" name="option" value="school">
+            <input type="text" name="schoolName" placeholder="Tenant Name" required>
+            <button type="submit">Add Tenant[CUR]</button>
+            <button type="button" class="close-btn">Cancel</button>
+        </form>
+    </div>
+<script>
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () 
+{
+    function showAddTenantPopup()
+    {
+        const addTenantPopup = document.getElementById("addTenantPopupForm");
+        addTenantPopup.style.display = "block";
+        addTenantPopup.querySelector(".close-btn").addEventListener("click", function () {
+            addTenantPopup.style.display = "none";
+        });
+    }
     const popupForm = document.getElementById("popupForm");               
     const popupTitle = popupForm.querySelector("h2"); 
     const popupFormFields = popupForm.querySelector("form"); 
@@ -305,6 +303,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function showPopup(title, formContent) {
         popupTitle.textContent = title;
         popupFormFields.innerHTML = formContent;
+        //alert(formContent);
         popupForm.style.display = "block";
 
         // Attach close event for dynamically created button
@@ -319,7 +318,8 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
 
             if (button.classList.contains("create-tenant-btn")) {
-                showPopup("Create Tenant", `
+                print("createTenantButton")
+                showPopup("Create TenantUNUSED", `
                     <form method="POST" action="{% url 'dashboard' %}">
                         {% csrf_token %}
                         <input type="hidden" name="option" value="tenant">
@@ -349,16 +349,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         <button type="button" class="close-btn">Cancel</button>
                     </form>
                 `);
-            } else if (button.classList.contains("create-addschool-btn")) {
-                showPopup("Add Tenant", `
-                    <form method="POST" action="{% url 'dashboard' %}">
+            } else if (button.classList.contains("add-tenant-btn")) {
+                //alert("adding a tenant")
+                showAddTenantPopup();
+                /*showPopup("Add Tenant", `
+                    <form method="POST" action="{% url 'SubmitTenant' %}">
                         {% csrf_token %}
                         <input type="hidden" name="option" value="school">
                         <input type="text" name="schoolName" placeholder="Tenant Name" required>
-                        <button type="submit">Add Tenant</button>
+                        <button type="submit">Add Tenant[CUR]</button>
                         <button type="button" class="close-btn">Cancel</button>
                     </form>
-                `);
+                `);*/
             }
         });
     });
@@ -377,7 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     {% csrf_token %}
                     <input type="hidden" name="option" value="tenantadmin">
                     <input type="text" name="username" placeholder="Username" required>
-                    <input type="email" name="email" value="abc@gmail.com" placeholder="Email">
+                    <input type="email" name="email" value="abcd@gmail.com" placeholder="Email">
                     <input type="password" name="password" value="11433434" placeholder="Password">
                     <input type="hidden" name="tenant" value="${tenantName}">
                     <button type="submit">Add Tenant Admin</button>

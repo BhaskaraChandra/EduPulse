@@ -13,7 +13,7 @@ MONGO_URI = 'mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retr
 client = MongoClient(MONGO_URI)
 db = client["test"]  # Database name
 users_collection = db["users"]
-users_collection2 = db["tenants"]
+tenants_collection = db["tenants"]
 
 
 def mongo_login_required(view_func):
@@ -77,10 +77,34 @@ def dashboard_view(request):
     return render(request, "dashboard.html")
 
 @mongo_login_required
+def SubmitTenant(request):
+    print("SubmitTenantClicked")
+    if request.method == 'POST':
+        option = request.POST.get("option")
+        tenantName = request.POST.get("schoolName")
+        user_id = request.session.get("user_id")  #TODO: actually this userid is not needed here.
+        # Process the form data here
+        #print("Option:", option);print("School Name:", tenantName)
+        if tenantName:
+            try:
+                tenants_collection.insert_one({
+                    "user_id": user_id,
+                    "schoolName": tenantName
+                })
+                messages.success(request, "Tenant added successfully!")
+                #print("tenant added successfully")
+                return redirect("sidebar_option", option="school")
+            except Exception as e:
+                messages.error(request, f"Error adding school: {e}")
+    pass
+@mongo_login_required
 def dashboard(request):
+    print("******dashboard called")
     user_id = request.session.get("user_id")  
     user = users_collection.find_one({"_id": ObjectId(user_id)})  # Get logged-in user details
-    
+    tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
+    #return render(request, "dashboard.html", {"tenant_data": tenants_data})
+
     if request.method == "POST":
         print("Received POST request")  
         print("POST Data:", request.POST)  
@@ -89,6 +113,7 @@ def dashboard(request):
         print("Option:", option)
 
         if option == "tenantadmin":
+            print("Option is tenantadmin")
             username = request.POST.get("username")
             email = request.POST.get("email")
             password = request.POST.get("password")
@@ -137,21 +162,26 @@ def dashboard(request):
                     print("Error:", e)
                     messages.error(request, f"Error adding Consumer: {e}")
 
-        elif option == "school":  # TODO
-            schoolName = request.POST.get("schoolName")
-            
-            if schoolName:
+        elif option == "school":  # TODO this is adding a tenant.
+            print("THIS CODE SHOULD NEVER EXECUTE")
+            messages.error(request, f"Error adding tenant: {e}")
+            '''
+            tenantName = request.POST.get("schoolName")
+            if tenantName:
                 try:
-                    users_collection2.insert_one({
+                    tenants_collection.insert_one({
                         "user_id": user_id,
-                        "schoolName": schoolName
+                        "schoolName": tenantName
                     })
                     messages.success(request, "School added successfully!")
-                    return redirect("dashboard")
+                    print("tenant added successfully")
+                    #return render(request, "school", {"tenant_data": tenants_data})
+                    return redirect("sidebar", option="school")
                 except Exception as e:
-                    messages.error(request, f"Error adding school: {e}")
-
-    tenants_data = list(users_collection2.find({"user_id": user_id}, {"_id": 0}))  
+                    messages.error(request, f"Error adding school: {e}")'
+            '''
+    #print("default return from dashboard")
+    tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
     return render(request, "dashboard.html", {"tenant_data": tenants_data})
 
 
@@ -159,7 +189,7 @@ def dashboard(request):
 @mongo_login_required
 def sidebar(request, option=None):
     user_id = request.session.get("user_id")
-    print("Option Requested:", option)  # Debugging
+    print("Side bar Option Clicked: ", option)  # Debugging
 
     tenants_data = []
     total_tenants = 0
@@ -184,7 +214,7 @@ def sidebar(request, option=None):
 
     elif option == "school":
         total_superadmins = users_collection.count_documents({"usertype": "superadmin"})
-        tenants_data = list(users_collection2.find({"user_id": user_id}, {"_id": 0}))
+        tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))
         total_tenants = len(tenants_data)
         template = "dashboard.html"
 

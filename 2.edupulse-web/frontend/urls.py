@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard
+from .views import SubmitTenant, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard
 
 # urlpatterns = [
 #     path("", login_view, name="login"),
@@ -14,6 +14,7 @@ urlpatterns = [
     path("dashboard/", dashboard, name="dashboard"),
     path("tenantdashboard/", tenantdashboard, name="tenantdashboard"),
     path("sidebar/<str:option>/", sidebar, name="sidebar_option"),
+    path("SubmitTenant/", SubmitTenant, name="SubmitTenant"),
     path('usersdashboard/', user_dashboard, name='user_dashboard'),
 ]
 

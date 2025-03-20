@@ -1,0 +1,77 @@
+{
+    "Physics":
+    {
+        "12":
+        {
+            "Mechanics": [
+                "Kinematics (motion, velocity, acceleration)",
+                "Dynamics (forces, Newton's laws)",
+                "Work, energy, and power",
+                "Rotational motion",
+                "Gravitation"
+              ],
+            "Electromagnetism": [
+                "Electric charges and fields",
+                "Electric potential and capacitance",
+                "Current electricity (resistance, circuits)",
+                "Magnetic fields and induction"
+              ],
+            "Optics": [
+                "Reflection and refraction",
+                "Mirrors and lenses",
+                "Wave optics (interference, diffraction)"
+              ],
+            "Thermodynamics": [
+                "Laws of thermodynamics",
+                "Heat transfer and thermodynamic processes"
+            ]
+        }
+    },
+    "Chemistry":
+    {
+        "12":
+        {
+            "Inorganic Chemistry": [
+                "Periodic table and periodicity",
+                "Chemical bonding and molecular structure",
+                "Acid-base chemistry",
+                "Redox reactions and electrochemistry",
+                "Coordination compounds"
+                ],
+            "Organic Chemistry": [
+                "Hydrocarbons (alkanes, alkenes, alkynes)",
+                "Halogenated compounds",
+                "Alcohols, phenols, and ethers",
+                "Aldehydes, ketones, and carboxylic acids",
+                "Amines and amino acids"
+                ],
+            "Physical Chemistry": [
+                "Thermodynamics (laws, processes, and applications)",
+                "Chemical kinetics (rates, mechanisms, and catalysis)"
+                ]
+        }
+    },
+    "Maths":
+    {
+        "12":
+        {
+            "Algebra": [
+                  "Sets, relations, and functions",
+                  "Matrices and determinants",
+                  "Quadratic equations and inequalities"
+                ],
+            "Trigonometry": [
+                  "Triangles and trigonometric functions",
+                  "Identities, equations, and solutions"
+                ],
+            "Coordinate Geometry": [
+                  "Straight lines and pairs of straight lines",
+                  "Circles and conic sections"
+                ],
+            "Calculus": [
+                  "Introduction to limits and continuity",
+                  "Basic differentiation and integration concepts"
+                ]
+        }
+    }
+}

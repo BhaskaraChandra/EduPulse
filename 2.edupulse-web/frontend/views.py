@@ -77,25 +77,58 @@ def dashboard_view(request):
     return render(request, "dashboard.html")
 
 @mongo_login_required
-def SubmitTenant(request):
-    print("SubmitTenantClicked")
+def SubmitTenantAdmin(request):
+    print("SubmitTenantAdminClicked")
     if request.method == 'POST':
         option = request.POST.get("option")
-        tenantName = request.POST.get("schoolName")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        tenantName = request.POST.get("tenant")
+        # Process the form data here
+        print("Option:", option);print("Username:", username);print("Email:", email);print("Password:", password)
+        if username and email and password:
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            try:
+                users_collection.insert_one({
+                    "username": username,
+                    "email": email,
+                    "usertype": "tenantadmin",
+                    "password": hashed_password,
+                    "tenant": tenantName
+                })
+                tenants_collection.update_one({"schoolName": tenantName},{"$inc": {"adminCount": 1}})
+
+                messages.success(request, "TenantAdmin added successfully!")
+                #print("tenantadmin added successfully")
+                return redirect("sidebar_option", option="school")
+            except Exception as e:
+                print(f"Error adding Tenant Admin: {e}")
+                #messages.error(request, f"Error adding Tenant Admin: {e}")
+
+@mongo_login_required
+def SubmitTenant(request):
+    print("XXXXXSubmitTenantClicked")
+    if request.method == 'POST':
+        option = request.POST.get("option")
+        tenantName = request.POST.get("schoolName") #this shoiuld be tenantName
         user_id = request.session.get("user_id")  #TODO: actually this userid is not needed here.
         # Process the form data here
-        #print("Option:", option);print("School Name:", tenantName)
+        print("Option:", option);print("School Name:", tenantName)
         if tenantName:
             try:
                 tenants_collection.insert_one({
                     "user_id": user_id,
-                    "schoolName": tenantName
+                    #"schoolName": tenantName,
+                    "tenantName": tenantName,
+                    "adminCount": 0,
+                    "userCount": 0
                 })
                 messages.success(request, "Tenant added successfully!")
                 #print("tenant added successfully")
                 return redirect("sidebar_option", option="school")
             except Exception as e:
-                messages.error(request, f"Error adding school: {e}")
+                messages.error(request, f"Error adding Tenant: {e}")
     pass
 @mongo_login_required
 def dashboard(request):
@@ -208,12 +241,13 @@ def sidebar(request, option=None):
         print("Fetched Users Data:", tenants_data)  
         template = "tenantdashboard.html"
     
-    elif option == "tenant":
+    elif option == "tenant": #this is unused and dummy
         tenants_data = []
         template = "dashboard.html"
 
-    elif option == "school":
-        total_superadmins = users_collection.count_documents({"usertype": "superadmin"})
+    elif option == "school": #this is the actual Tenant Dashboard
+        total_superadmins = 0 #users_collection.count_documents({"usertype": "superadmin"})
+        #TODO: we may not need the above anymore for now.
         tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))
         total_tenants = len(tenants_data)
         template = "dashboard.html"

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,7 +53,7 @@
     <h2>Select Topics</h2>
 
     <div class="tree-container">
-        <div id="topics-container"></div> <!-- The tree will be inserted here -->
+        <div id="topics-container"></div> The tree will be inserted here 
     </div>
 
     <script>
@@ -108,4 +108,228 @@
     </script>
 
 </body>
+</html>  -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Topics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h2 {
+            text-align: center;
+        }
+        .tree-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .tree-item {
+            margin: 5px 0;
+            cursor: pointer;
+            position: relative;
+        }
+        .tree-checkbox {
+            margin-right: 5px;
+        }
+        .nested {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Select Topics</h2>
+
+    <div class="tree-container">
+        <div id="topics-container"></div> The tree will be inserted here 
+    </div>
+
+    <script>
+        let topicsData = JSON.parse('{{ topics_json|escapejs }}');
+
+        function createTreeView(data, parentElement) {
+            let ul = document.createElement("ul");
+
+            for (let key in data) {
+                let li = document.createElement("li");
+                li.className = "tree-item";
+
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.className = "tree-checkbox";
+                
+                let label = document.createTextNode(" " + key);
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                
+                let nestedUl = document.createElement("ul");
+                nestedUl.className = "nested";
+                li.appendChild(nestedUl);
+                
+                checkbox.addEventListener("change", function () {
+                    if (checkbox.checked) {
+                        createTreeView(data[key], nestedUl);
+                        nestedUl.classList.add("active");
+                    } else {
+                        nestedUl.innerHTML = "";
+                        nestedUl.classList.remove("active");
+                    }
+                });
+
+                ul.appendChild(li);
+            }
+            parentElement.appendChild(ul);
+        }
+
+        let container = document.getElementById("topics-container");
+        createTreeView(topicsData, container);
+    </script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Topics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h2 {
+            text-align: center;
+        }
+        .tree-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .tree-item {
+            margin: 5px 0;
+            cursor: pointer;
+            position: relative;
+        }
+        .tree-checkbox {
+            margin-right: 5px;
+        }
+        .nested {
+            display: none;
+            padding-left: 15px;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Select Topics</h2>
+
+    <div class="tree-container">
+        <div id="topics-container"></div> <!-- The tree will be inserted here -->
+    </div>
+
+    <script>
+        let topicsData = JSON.parse('{{ topics_json|escapejs }}');
+
+        function createTreeView(data, parentElement) {
+            let ul = document.createElement("ul");
+
+            for (let key in data) {
+                let li = document.createElement("li");
+                li.className = "tree-item";
+
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.className = "tree-checkbox";
+
+                let label = document.createTextNode(" " + key);
+                li.appendChild(checkbox);
+                li.appendChild(label);
+
+                let nestedUl = document.createElement("ul");
+                nestedUl.className = "nested";
+                li.appendChild(nestedUl);
+
+                if (typeof data[key] === "object") {
+                    checkbox.addEventListener("change", function () {
+                        if (checkbox.checked) {
+                            nestedUl.innerHTML = "";
+                            createTreeView(data[key], nestedUl);
+                            nestedUl.classList.add("active");
+                        } else {
+                            nestedUl.innerHTML = "";
+                            nestedUl.classList.remove("active");
+                        }
+                    });
+
+                } else if (Array.isArray(data[key])) {
+                    data[key].forEach(subtopic => {
+                        let subLi = document.createElement("li");
+                        
+                        let subCheckbox = document.createElement("input");
+                        subCheckbox.type = "checkbox";
+                        subCheckbox.className = "tree-checkbox";
+                        
+                        subLi.appendChild(subCheckbox);
+                        subLi.appendChild(document.createTextNode("" + subtopic));
+                        
+                        nestedUl.appendChild(subLi);
+                    });
+
+                    nestedUl.classList.add("active");  // Ensure visibility of topics
+                }
+
+                ul.appendChild(li);
+            }
+            parentElement.appendChild(ul);
+        }
+
+        let container = document.getElementById("topics-container");
+
+        let cleanedData = {};
+        Object.keys(topicsData).forEach(subject => {
+            let gradeData = topicsData[subject]["12"];
+            cleanedData[subject] = gradeData;
+        });
+
+        createTreeView(cleanedData, container);
+    </script>
+
+</body>
 </html>
+
+
+
+
+

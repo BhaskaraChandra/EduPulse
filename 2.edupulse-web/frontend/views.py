@@ -10,6 +10,8 @@ import os
 import json
 from django.conf import settings
 
+from frontend.apiwrappers.TenantsAdapter import TenantsAdapter
+
 
 # MongoDB Atlas connection
 MONGO_URI = 'mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
@@ -17,6 +19,8 @@ client = MongoClient(MONGO_URI)
 db = client["test"]  # Database name
 users_collection = db["users"]
 tenants_collection = db["tenants"]
+tenants = TenantsAdapter()
+#users=UsersAdapter()
 
 
 def mongo_login_required(view_func):
@@ -80,25 +84,57 @@ def dashboard_view(request):
     return render(request, "dashboard.html")
 
 @mongo_login_required
-def SubmitTenant(request):
-    print("SubmitTenantClicked")
+def SubmitTenantAdmin(request):
+    print("SubmitTenantAdminClicked")
     if request.method == 'POST':
         option = request.POST.get("option")
-        tenantName = request.POST.get("schoolName")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        tenantName = request.POST.get("tenant")
+        # Process the form data here
+        print("Option:", option);print("Username:", username);print("Email:", email);print("Password:", password)
+        if username and email and password:
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            try:
+                users_collection.insert_one({
+                    "username": username,
+                    "email": email,
+                    "usertype": "tenantadmin",
+                    "password": hashed_password,
+                    "tenant": tenantName
+                })
+                tenants_collection.update_one({"tenantName": tenantName},{"$inc": {"adminCount": 1}})
+
+                messages.success(request, "TenantAdmin added successfully!")
+                #print("tenantadmin added successfully")
+                return redirect("sidebar_option", option="tenant")
+            except Exception as e:
+                print(f"Error adding Tenant Admin: {e}")
+                #messages.error(request, f"Error adding Tenant Admin: {e}")
+
+@mongo_login_required
+def SubmitTenant(request):
+    print("XXXXXSubmitTenantClicked")
+    if request.method == 'POST':
+        option = request.POST.get("option")
+        tenantName = request.POST.get("tenantName") #this shoiuld be tenantName
         user_id = request.session.get("user_id")  #TODO: actually this userid is not needed here.
         # Process the form data here
-        #print("Option:", option);print("School Name:", tenantName)
+        print("Option:", option);print("tenant Name:", tenantName)
         if tenantName:
             try:
                 tenants_collection.insert_one({
                     "user_id": user_id,
-                    "schoolName": tenantName
+                    "tenantName": tenantName,
+                    "adminCount": 0,
+                    "userCount": 0
                 })
                 messages.success(request, "Tenant added successfully!")
                 #print("tenant added successfully")
-                return redirect("sidebar_option", option="school")
+                return redirect("sidebar_option", option="tenant")
             except Exception as e:
-                messages.error(request, f"Error adding school: {e}")
+                messages.error(request, f"Error adding Tenant: {e}")
     pass
 @mongo_login_required
 def dashboard(request):
@@ -129,7 +165,15 @@ def dashboard(request):
                         "email": email,
                         "usertype": "tenantadmin",
                         "password": hashed_password,
-                    })
+                    }) 
+                    # user_adapter.adduser(
+                    #     "username"= username,
+                    #     "email"= email,
+                    #     "usertype"= "tenantadmin",
+                    #     "password"= hashed_password,
+
+                    # )
+                    
                     print("Superadmin added successfully")
                     messages.success(request, "SuperAdmin added successfully!")
                     return redirect("dashboard")  # Keep this for superadmin
@@ -153,6 +197,11 @@ def dashboard(request):
                         "created_by": user_id  
                     })
                     print("Consumer added successfully")
+                    # user_topic_col=db["user_topic"]
+                    
+                    # obj={}
+                    # obj["_id"]=email
+                    # user_topic_col.insertone(obj)
                     messages.success(request, "Consumer added successfully!")
 
                     # Redirect based on user type
@@ -165,24 +214,10 @@ def dashboard(request):
                     print("Error:", e)
                     messages.error(request, f"Error adding Consumer: {e}")
 
-        elif option == "school":  # TODO this is adding a tenant.
+        elif option == "tenant":  # TODO this is adding a tenant.
             print("THIS CODE SHOULD NEVER EXECUTE")
             messages.error(request, f"Error adding tenant: {e}")
-            '''
-            tenantName = request.POST.get("schoolName")
-            if tenantName:
-                try:
-                    tenants_collection.insert_one({
-                        "user_id": user_id,
-                        "schoolName": tenantName
-                    })
-                    messages.success(request, "School added successfully!")
-                    print("tenant added successfully")
-                    #return render(request, "school", {"tenant_data": tenants_data})
-                    return redirect("sidebar", option="school")
-                except Exception as e:
-                    messages.error(request, f"Error adding school: {e}")'
-            '''
+
     #print("default return from dashboard")
     tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
     return render(request, "dashboard.html", {"tenant_data": tenants_data})
@@ -211,12 +246,13 @@ def sidebar(request, option=None):
         print("Fetched Users Data:", tenants_data)  
         template = "tenantdashboard.html"
     
-    elif option == "tenant":
+    elif option == "tenantDummy": #this is unused and dummy
         tenants_data = []
         template = "dashboard.html"
 
-    elif option == "school":
-        total_superadmins = users_collection.count_documents({"usertype": "superadmin"})
+    elif option == "tenant": #this is the actual Tenant Dashboard
+        total_superadmins = 0 #users_collection.count_documents({"usertype": "superadmin"})
+        #TODO: we may not need the above anymore for now.
         tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))
         total_tenants = len(tenants_data)
         template = "dashboard.html"
@@ -249,6 +285,16 @@ def topics_view(request):
 
 # def manage_topics_view(request):
 #     return render(request, 'manage_topics.html')
+
+
+# def manage_topics_view(request):
+#     json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
+    
+#     with open(json_file_path, 'r', encoding='utf-8') as file:
+#         topics_data = json.load(file)
+
+#     return render(request, 'manage_topics.html', {"topics_json": json.dumps(topics_data)})
+
 def manage_topics_view(request):
     json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
     

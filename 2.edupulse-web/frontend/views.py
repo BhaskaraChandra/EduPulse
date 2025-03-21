@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import make_password, check_password
 from functools import wraps
 from bson import ObjectId
 
+from frontend.apiwrappers.TenantsAdapter import TenantsAdapter
+
 
 # MongoDB Atlas connection
 MONGO_URI = 'mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
@@ -14,6 +16,7 @@ client = MongoClient(MONGO_URI)
 db = client["test"]  # Database name
 users_collection = db["users"]
 tenants_collection = db["tenants"]
+tenants = TenantsAdapter()
 
 
 def mongo_login_required(view_func):

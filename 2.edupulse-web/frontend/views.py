@@ -6,6 +6,9 @@ import bcrypt
 from django.contrib.auth.hashers import make_password, check_password
 from functools import wraps
 from bson import ObjectId
+import os
+import json
+from django.conf import settings
 
 
 # MongoDB Atlas connection
@@ -226,3 +229,43 @@ def sidebar(request, option=None):
     }
 
     return render(request, template, context)
+
+#users dashboard
+
+def tests_view(request):
+    return render(request, 'tests.html')
+
+def create_test_view(request):
+    return render(request, 'create_test.html')
+
+def daily_challenge_view(request):
+    return render(request, 'daily_challenge.html')
+
+def history_view(request):
+    return render(request, 'history.html')
+
+def topics_view(request):
+    return render(request, 'topics.html')
+
+# def manage_topics_view(request):
+#     return render(request, 'manage_topics.html')
+def manage_topics_view(request):
+    json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
+    
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        topics_data = json.load(file)
+
+    return render(request, 'manage_topics.html', {"topics_json": json.dumps(topics_data)})
+
+
+def dashboards_view(request):
+    return render(request, 'dashboards.html')
+
+def my_progress_view(request):
+    return render(request, 'my_progress.html')
+
+def compare_view(request):
+    return render(request, 'compare.html')
+
+def settings_view(request):
+    return render(request, 'settings.html')

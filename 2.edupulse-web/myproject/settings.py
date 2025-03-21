@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'frontend',
     'userdashboard'
 ]
+
+
 MONGO_URI = "mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URI)
 db = client["test"]  # Database Name
@@ -76,6 +78,11 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend/static'),  # Add this line
 ]
 
 WSGI_APPLICATION = 'myproject.wsgi.application'

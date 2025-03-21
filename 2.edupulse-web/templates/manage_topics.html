@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Topics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h2 {
+            text-align: center;
+        }
+        .tree-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .tree-item {
+            margin: 5px 0;
+            cursor: pointer;
+            position: relative;
+        }
+        .tree-checkbox {
+            margin-right: 5px;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            font-size: 14px;
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .nested {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Select Topics</h2>
+
+    <div class="tree-container">
+        <div id="topics-container"></div> <!-- The tree will be inserted here -->
+    </div>
+
+    <script>
+        // Parse the JSON data from Django
+        let topicsData = JSON.parse('{{ topics_json|escapejs }}');
+
+        function createTreeView(data, parentElement) {
+            let ul = document.createElement("ul");
+
+            for (let key in data) {
+                let li = document.createElement("li");
+                li.className = "tree-item";
+
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.className = "tree-checkbox";
+
+                let toggleBtn = document.createElement("span");
+                toggleBtn.className = "toggle-btn";
+                toggleBtn.textContent = "+";
+
+                let label = document.createTextNode(" " + key);
+
+                li.appendChild(checkbox);
+                if (typeof data[key] === "object") {
+                    li.appendChild(toggleBtn);
+                }
+                li.appendChild(label);
+
+                if (typeof data[key] === "object") {
+                    let nestedUl = document.createElement("ul");
+                    nestedUl.className = "nested";
+                    createTreeView(data[key], nestedUl);
+                    li.appendChild(nestedUl);
+
+                    // Toggle functionality
+                    toggleBtn.addEventListener("click", function () {
+                        nestedUl.classList.toggle("active");
+                        toggleBtn.textContent = nestedUl.classList.contains("active") ? "−" : "+";
+                    });
+                }
+
+                ul.appendChild(li);
+            }
+
+            parentElement.appendChild(ul);
+        }
+
+        // Insert the tree into the container
+        let container = document.getElementById("topics-container");
+        createTreeView(topicsData, container);
+    </script>
+
+</body>
+</html>

@@ -216,25 +216,17 @@
 
     <div class="sidebar">
         {% if option != "users" %}  
-            <a href="{% url 'sidebar_option' 'school' %}">Tenants</a>
+            <a href="{% url 'sidebar_option' 'tenant' %}">Tenants</a>
         {% endif %}
         <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
     </div>
 
     <div class="content">
         <h2>Tenant Management</h2>
-        {% if option == "tenant" %}
-            <h2>This is Not expected to be seen. verify and delete this portion: </h2>
-            <a href="#" id="openPopup" class="create-tenant-btn">Create Tenant</a>
-        {% elif option == "superadmin" %}
-            <h2>This is Not expected to be seen. verify and delete this portion: </h2>
-            <a href="#" id="openPopup" class="create-superadmin-btn">Create Superadmin</a>
-        {% elif option == "school" %}
-            <a href="#" id="openPopup" class="add-tenant-btn">Add Tenant</a>
-        {% endif %}
     
-        {% if option == "school" %}
-            <!--h2>debug: </h2-->
+        {% if option == "tenant" %}
+            <a href="#" id="openPopup" class="add-tenant-btn">Add Tenant</a>
+        <!--h2>debug: </h2-->
             <h2>Total Tenants: {{ total_tenants }}</h2>
             {% if tenant_data %}
                 <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
@@ -261,25 +253,13 @@
         {% endif %}
     </div>
 
-    <div class="popup" id="popupForm" style="display: none;">
-        <h2>Create Tenant[Not sure why this is for]</h2>
-        <form method="POST" action="{% url 'dashboard' %}">
-            {% csrf_token %}
-            <input type="text" name="schoolName" placeholder="School Name" required>
-            <input type="text" name="branch" placeholder="Branch" required>
-            <input type="text" name="city" placeholder="City" required>
-            <button type="submit">Add Tenant</button>
-            <button type="button" id="closePopup" class="close-btn">Cancel</button>
-        </form>
-    </div>
-
     <div class="popup" id="addTenantPopupForm" style="display: none;">
         <h2>Create Tenant</h2>
         <form method="POST" action="{% url 'SubmitTenant' %}">
             {% csrf_token %}
-            <input type="hidden" name="option" value="school">
-            <input type="text" name="schoolName" placeholder="Tenant Name" required>
-            <button type="submit">Add Tenant[CUR]</button>
+            <input type="hidden" name="option" value="tenant">
+            <input type="text" name="tenantName" placeholder="Tenant Name" required>
+            <button type="submit">Add Tenant</button>
             <button type="button" class="close-btn">Cancel</button>
         </form>
     </div>
@@ -320,74 +300,17 @@ document.addEventListener("DOMContentLoaded", function ()
             addTenantAdminPopup.style.display = "none";
         });
     }
-    const popupForm = document.getElementById("popupForm");               
-    const popupTitle = popupForm.querySelector("h2"); 
-    const popupFormFields = popupForm.querySelector("form"); 
-
-    // Function to show popup with specific content
-    function showPopup(title, formContent) {
-        //TODO: now it looks like we are not calling this anymore from anywhere. need to verify and cleanup
-        popupTitle.textContent = title;
-        popupFormFields.innerHTML = formContent;
-        //alert(formContent);
-        popupForm.style.display = "block";
-alert("showPopup");
-        // Attach close event for dynamically created button
-        popupForm.querySelector(".close-btn").addEventListener("click", function () {
-            popupForm.style.display = "none";
-        });
-    }
 
     // Open popup when clicking on "Create Tenant", "Create Superadmin", "Add Tenant"
     document.querySelectorAll("#openPopup").forEach(button => {
         button.addEventListener("click", function (event) {
             event.preventDefault();
 
-            if (button.classList.contains("create-tenant-btn")) {
-                alert("createTenantButton")
-                /*showPopup("Create TenantUNUSED", `
-                    <form method="POST" action="{% url 'dashboard' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="option" value="tenant">
-                        <input type="text" name="tenantusername" placeholder="Tenant username" required>
-                        <button type="submit">Add Tenant</button>
-                        <button type="button" class="close-btn">Cancel</button>
-                    </form>
-                `);*/
-            } else if (button.classList.contains("create-superadmin-btn")) {
+            if (button.classList.contains("create-superadmin-btn")) {
                 alert("Currently, creating superadmin is not supported.");
-                /*showPopup("Create Superadmin", `
-                    <form method="POST" action="{% url 'dashboard' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="option" value="superadmin">
-                        <input type="text" name="username" placeholder="Username" required>
-                        <input type="email" name="email" placeholder="Email" required>
-                        <select name="usertype" required>
-                            <option value="superadmin">Superadmin</option>
-                            <option value="tenantadmin">Tenant Admin</option>
-                            <option value="consumer">Consumer</option>
-                        </select>
-                        <select name="Tenant" required>
-                            <option value="super">Superadmin</option>
-                            <option value="global">Tenant Admin</option>
-                        </select>
-                        <input type="password" name="password" placeholder="Password" required>
-                        <button type="submit">Add Superadmin</button>
-                        <button type="button" class="close-btn">Cancel</button>
-                    </form>
-                `);*/
             } else if (button.classList.contains("add-tenant-btn")) {
                 //alert("adding a tenant")
                 showAddTenantPopup();
-                /*showPopup("Add Tenant", `
-                    <form method="POST" action="{% url 'SubmitTenant' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="option" value="school">
-                        <input type="text" name="schoolName" placeholder="Tenant Name" required>
-                        <button type="submit">Add Tenant[CUR]</button>
-                        <button type="button" class="close-btn">Cancel</button>
-                    </form>
-                `);*/
             }
         });
     });
@@ -400,18 +323,6 @@ alert("showPopup");
             const row = this.closest("tr"); // Get the closest table row
             const tenantName = row.querySelector("td:first-child").textContent.trim(); // Get the first column (tenant name)
             showAddTenantAdminPopup(tenantName);
-            /*showPopup(`Create Admin For ${tenantName}`, `
-                <form method="POST" action="{% url 'dashboard' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="option" value="tenantadmin">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="email" name="email" value="abcd@gmail.com" placeholder="Email">
-                    <input type="password" name="password" value="11433434" placeholder="Password">
-                    <input type="hidden" name="tenant" value="${tenantName}">
-                    <button type="submit">Add Tenant Admin</button>
-                    <button type="button" class="close-btn">Cancel</button>
-                </form>
-            `);*/
         });
     });
 });

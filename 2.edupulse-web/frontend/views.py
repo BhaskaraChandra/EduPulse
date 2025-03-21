@@ -97,11 +97,11 @@ def SubmitTenantAdmin(request):
                     "password": hashed_password,
                     "tenant": tenantName
                 })
-                tenants_collection.update_one({"schoolName": tenantName},{"$inc": {"adminCount": 1}})
+                tenants_collection.update_one({"tenantName": tenantName},{"$inc": {"adminCount": 1}})
 
                 messages.success(request, "TenantAdmin added successfully!")
                 #print("tenantadmin added successfully")
-                return redirect("sidebar_option", option="school")
+                return redirect("sidebar_option", option="tenant")
             except Exception as e:
                 print(f"Error adding Tenant Admin: {e}")
                 #messages.error(request, f"Error adding Tenant Admin: {e}")
@@ -111,22 +111,21 @@ def SubmitTenant(request):
     print("XXXXXSubmitTenantClicked")
     if request.method == 'POST':
         option = request.POST.get("option")
-        tenantName = request.POST.get("schoolName") #this shoiuld be tenantName
+        tenantName = request.POST.get("tenantName") #this shoiuld be tenantName
         user_id = request.session.get("user_id")  #TODO: actually this userid is not needed here.
         # Process the form data here
-        print("Option:", option);print("School Name:", tenantName)
+        print("Option:", option);print("tenant Name:", tenantName)
         if tenantName:
             try:
                 tenants_collection.insert_one({
                     "user_id": user_id,
-                    #"schoolName": tenantName,
                     "tenantName": tenantName,
                     "adminCount": 0,
                     "userCount": 0
                 })
                 messages.success(request, "Tenant added successfully!")
                 #print("tenant added successfully")
-                return redirect("sidebar_option", option="school")
+                return redirect("sidebar_option", option="tenant")
             except Exception as e:
                 messages.error(request, f"Error adding Tenant: {e}")
     pass
@@ -195,24 +194,10 @@ def dashboard(request):
                     print("Error:", e)
                     messages.error(request, f"Error adding Consumer: {e}")
 
-        elif option == "school":  # TODO this is adding a tenant.
+        elif option == "tenant":  # TODO this is adding a tenant.
             print("THIS CODE SHOULD NEVER EXECUTE")
             messages.error(request, f"Error adding tenant: {e}")
-            '''
-            tenantName = request.POST.get("schoolName")
-            if tenantName:
-                try:
-                    tenants_collection.insert_one({
-                        "user_id": user_id,
-                        "schoolName": tenantName
-                    })
-                    messages.success(request, "School added successfully!")
-                    print("tenant added successfully")
-                    #return render(request, "school", {"tenant_data": tenants_data})
-                    return redirect("sidebar", option="school")
-                except Exception as e:
-                    messages.error(request, f"Error adding school: {e}")'
-            '''
+
     #print("default return from dashboard")
     tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
     return render(request, "dashboard.html", {"tenant_data": tenants_data})
@@ -241,11 +226,11 @@ def sidebar(request, option=None):
         print("Fetched Users Data:", tenants_data)  
         template = "tenantdashboard.html"
     
-    elif option == "tenant": #this is unused and dummy
+    elif option == "tenantDummy": #this is unused and dummy
         tenants_data = []
         template = "dashboard.html"
 
-    elif option == "school": #this is the actual Tenant Dashboard
+    elif option == "tenant": #this is the actual Tenant Dashboard
         total_superadmins = 0 #users_collection.count_documents({"usertype": "superadmin"})
         #TODO: we may not need the above anymore for now.
         tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))

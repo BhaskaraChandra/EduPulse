@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>User Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,11 +13,20 @@
         }
         .burger-menu {
             font-size: 30px;
-            cursor: pointer;
             padding: 15px;
             background: #2c3e50;
             color: white;
             display: inline-block;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+            z-index: 1100;
+            border-radius: 5px;
         }
         .sidebar {
             width: 250px;
@@ -24,53 +34,66 @@
             position: fixed;
             top: 0;
             left: -250px;
-            /* background: linear-gradient(to right, #cce0ff,#2c3e50); */
             background: #2c3e50;
             transition: left 0.3s;
             padding-top: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
-        .sidebar.active {    
+        .sidebar.active {
             left: 0;
         }
-        .sidebar a {
+        .sidebar label {
             display: block;
             padding: 12px;
             color: white;
-            text-decoration: none;
             font-size: 16px;
-            
-            /* background-color:  #34495e; */
+            cursor: pointer;
         }
-        .sidebar a:hover {
-            background-color: #6699ff;
-            color: #FFFFFF;
+        .sidebar input[type="checkbox"] {
+            display: none;
+        }
+        .sub-options {
+            display: none;
+            padding-left: 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 8px 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
         }
         .profile-section {
             text-align: center;
-            padding: 10px;
-            background: #2c3e50;
-
+            padding: 20px 0;
+            /* border-bottom: 1px solid white; */
         }
+
         .profile-pic {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            border:2px solid black;
-            margin: 10px auto;
-            display: block;
+            object-fit: cover;
+            margin-bottom: 10px;
         }
-        .content {
+
+        .sidebar a:hover {
+            background-color: #6699ff;
+            color: #FFFFFF;
+        }
+        .dashboard-content {
             margin-left: 20px;
             padding: 20px;
-            
+            transition: margin-left 0.3s;
+        }
+        .dashboard-content.shift {
+            margin-left: 270px;
         }
     </style>
 </head>
 <body>
-
     <div class="burger-menu" onclick="toggleMenu()">☰</div>
-
     <div class="sidebar" id="sidebar">
         <div class="profile-section">
             <img src="{{ user.profile.profile_pic.url }}" alt="" class="profile-pic">
@@ -78,29 +101,64 @@
             <p>Score: 100117</p>
         </div>
         <hr>
-        <a href="#">Tests</a>
-        <a href="#">Create Test</a>
-        <a href="#">Daily Challenge</a>
-        <a href="#">History</a>
-        <a href="#">Topics</a>
-        <a href="#">Manage Topics</a>
-        <a href="#">Dashboards</a>
-        <a href="#">My Progress</a>
-        <a href="#">Compare</a>
-        <a href="#">Settings</a>
+        <label><input type="checkbox" class="menu-toggle"> Tests</label>
+        <div class="sub-options">
+            <!-- <a href="{% url 'tests' %}" class="load-content">All Tests</a> -->
+            <a href="{% url 'create_test' %}" class="load-content">Create Test</a>
+            <a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a>
+            <a href="{% url 'history' %}" class="load-content">History</a>
+        </div>
+        <!-- <label><input type="checkbox" class="menu-toggle"> Challenges</label>
+        <div class="sub-options"> -->
+            <!-- <a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a> -->
+            <!-- <a href="{% url 'history' %}" class="load-content">History</a> -->
+        <!-- </div> -->
+        <label><input type="checkbox" class="menu-toggle"> Topics</label>
+        <div class="sub-options">
+            <!-- <a href="{% url 'topics' %}" class="load-content">Topics</a> -->
+            <a href="{% url 'manage_topics' %}" class="load-content">Manage Topics</a>
+        </div>
+        <a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
+        <a href="{% url 'my_progress' %}" class="load-content">My Progress</a>
+        <a href="{% url 'compare' %}" class="load-content">Compare</a>
+        <a href="{% url 'settings' %}" class="load-content">Settings</a>
         <a href="{% url 'logout' %}">Logout</a>
     </div>
-
-    <div class="content">
-        <h2>Welcome to Your Dashboard</h2>
-        <p>Manage your tests, topics, and progress from here.</p>
-    </div>
-
+    <div class="dashboard-content" id="dashboard-content"></div>
+    
     <script>
         function toggleMenu() {
-            document.getElementById("sidebar").classList.toggle("active");
+            var sidebar = document.getElementById("sidebar");
+            var content = document.getElementById("dashboard-content");
+            sidebar.classList.toggle("active");
+            content.classList.toggle("shift");
         }
-    </script>
 
+        $(document).ready(function() {
+            $(".menu-toggle").change(function() {
+                $(this).parent().next(".sub-options").slideToggle();
+            });
+            $(".load-content").click(function(e) {
+                e.preventDefault();  // Prevent full page reload
+                var url = $(this).attr("href");
+                $("#dashboard-content").load(url);
+            });
+        });
+    </script>
 </body>
-</html>
+</html>  
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

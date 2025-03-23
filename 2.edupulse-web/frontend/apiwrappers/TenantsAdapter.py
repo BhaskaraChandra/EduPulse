@@ -32,3 +32,5 @@ class TenantsAdapter:
 
     def close_connection(self):
         self.client.close()
+
+

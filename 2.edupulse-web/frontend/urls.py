@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import (SubmitTenant, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard, tests_view, create_test_view, daily_challenge_view,
-history_view, topics_view, manage_topics_view,dashboards_view, my_progress_view, compare_view, settings_view,SubmitTenantAdmin)
+from .views import (SubmitTenant, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard, create_test_view, daily_challenge_view,
+history_view, topics_view,tests_view, save_selected_topics,manage_topics_view,dashboards_view, my_progress_view, compare_view, settings_view,SubmitTenantAdmin)
 
 # from .views import SubmitTenant, SubmitTenantAdmin, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard
 # >>>>>>> 58cdca6496046725c5892ee01285312875b23908
@@ -32,6 +32,9 @@ urlpatterns = [
     path('my_progress/', my_progress_view, name='my_progress'),
     path('compare/', compare_view, name='compare'),
     path('settings/', settings_view, name='settings'),
+    
+    path('api/topics/', save_selected_topics, name='save_selected_topics'),
+
     
     
     

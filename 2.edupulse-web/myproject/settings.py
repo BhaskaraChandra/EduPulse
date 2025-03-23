@@ -88,6 +88,15 @@ STATICFILES_DIRS = [
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
 
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ensure this is enabled
+SESSION_COOKIE_AGE = 86400  # Session lasts for a day
+SESSION_SAVE_EVERY_REQUEST = True  # Saves the session on every request
+
+
+
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 

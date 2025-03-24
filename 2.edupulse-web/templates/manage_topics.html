@@ -211,39 +211,30 @@
         for (let key in data) {
             let li = document.createElement("li");
             li.className = "tree-item";
-
             let checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.className = "tree-checkbox";
-
             let label = document.createTextNode(" " + key);
             li.appendChild(checkbox);
             li.appendChild(label);
-
             let nestedUl = document.createElement("ul");
             nestedUl.className = "nested";
-
             if (typeof data[key] === "object" && !Array.isArray(data[key])) {
                 createTreeView(data[key], nestedUl);
                 li.appendChild(nestedUl);
             } else if (Array.isArray(data[key])) {
                 data[key].forEach(subtopic => {
                     let subLi = document.createElement("li");
-
                     let subCheckbox = document.createElement("input");
                     subCheckbox.type = "checkbox";
                     subCheckbox.className = "tree-checkbox";
-
                     subLi.appendChild(subCheckbox);
                     subLi.appendChild(document.createTextNode(" " + subtopic));
-
                     nestedUl.appendChild(subLi);
                 });
                 li.appendChild(nestedUl);
             }
-
             ul.appendChild(li);
-
             // Toggle sub-options visibility when clicking checkbox
             checkbox.addEventListener("change", function () {
                 if (checkbox.checked) {
@@ -254,42 +245,92 @@
             });
         }
         parentElement.appendChild(ul);
-    }
+    }//End Create Tree View.
 
     let container = document.getElementById("topics-container");
     createTreeView(topicsData,  container);
 
-    function saveTopics() {
-    let selectedTopics = [];
+    function saveTopics() 
+    {
+        const selectedData = {};
+        // Traverse the tree view
+        const treeViewElement = document.getElementById('topics-container');
+        traverseTreeView(treeViewElement, selectedData);
+        alert(selectedData);  
+    }
+    /*
+    function saveTopicsOldLogic() 
+    {
+        let selectedTopics = [];
 
-    document.querySelectorAll(".tree-checkbox:checked").forEach((checkbox) => {
-        let topicName = checkbox.nextSibling.nodeValue.trim();
-        let parentLi = checkbox.closest("li").parentElement.closest("li");
+        document.querySelectorAll(".tree-checkbox:checked").forEach((checkbox) => {
+            let topicName = checkbox.nextSibling.nodeValue.trim();
+            let parentLi = checkbox.closest("li").parentElement.closest("li");
 
-        if (parentLi) {
-            let parentCategory = parentLi.childNodes[1].nodeValue.trim();
-            selectedTopics.push(parentCategory + " - " + topicName); // Store as "Category - Subtopic"
-        } else {
-            selectedTopics.push(topicName); // Store as standalone category
-        }
-    });
+            if (parentLi) {
+                let parentCategory = parentLi.childNodes[1].nodeValue.trim();
+                selectedTopics.push(parentCategory + " - " + topicName); // Store as "Category - Subtopic"
+            } else {
+                selectedTopics.push(topicName); // Store as standalone category
+            }
+        });
 
-    console.log("Sending topics:", selectedTopics);
+        console.log("Sending topics:", selectedTopics);
 
-    fetch("/api/topics/", { 
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ selected_topics: selectedTopics }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Response:", data);
-        alert(data.message);
-    })
-    .catch(error => console.error("Error:", error));
-}
+        fetch("/api/topics/", { 
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ selected_topics: selectedTopics }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Response:", data);
+            alert(data.message);
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    */
+    function traverseTreeView(element, selectedData, parentKey = null) 
+    {
+        //alert("traversetreeview")
+        const checkboxes = element.querySelectorAll('.tree-checkbox');
+        alert("checkboxes:"+checkboxes);
+        checkboxes.forEach((checkbox, index) => 
+        {
+            
+            //const label = checkbox.nextElementSibling.textContent.trim();
+            const label = checkbox.textContent.trim();
+            //alert("checkbox:"+index+"label:"+label);
+            const nestedUl = checkbox.parentNode.querySelector('.nested');
+
+            if (checkbox.checked) 
+            {// If the checkbox is checked, add the label to the selectedData object
+                alert("checkbox checked"+checkbox.checked);
+                if (parentKey) {
+                    if (!selectedData[parentKey]) {
+                    selectedData[parentKey] = {};
+                    }
+                    selectedData[parentKey][label] = {};
+                } else {
+                    selectedData[label] = {};
+                }
+
+                if (nestedUl) {
+                    traverseTreeView(nestedUl, selectedData, label);
+                } else {
+                    // If no nested UL, it's a leaf node, so add the value
+                    if (parentKey) {
+                    selectedData[parentKey][label] = label;
+                    } else {
+                    selectedData[label] = label;
+                    }
+                }
+            }
+        });
+        alert("end of traverse tree view")
+    }//End of Traverse Tree View
 
 
 </script>

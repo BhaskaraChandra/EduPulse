@@ -43,22 +43,33 @@
 
     <script>
         try {
-            let selectedTopics = JSON.parse('{{ selected_topics_json|escapejs }}');
+            let selectedTopics = JSON.parse('{{ selected_topics_json|escapejs }}'); // Ensure correct variable
 
             console.log("Received topics in frontend:", selectedTopics);  // Debugging output
 
             let container = document.getElementById("selected-topics-container");
 
+            function createNestedList(obj) {
+                let ul = document.createElement("ul");
+                for (let key in obj) {
+                    let li = document.createElement("li");
+                    li.textContent = key;
+
+                    if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
+                        li.appendChild(createNestedList(obj[key])); // Recursive call for subtopics
+                    }
+                    ul.appendChild(li);
+                }
+                return ul;
+            }
+
             if (Object.keys(selectedTopics).length > 0) {
-                // Display JSON formatted topics inside a <pre> tag
-                let pre = document.createElement("pre");
-                pre.textContent = JSON.stringify(selectedTopics, null, 4); // Pretty-print JSON
-                container.appendChild(pre);
+                container.appendChild(createNestedList(selectedTopics));
             } else {
-                container.innerHTML = "<p>❌ No topics selected.</p>";
+                container.innerHTML = "<p>No topics selected.</p>";
             }
         } catch (error) {
-            console.error("❌ Error parsing JSON:", error);
+            console.error("Error parsing JSON:", error);
             document.getElementById("selected-topics-container").innerHTML = "<p>Error loading topics.</p>";
         }
     </script>

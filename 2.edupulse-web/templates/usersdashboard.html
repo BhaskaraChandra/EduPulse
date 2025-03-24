@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -103,19 +103,19 @@
         <hr>
         <label><input type="checkbox" class="menu-toggle"> Tests</label>
         <div class="sub-options">
-            <!-- <a href="{% url 'tests' %}" class="load-content">All Tests</a> -->
+            <! <a href="{% url 'tests' %}" class="load-content">All Tests</a> 
             <a href="{% url 'create_test' %}" class="load-content">Create Test</a>
             <a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a>
             <a href="{% url 'history' %}" class="load-content">History</a>
         </div>
-        <!-- <label><input type="checkbox" class="menu-toggle"> Challenges</label>
+         <label><input type="checkbox" class="menu-toggle"> Challenges</label>
         <div class="sub-options"> -->
             <!-- <a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a> -->
-            <!-- <a href="{% url 'history' %}" class="load-content">History</a> -->
-        <!-- </div> -->
+            <!-- <a href="{% url 'history' %}" class="load-content">History</a> 
+        <!</div> 
         <label><input type="checkbox" class="menu-toggle"> Topics</label>
         <div class="sub-options">
-            <!-- <a href="{% url 'topics' %}" class="load-content">Topics</a> -->
+            <!- <a href="{% url 'topics' %}" class="load-content">Topics</a> 
             <a href="{% url 'manage_topics' %}" class="load-content">Manage Topics</a>
         </div>
         <a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
@@ -148,17 +148,109 @@
 </body>
 </html>  
  
+-->
 
-
-
-
-
-
-
-
-
-
-
-
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .burger-menu {
+            display: none;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #2c3e50;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .sidebar label {
+            display: block;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .sub-options {
+            padding-left: 20px;
+            display: block;
+        }
+        .sidebar a {
+            display: block;
+            padding: 8px 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .profile-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #6699ff;
+            color: #FFFFFF;
+        }
+        .dashboard-content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="profile-section">
+            <img src="{{ user.profile.profile_pic.url }}" alt="" class="profile-pic">
+            <p><strong>{{ user.username }}</strong></p>
+            <p>Score: 100117</p>
+        </div>
+        <hr>
+        <label>Tests</label>
+        <div class="sub-options">
+            <a href="{% url 'create_test' %}" class="load-content">Create Test</a>
+            <a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a>
+            <a href="{% url 'history' %}" class="load-content">History</a>
+        </div>
+        <label>Topics</label>
+        <div class="sub-options">
+            <a href="{% url 'manage_topics' %}" class="load-content">Manage Topics</a>
+        </div>
+        <a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
+        <a href="{% url 'my_progress' %}" class="load-content">My Progress</a>
+        <a href="{% url 'compare' %}" class="load-content">Compare</a>
+        <a href="{% url 'settings' %}" class="load-content">Settings</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+    <div class="dashboard-content" id="dashboard-content"></div>
+    
+    <script>
+        $(document).ready(function() {
+            $(".load-content").click(function(e) {
+                e.preventDefault();  // Prevent full page reload
+                var url = $(this).attr("href");
+                $("#dashboard-content").load(url);
+            });
+        });
+    </script>
+</body>
+</html>
 

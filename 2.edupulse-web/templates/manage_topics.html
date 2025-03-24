@@ -257,7 +257,7 @@
     }
 
     let container = document.getElementById("topics-container");
-    createTreeView(topicsData, container);
+    createTreeView(topicsData,  container);
 
     function saveTopics() {
     let selectedTopics = [];
@@ -290,6 +290,7 @@
     })
     .catch(error => console.error("Error:", error));
 }
+
 
 </script>
 </body>

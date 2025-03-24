@@ -8,6 +8,8 @@ from functools import wraps
 from bson import ObjectId
 import logging
 logger = logging.getLogger(__name__)
+from django.views.decorators.csrf import csrf_exempt
+
 import os
 import json
 from django.conf import settings
@@ -274,25 +276,11 @@ def sidebar(request, option=None):
 def tests_view(request):
     return render(request, 'tests.html')
 
-# def create_test_view(request):
-#     return render(request, 'create_test.html')
-# def create_test_view(request):
-#     selected_topics = request.session.get("selected_topics", [])
-
-#     print("Selected Topics from session:", selected_topics)  # Debugging
-#     selected_topics_json = json.dumps(selected_topics, ensure_ascii=False)
-
-#     print("Passing to template:", selected_topics_json)  # Debugging
-
-#     return render(request, "create_test.html", {
-#         "selected_topics_json": selected_topics_json
-# })
-
 
 def create_test_view(request):
     selected_topics = request.session.get("selected_topics", {})
 
-    print("🟢 Retrieved from session:", json.dumps(selected_topics, indent=4))  # Debugging print
+    print("Retrieved from session:", json.dumps(selected_topics, indent=4))  # Debugging print
 
     selected_topics_json = json.dumps(selected_topics, ensure_ascii=False, indent=4)  # Pretty-print JSON
 
@@ -314,65 +302,23 @@ def topics_view(request):
 
 #http://localhost:9080/api/topics
 
-from django.views.decorators.csrf import csrf_exempt
-
-
-# def manage_topics_view(request):
-#     json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
-
-#     with open(json_file_path, 'r', encoding='utf-8') as file:
-#         topics_data = json.load(file)
-
-#     return render(request, 'manage_topics.html', {"topics_json": json.dumps(topics_data)})
-
-
-from django.views.decorators.csrf import csrf_exempt
-
 
 def manage_topics_view(request):
     json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
 
     with open(json_file_path, 'r', encoding='utf-8') as file:
         topics_data = json.load(file)
-    
+
     # Retrieve previously stored session data if available
-    selected_topics = request.session.get("selected_topics", [])
-    
-    return render(request, 'manage_topics.html', {"topics_json": json.dumps(topics_data), "selected_topics": json.dumps(selected_topics)})
+    selected_topics = request.session.get("selected_topics", {})
 
-# @csrf_exempt
-# def save_selected_topics(request):
-#     if request.method == "POST":
-#         try:
-#             data = json.loads(request.body)
-#             selected_topics = data.get("selected_topics", [])
+    # Debugging print to check session data in the backend
+    print("Session Data (selected_topics):", json.dumps(selected_topics, indent=4))
 
-#             if not selected_topics:
-#                 return JsonResponse({"message": "No topics selected"}, status=400)
-
-#             structured_data = {"topics": {}}
-#             print("Selected Topics from session:", selected_topics)
-
-
-#             for topic in selected_topics:
-#                 if " - " in topic:
-#                     category, subtopic = topic.split(" - ")
-#                     if category not in structured_data["topics"]:
-#                         structured_data["topics"][category] = []
-#                     structured_data["topics"][category].append(subtopic)
-#                 else:
-#                     if topic not in structured_data["topics"]:
-#                         structured_data["topics"][topic] = []
-
-#             # Store selected topics in session (JSON format)
-#             request.session["selected_topics"] = selected_topics
-#             request.session.modified = True
-
-#             return JsonResponse({"message": "Topics saved successfully!"}, status=200)
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-
-#     return JsonResponse({"error": "Invalid request method"}, status=405)  111below
+    return render(request, 'manage_topics.html', {
+        "topics_json": json.dumps(topics_data),
+        "selected_topics_json": json.dumps(selected_topics)  # Ensure the correct variable name
+    })
 
 @csrf_exempt
 def save_selected_topics(request):
@@ -392,17 +338,17 @@ def save_selected_topics(request):
 
                 for i, key in enumerate(keys):
                     if i == len(keys) - 1:
-                        # Last key should store subtopics as a list
+                        # Ensure the last key stores subtopics as a list (not empty dict)
                         if key not in current_level:
                             current_level[key] = []
                     else:
                         if key not in current_level:
                             current_level[key] = {}
                         elif isinstance(current_level[key], list):
-                            # Fix accidental list-to-dict issue
+                            # Convert mistakenly created list back to dict
                             current_level[key] = {}
 
-                        current_level = current_level[key]
+                    current_level = current_level[key]
 
             # Store the structured data in session
             request.session["selected_topics"] = structured_data
@@ -417,6 +363,7 @@ def save_selected_topics(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 
 

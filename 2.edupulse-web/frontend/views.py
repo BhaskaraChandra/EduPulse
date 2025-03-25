@@ -278,16 +278,21 @@ def tests_view(request):
 
 
 def create_test_view(request):
-    selected_topics = request.session.get("selected_topics", {})
+    json_file_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'data.json')  # Adjust path if needed
 
-    print("Retrieved from session:", json.dumps(selected_topics, indent=4))  # Debugging print
+    try:
+        with open(json_file_path, "r", encoding="utf-8") as file:
+            selected_topics = json.load(file)  # Load JSON from file
 
-    selected_topics_json = json.dumps(selected_topics, ensure_ascii=False, indent=4)  # Pretty-print JSON
+        print("Loaded JSON Data for create_test_view:", json.dumps(selected_topics, indent=4))  # Debugging print
+
+    except Exception as e:
+        print("Error loading JSON file:", e)
+        selected_topics = {}  # Set empty dict if there's an error
 
     return render(request, "create_test.html", {
-        "selected_topics_json": selected_topics_json
-})
-
+        "selected_topics_json": json.dumps(selected_topics, ensure_ascii=False, indent=4)
+    })
 
     
 def daily_challenge_view(request):
@@ -333,33 +338,31 @@ def save_selected_topics(request):
             structured_data = {}
 
             for topic in selected_topics:
-                keys = topic.split(" - ")  # Ensure the correct separator is used
+                keys = topic.split(" - ")  # Ensure correct format
                 current_level = structured_data
 
                 for i, key in enumerate(keys):
                     if i == len(keys) - 1:
-                        # Ensure the last key stores subtopics as a list (not empty dict)
                         if key not in current_level:
                             current_level[key] = []
                     else:
                         if key not in current_level:
                             current_level[key] = {}
                         elif isinstance(current_level[key], list):
-                            # Convert mistakenly created list back to dict
                             current_level[key] = {}
 
                     current_level = current_level[key]
 
-            # Store the structured data in session
+            # Store structured data in session
             request.session["selected_topics"] = structured_data
-            request.session.modified = True
+            request.session.modified = True  # Ensure session updates
 
-            print("Stored Topics:", json.dumps(structured_data, indent=4))  # Debugging print
+            print("Stored Topics in Session:", json.dumps(structured_data, indent=4))
 
             return JsonResponse({"message": "Topics saved successfully!", "data": structured_data}, status=200)
 
         except Exception as e:
-            print("Error:", e)  # Debugging
+            print(" Error:", e)
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)

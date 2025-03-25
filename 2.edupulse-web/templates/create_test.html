@@ -23,57 +23,161 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        pre {
-            background: #eee;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 14px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .tree {
+            margin-top: 10px;
+            padding-left: 20px;
         }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <h2>Selected Topics</h2>
-
+    <h2>Create Test</h2>
     <div class="container">
-        <div id="selected-topics-container"></div>
+        <label for="subject">Select Subject:</label>
+        <select id="subject">
+            <option value="">--Select Subject--</option>
+        </select>
+
+        <label for="grade">Select Grade:</label>
+        <select id="grade" disabled>
+            <option value="">--Select Grade--</option>
+        </select>
+
+        <div id="topic-tree" class="tree hidden"></div>
+        <button id="generateTest">Generate Test</button>
     </div>
 
     <script>
-        try {
-            let selectedTopics = JSON.parse('{{ selected_topics_json|escapejs }}'); // Ensure correct variable
-
-            console.log("Received topics in frontend:", selectedTopics);  // Debugging output
-
-            let container = document.getElementById("selected-topics-container");
-
-            function createNestedList(obj) {
-                let ul = document.createElement("ul");
-                for (let key in obj) {
-                    let li = document.createElement("li");
-                    li.textContent = key;
-
-                    if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
-                        li.appendChild(createNestedList(obj[key])); // Recursive call for subtopics
-                    }
-                    ul.appendChild(li);
-                }
-                return ul;
-            }
-
-            if (Object.keys(selectedTopics).length > 0) {
-                container.appendChild(createNestedList(selectedTopics));
-            } else {
-                container.innerHTML = "<p>No topics selected.</p>";
-            }
-        } catch (error) {
-            console.error("Error parsing JSON:", error);
-            document.getElementById("selected-topics-container").innerHTML = "<p>Error loading topics.</p>";
+        let selectedTopics = JSON.parse('{{ selected_topics_json|escapejs }}');
+    
+        console.log("Received selected topics in frontend:", selectedTopics);
+    
+        let subjectDropdown = document.getElementById("subject");
+        let gradeDropdown = document.getElementById("grade");
+        let topicTreeContainer = document.getElementById("topic-tree");
+    
+        function populateDropdown(dropdown, options) {
+            dropdown.innerHTML = '<option value="">--Select--</option>';
+            options.forEach(option => {
+                let opt = document.createElement("option");
+                opt.value = option;
+                opt.textContent = option;
+                dropdown.appendChild(opt);
+            });
         }
-    </script>
+    
+        // Populate the Subject Dropdown
+        if (Object.keys(selectedTopics).length > 0) {
+            populateDropdown(subjectDropdown, Object.keys(selectedTopics));
+        } else {
+            console.warn(" No subjects found in session data.");
+        }
+    
+        subjectDropdown.addEventListener("change", function() {
+            let selectedSubject = subjectDropdown.value;
+            if (selectedSubject && selectedTopics[selectedSubject]) {
+                populateDropdown(gradeDropdown, Object.keys(selectedTopics[selectedSubject]));
+                gradeDropdown.disabled = false;
+                topicTreeContainer.classList.add("hidden");
+            } else {
+                gradeDropdown.disabled = true;
+                topicTreeContainer.classList.add("hidden");
+            }
+        });
+    
+        gradeDropdown.addEventListener("change", function() {
+            let selectedSubject = subjectDropdown.value;
+            let selectedGrade = gradeDropdown.value;
+            if (selectedGrade && selectedTopics[selectedSubject][selectedGrade]) {
+                topicTreeContainer.innerHTML = "";
+                topicTreeContainer.appendChild(createNestedList(selectedTopics[selectedSubject][selectedGrade]));
+                topicTreeContainer.classList.remove("hidden");
+            } else {
+                topicTreeContainer.classList.add("hidden");
+            }
+        });
+    
 
+function createNestedList(obj) {
+    let ul = document.createElement("ul");
+
+    for (let key in obj) {
+        let li = document.createElement("li");
+
+        
+        if (Array.isArray(obj[key])) {
+            li.textContent = key; // Main topic title
+            let subUl = document.createElement("ul");
+
+            obj[key].forEach(topic => {
+                let subLi = document.createElement("li");
+
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = topic;
+                checkbox.id = `checkbox-${topic.replace(/\s+/g, '-')}`; // Unique ID
+
+                let label = document.createElement("label");
+                label.htmlFor = checkbox.id;
+                label.textContent = topic;
+
+                subLi.appendChild(checkbox);
+                subLi.appendChild(label);
+                subUl.appendChild(subLi);
+            });
+
+            li.appendChild(subUl);
+        } else if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
+            li.textContent = key;
+            li.appendChild(createNestedList(obj[key])); // Recursively create sub-lists
+        } else {
+            li.textContent = key;
+        }
+
+        ul.appendChild(li);
+    }
+
+    return ul;
+}
+        document.getElementById("generateTest").addEventListener("click", function () {
+        let selectedSubject = subjectDropdown.value;
+        let selectedGrade = gradeDropdown.value;
+        let selectedTopics = [];
+
+        // Find all checked checkboxes
+        let checkboxes = document.querySelectorAll("#topic-tree input[type='checkbox']:checked");
+        checkboxes.forEach(checkbox => {
+            selectedTopics.push(checkbox.value);
+        });
+
+        // Create JSON object
+        let selectedData = {
+            subject: selectedSubject,
+            grade: selectedGrade,
+            topics: selectedTopics
+        };
+
+        // Show JSON in an alert box
+        alert(JSON.stringify(selectedData, null, 4));
+    });
+
+
+</script>
+      
 </body>
+</html> 
 
-</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

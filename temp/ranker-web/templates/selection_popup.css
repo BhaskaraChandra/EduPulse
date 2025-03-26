@@ -1,0 +1,56 @@
+            .select-subjects {
+            position: relative;
+            }
+            .select-topics {
+            position: relative;
+            }
+
+            .add-subject {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            }
+
+            .add-subject:hover {
+            background-color: #3e8e41;
+            }
+
+            .popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 200px;
+            z-index: 1000;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            }
+
+            .popup ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            }
+
+            .popup li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            }
+
+            .popup li:last-child {
+            border-bottom: none;
+            }
+
+            .popup input[type="checkbox"] {
+            margin-right: 10px;
+            }     
+            .main{
+                margin-left:160px;
+                padding: 0px 10px;
+            }
+     

@@ -1,0 +1,334 @@
+{% load static %}
+{% block page_content %}
+    <!--h1>Live Test</h1-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails }}"-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails|json_script:'question-details' }}"-->
+    <input type="hidden" id="question-details" value="{{ questionDetails|safe }}">
+    <div class="test-header">
+        <!--span class="test-id">Test ID: {{ test_id }}</span-->
+        <span class="test-id">"Live Test"</span>
+        <button class="submit-button">Submit</button>
+    </div>
+    <div class="container">
+        <div class="left-panel">
+            <div class="question-list">
+                {% for questionId in questionIds %}
+                    <div class="question-item" data-question-id="{{ questionId }}">{{ questionId }}
+                        <span class="review-icon" style="display: inline-block;">
+                            <!--img src="{% static 'rankerweb/images/Review.png' %}" alt="Review icon"-->
+                            <!--i class="fas fa-flag"></i--> 
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="middle-panel">
+            <!--div class="question-display"></div--> 
+            <div class="question-header">
+                <span class="question-id"  id="question-id"><b>Question</b></span>
+                <span class="timer">00:00</span>
+            </div>
+            <div class="question-display" id="question-display"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Get the question list and display elements
+        const questionList = document.querySelector('.question-list');
+        const questionDisplay = document.getElementById('question-display');
+        //const timerElement = document.querySelector('.timer');
+        questionIdCur = 0;
+        jsntxt=document.getElementById('question-details').value
+        jsntxt = jsntxt.replace(/'/g, '"'); // Replace single quotes with double quotes
+        questionDetails=JSON.parse(jsntxt);
+        //console.log(questionDetails);
+        // Add event listeners to each question item on the left panel
+        questionList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('question-item')) {
+                const questionId = e.target.getAttribute('data-question-id');
+                if(questionIdCur != 0)
+                {
+                    const btn=document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                    txt = btn.innerHTML.replace("<b>","").replace("</b>","");
+                    btn.innerHTML = txt;
+                }
+                questionIdCur = questionId;
+                const btn=document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                btn.innerHTML = '<b>' + btn.innerHTML + '</b';
+                // Display the question in the middle panel
+                displayQuestionLocal(questionId);
+            }
+        });
+
+        // Function to display the question
+        function displayQuestionLocal(questionId) 
+        {
+            //console.log(questionDetails[questionId]);
+            data=questionDetails[questionId];
+            qidDisplay = document.getElementById("question-id");
+            qidDisplay.innerHTML = "Question: " + data.id;
+            //console.log(data.QuestionPng);
+            questionDisplay.innerHTML = `
+                <div>
+                    <img id="question-image" />
+                    <div id="options-container">
+                        <img id="option-1" />
+                        <img id="option-2" />
+                        <img id="option-3" />
+                        <img id="option-4" />
+                    </div>
+                </div>
+                <p>${data.question}</p>
+                <ul>
+                    <button type="button" id="Btnption0" idx="0" class="option-button">${data.Options[0]}</button>
+                    <button type="button" id="Btnption1" idx="1" class="option-button">${data.Options[1]}</button>
+                    <button type="button" id="Btnption2" idx="2" class="option-button">${data.Options[2]}</button>
+                    <button type="button" id="Btnption3" idx="3" class="option-button">${data.Options[3]}</button>
+                </ul>
+                <button type="button" id="btnSkipQuestion">SkipQuestion</button>
+                <button type="button" id="btnMarkForReview">Mark For Review</button>
+                <!--div>
+                    <img src="data:image/png;base64,{{ data.QuestionPng }}" />
+                    <img src="data:image/png;base64,{{ hcpng|safe }}" />
+                </div>
+                <img src="data:image/png;base64,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" />
+                <img src="{% url 'image_view' %}" /-->
+
+                <!--p>Answer: ${data.Answer} -- ${data.Choice}</p-->
+            `;
+            document.getElementById("question-image").src = "data:image/png;base64," + data.QuestionPng[0];
+            document.getElementById("option-1").src = "data:image/png;base64," + data.QuestionPng[1];
+            document.getElementById("option-2").src = "data:image/png;base64," + data.QuestionPng[2];
+            document.getElementById("option-3").src = "data:image/png;base64," + data.QuestionPng[3];
+            document.getElementById("option-4").src = "data:image/png;base64," + data.QuestionPng[4];
+        // Set option images
+        const options = ["option1", "option2", "option3", "option4"];
+        //const optionImages = ["image1", "image2", "image3", "image4"];
+
+        options.forEach((option, index) => {
+            const optionImage = document.getElementById(`option-${index + 1}`);
+            //optionImage.src = "data:image/png;base64," + optionImages[index];
+            optionImage.addEventListener("click", () => // Add event listener for option selection
+            {
+                const allOptions = document.querySelectorAll("#options-container img");
+                allOptions.forEach((option) => option.classList.remove("selected-image"));// Remove selected class from all options                
+                optionImage.classList.add("selected-image");// Add selected class to clicked option
+                //alert(optionImage);
+            });
+        });
+
+            addButtonListeners();
+            //alert(data.QuestionPng);
+            if(data.Choice!=-1)
+            {
+                //alert(data.Choice);
+                button = document.getElementById("Btnption"+data.Choice);
+                //alert(button);
+                button.classList.add('selected');
+            }
+            const timerElement = document.querySelector('.timer');
+            timerElement.textContent = `${data.duration}`;
+            if(data.markedAsReview === "1")
+            {
+                document.getElementById("btnMarkForReview").textContent = "Reviewed";
+            }
+        }
+        // Function to add event listeners to the options buttons for th current question.
+        const questionItems = document.querySelectorAll('.question-item');
+        function addButtonListeners() {
+            const buttons = questionDisplay.querySelectorAll('.option-button');
+            buttons.forEach(button => { 
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    const idx = button.getAttribute('idx');
+                    //console.log(idx);
+                    //console.log(questionIdCur);
+                    questionDetails[questionIdCur].Choice=idx
+                    // Update the question button's class
+                    const questionButton = document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                    questionButton.classList.add('answered');
+
+                });
+            });
+            const btnMark = document.getElementById("btnMarkForReview");
+            btnMark.addEventListener('click', () => {
+                //alert("curQID is: "+questionIdCur);
+            const questionItem = Array.from(questionItems).find(item => item.getAttribute('data-question-id') === questionIdCur);
+            if(btnMark.innerHTML == "Mark For Review")
+                {
+                    btnMark.innerHTML = "Reviewed";
+                    // Find the corresponding question item
+                    // Toggle the review icon
+                    //questionItem.querySelector('.review-icon').style.display = questionItem.querySelector('.review-icon').style.display === 'none' ? 'inline-block' : 'none';
+                    //questionItem.querySelector('.review-icon').classList.toggle('show');
+                    questionItem.textContent = questionItem.textContent + "**";
+                    data.markedAsReview = "1";
+                    //alert("");
+                }
+                else
+                {
+                    btnMark.innerHTML = "Mark For Review";
+                    questionItem.textContent = questionItem.textContent.replace("**","");
+                    data.markedAsReview = "0";
+                }
+            });
+        }
+        let timer = 0;
+        
+
+        setInterval(() => {
+            const timerElement = document.querySelector('.timer');
+            //console.log("qid"+questionIdCur);
+            if(questionIdCur != 0)
+            {
+                dur = questionDetails[questionIdCur].duration++;
+                timerElement.textContent = `${dur}`;
+            }
+            //console.log(dur);
+        }, 1000);
+
+        function padZero(value) {
+            return (value < 10 ? '0' : '') + value;
+        }
+
+    </script>
+    <style>
+        .question-container {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 80%;
+            border: 1px solid #ccc;
+            width: 100%;
+            /*border-radius: 10px;*/
+            padding: 0px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            position: sticky;
+            top: 0;
+            width: calc(100% - 20px); /* Subtract padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #15ced8;
+            padding: 15px 10px;
+            border-radius: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        .question-id {
+        font-weight: bold;
+        }
+
+        .timer {
+        font-size: 14px;
+        color: #666;
+        }
+
+        .left-panel {
+            width: 20%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .question-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .question-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .question-item:hover {
+            background-color: #ccc;
+        }
+
+        .middle-panel {
+            width: 60%;
+            padding: 20px;
+        }
+
+        .question-display {
+            padding: 20px;
+            width: calc(100% - 44px); /* Subtract padding and border */
+            border: 2px solid #2f4394;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .selected {
+            background-color: #007bff; /* blue */
+            color: #ffffff; /* white */
+        }
+        .answered {
+            background-color: #19e8de; 
+        }
+        .test-header {
+            width: 80%;
+            height: 1inch; /* or 2.54cm */
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-id {
+        font-weight: bold;
+        }
+
+        .submit-button {
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        }
+
+        .submit-button:hover {
+        background-color: #3e8e41;
+        }
+        .review-icon {
+            display: none;
+        }
+
+        .review-icon.show {
+            display: inline-block;
+        }
+
+        #options-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+
+        /* Style option images */
+        #options-container img {
+        margin-bottom: 12px; /* Add space between options */
+        border: 1px solid black; /* Thick black border */
+        cursor: pointer; /* Change cursor on hover */
+        }
+
+        /* Style selected option */
+        #options-container .selected-image {
+        border: 5px solid blue; /* Change border color on selection */
+        }
+
+    </style>
+{% endblock page_content %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block page_content %}
+  {{ block.super }}
+
+  {% load selection_popup %}
+  <h1>Create Test</h1>
+  {% selection_popup 'Subjects' subjects selected_subjects 'name' %}
+  {% selection_popup 'Topics' topics selected_topics 'name' %}
+  <span id="lbl_nQuestions">No of Questions:</span>
+  <input type="range" id="nQuestionsRange" min="10" max="100" value="10" oninput="document.getElementById('nQuestions').textContent = this.value">
+  <span id="nQuestions">10</span>
+  <br><!--button type="submit">Begin Test</button-->
+  <form id="create-test-form" method="post">
+    {% csrf_token %}
+    <button type="submit">Begin Test</button>
+  </form>
+<script>
+      const subjectsL = ['Math', 'Science', 'English'];
+      const selectedSubjects = [];
+
+      const topicsL = ['Topic 1', 'Topic 2', 'Topic 3'];
+      const selectedTopics = [];
+      initSelectionPopup('Subjects', subjectsL, selectedSubjects);
+      initSelectionPopup('Topics', topicsL, selectedTopics);
+      document.getElementById('create-test-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const subjects = document.getElementById('selected-subjects').textContent.split(', ');
+        const topics = document.getElementById('selected-topics').textContent.split(', ');
+        const numQuestions = document.getElementById('nQuestions').textContent;
+
+        const data = {
+            subjects: subjects,
+            topics: topics,
+            numQuestions: numQuestions
+        };
+        const createTestUrl = '{% url "create_test" %}';
+        const live_testUrl = '{% url "live_test" %}';
+        fetch(createTestUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            //window.location.href = live_testUrl + '?questionIds=' + data.questionIds;
+            window.open(live_testUrl + '?questionIds=' + data.questionIds, '_blank');
+        })
+        .catch(error => console.error(error));
+    });
+</script>
+{% endblock page_content %}

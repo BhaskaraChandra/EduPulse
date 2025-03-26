@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+	<style type="text/css">
+		.sidenav {
+			height:100%;
+			width:160px;
+			position: fixed;
+			z-index:1;
+			top:0;
+			left:0;
+			background-color:#111;
+			overflow-x:hidden;
+			padding-top:20px;
+		}
+ 
+		.sidenav a {
+			padding:6px 8px 6px 16px;
+			text-decoration: none;
+			font-size:25px;
+			color: #818181;
+			display:block;
+		}
+ 
+		.sidenav a:hover{
+			color:#f1f1f1;
+		}	
+ 
+		.main{
+			margin-left:160px;
+			padding: 0px 10px;
+		}
+ 
+	</style>
+    <title>{% block title %}Ranker{% endblock title %}</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+<body class="container">
+    <div class="sidenav">
+		<a href="/">Home</a>
+		<a href="/createtest">Create Test</a>
+		<a href="/2">View</a>
+	</div>
+    <div class="main">
+        {% block page_content %}{% endblock page_content %}
+    </div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

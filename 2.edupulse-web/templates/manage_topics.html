@@ -66,9 +66,10 @@
     let topicsData = JSON.parse('{{ topics_json|escapejs }}');
 
 function createTreeView(data, parentElement) {
-    let ul = document.createElement("ul");
 
-    for (let key in data) {
+    for (let key in data) 
+    {
+        let ul = document.createElement("ul");
         let li = document.createElement("li");
         li.className = "tree-item";
 
@@ -111,8 +112,8 @@ function createTreeView(data, parentElement) {
         checkbox.addEventListener("change", function () {
             nestedUl.style.display = checkbox.checked ? "block" : "none";
         });
-    }
-    parentElement.appendChild(ul);
+        parentElement.appendChild(ul);
+    }//end for loop
 }
 
 // Initialize the tree view
@@ -127,13 +128,14 @@ function saveTopics() {
     alert(JSON.stringify(selectedData, null, 2));
 }
 
-function traverseTreeView(element, selectedData, parentKey = null) {
+function traverseTreeView(element, selectedData, parentKey = null) 
+{
     element.childNodes.forEach(node => {
-        if (node.nodeType === 1) { // Ensure it's an element
+        if (node.nodeType === 1) 
+        { // Ensure it's an element
             let checkbox = node.querySelector(".tree-checkbox");
             let label = node.querySelector("span").textContent.trim();
             let nestedUl = node.querySelector(".nested");
-
             if (checkbox && checkbox.checked) {
                 if (nestedUl) {
                     if (!selectedData[label]) {
@@ -150,10 +152,12 @@ function traverseTreeView(element, selectedData, parentKey = null) {
                         selectedData[label] = [];
                     }
                 }
-            } else if (nestedUl) {
+            } 
+            else if (nestedUl) {
                 traverseTreeView(nestedUl, selectedData, label);
             }
         }
+        else alert("Exceptional case:" + node.nodeType);
     });
 }
 

@@ -1,0 +1,108 @@
+<!-- selection_popup.html -->
+<style>
+            .select-subjects {
+            position: relative;
+            }
+            .select-topics {
+            position: relative;
+            }
+
+            .add-subject {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            }
+
+            .add-subject:hover {
+            background-color: #3e8e41;
+            }
+
+            .popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 200px;
+            z-index: 1000;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            }
+
+            .popup ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            }
+
+            .popup li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            }
+
+            .popup li:last-child {
+            border-bottom: none;
+            }
+
+            .popup input[type="checkbox"] {
+            margin-right: 10px;
+            }     
+            .main{
+                margin-left:160px;
+                padding: 0px 10px;
+            }
+</style>
+<div class="select-{{ title|lower }}">
+  <span id="selectedLbl-{{ title|lower }}">Select {{ title }}:{{ selected_items|join:', ' }}</span>
+  <button class="add-{{ title|lower }}" id="add-{{ title|lower }}">+</button>
+  <span id="selected-{{ title|lower }}">{{ selected_items|join:', ' }}</span>
+  <div class="popup" id="popup-{{ title|lower }}">
+    <ul>
+      {% for item in items %}
+        <li><input type="checkbox" value="{{ item }}" {% if item in selected_items %}checked{% endif %}> {{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<script>
+  function initSelectionPopup(title, items, selectedItems) {
+    const addTitleButton = document.getElementById(`add-${title.toLowerCase()}`);
+    const popup = document.getElementById(`popup-${title.toLowerCase()}`);
+    const checkboxes = popup.getElementsByTagName('input');
+    const selectedTitleSpan = document.getElementById(`selected-${title.toLowerCase()}`);
+
+    addTitleButton.addEventListener('click', () => {
+      popup.style.display = 'block';
+    });
+
+    popup.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT') {
+        const checkbox = e.target;
+        const itemName = checkbox.value;
+        const isChecked = checkbox.checked;
+
+        if (isChecked) {
+          selectedItems.push(itemName);
+        } else {
+          const index = selectedItems.indexOf(itemName);
+          if (index !== -1) {
+            selectedItems.splice(index, 1);
+          }
+        }
+
+        selectedTitleSpan.textContent = `${selectedItems.join(', ')}`;
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target !== addTitleButton && e.target !== popup && !popup.contains(e.target)) {
+        popup.style.display = 'none';
+      }
+    });
+  }
+
+</script>

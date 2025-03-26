@@ -309,7 +309,8 @@ def topics_view(request):
 
 
 def manage_topics_view(request):
-    json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
+    #json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
+    json_file_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'data.json')  # Adjust path if needed
 
     with open(json_file_path, 'r', encoding='utf-8') as file:
         topics_data = json.load(file)

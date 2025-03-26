@@ -1,0 +1,316 @@
+{% load static %}
+{% block page_content %}
+    <!--h1>Live Test</h1-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails }}"-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails|json_script:'question-details' }}"-->
+    <input type="hidden" id="question-details" value="{{ questionDetails|safe }}">
+    <div class="test-header">
+        <!--span class="test-id">Test ID: {{ test_id }}</span-->
+        <span class="test-id">"Live Test"</span>
+        <button class="submit-button">Submit</button>
+    </div>
+    <div class="container">
+        <div class="left-panel">
+            <div class="question-list">
+                {% for questionId in questionIds %}
+                    <div class="question-item" data-question-id="{{ questionId }}">{{ questionId }}
+                        <span class="review-icon" style="display: inline-block;">
+                            <!--img src="{% static 'rankerweb/images/Review.png' %}" alt="Review icon"-->
+                            <!--i class="fas fa-flag"></i--> 
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="middle-panel">
+            <!--div class="question-display"></div--> 
+            <div class="question-header">
+                <span class="question-id"  id="question-id"><b>Question</b></span>
+                <span class="timer">00:00</span>
+            </div>
+            <div class="question-display" id="question-display"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Get the question list and display elements
+        const questionList = document.querySelector('.question-list');
+        const questionDisplay = document.getElementById('question-display');
+        //const timerElement = document.querySelector('.timer');
+        questionIdCur = 0;
+        jsntxt=document.getElementById('question-details').value
+        jsntxt = jsntxt.replace(/'/g, '"'); // Replace single quotes with double quotes
+        questionDetails=JSON.parse(jsntxt);
+        //console.log(questionDetails);
+        // Add event listeners to each question item on the left panel
+        questionList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('question-item')) {
+                const questionId = e.target.getAttribute('data-question-id');
+                if(questionIdCur != 0)
+                {
+                    const btn=document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                    txt = btn.innerHTML.replace("<b>","").replace("</b>","");
+                    btn.innerHTML = txt;
+                }
+                questionIdCur = questionId;
+                const btn=document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                btn.innerHTML = '<b>' + btn.innerHTML + '</b';
+                // Display the question in the middle panel
+                displayQuestionLocal(questionId);
+            }
+        });
+
+        // Function to display the question
+        function displayQuestionLocal(questionId) 
+        {
+            //console.log(questionDetails[questionId]);
+            data=questionDetails[questionId];
+            qidDisplay = document.getElementById("question-id");
+            qidDisplay.innerHTML = "Question: " + data.id;
+            //console.log(data.QuestionPng);
+            questionDisplay.innerHTML = `
+                <div>
+                    <img id="question-image" />
+                    <div id="options-container">
+                        <img id="option-1" />
+                        <img id="option-2" />
+                        <img id="option-3" />
+                        <img id="option-4" />
+                    </div>
+                </div>
+                <!--p>${data.question}</p>
+                <ul>
+                    <button type="button" id="Btnption0" idx="0" class="option-button">${data.Options[0]}</button>
+                    <button type="button" id="Btnption1" idx="1" class="option-button">${data.Options[1]}</button>
+                    <button type="button" id="Btnption2" idx="2" class="option-button">${data.Options[2]}</button>
+                    <button type="button" id="Btnption3" idx="3" class="option-button">${data.Options[3]}</button>
+                </ul-->
+                <button type="button" id="btnSkipQuestion">SkipQuestion</button>
+                <button type="button" id="btnMarkForReview">Mark For Review</button>
+                <!--p>Answer: ${data.Answer} -- ${data.Choice}</p-->
+            `;
+            document.getElementById("question-image").src = "data:image/png;base64," + data.QuestionPng[0];
+        
+            const options = ["option1", "option2", "option3", "option4"];// Set option images
+            options.forEach((option, index) => {
+                const optionImage = document.getElementById(`option-${index + 1}`);
+                optionImage.src = "data:image/png;base64," + data.QuestionPng[index+1];
+                optionImage.addEventListener("click", () => // Add event listener for option selection
+                {//Upon clicking an option image, set its border, and update the response packet with selected choice
+                    const allOptions = document.querySelectorAll("#options-container img");
+                    allOptions.forEach((option) => option.classList.remove("selected-image"));// Remove selected class from all options                
+                    optionImage.classList.add("selected-image");// Add selected class to clicked option
+                    questionDetails[questionIdCur].Choice=index+1;
+                    const questionButton = document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                    questionButton.classList.add('answered');
+                });
+                //if question already answered, update the border of the option image
+                if(data.Choice==index+1)
+                {
+                    optionImage.classList.add("selected-image");// Add selected class to clicked option
+                }
+            });
+
+            addButtonListeners();
+            const timerElement = document.querySelector('.timer');
+            timerElement.textContent = `${data.duration}`;
+            if(data.markedAsReview === "1")
+            {
+                document.getElementById("btnMarkForReview").textContent = "Reviewed";
+            }
+        }
+        // Function to add event listeners to the options buttons for th current question.
+        const questionItems = document.querySelectorAll('.question-item');
+        function addButtonListeners() {
+            /*const buttons = questionDisplay.querySelectorAll('.option-button');
+            buttons.forEach(button => { 
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    const idx = button.getAttribute('idx');
+                    //console.log(idx);
+                    //console.log(questionIdCur);
+                    questionDetails[questionIdCur].Choice=idx
+                    // Update the question button's class
+                    const questionButton = document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
+                    questionButton.classList.add('answered');
+
+                });
+            });*/
+            const btnMark = document.getElementById("btnMarkForReview");
+            btnMark.addEventListener('click', () => 
+            {
+                const questionItem = Array.from(questionItems).find(item => item.getAttribute('data-question-id') === questionIdCur);
+                if(btnMark.innerHTML == "Mark For Review")
+                {
+                    btnMark.innerHTML = "Reviewed";
+                    questionItem.textContent = questionItem.textContent + "**";
+                    data.markedAsReview = "1";
+                    //alert("");
+                }
+                else
+                {
+                    btnMark.innerHTML = "Mark For Review";
+                    questionItem.textContent = questionItem.textContent.replace("**","");
+                    data.markedAsReview = "0";
+                }
+            });
+        }//End function addButtonListeners
+        let timer = 0;
+        
+
+        setInterval(() => {
+            const timerElement = document.querySelector('.timer');
+            //console.log("qid"+questionIdCur);
+            if(questionIdCur != 0)
+            {
+                dur = questionDetails[questionIdCur].duration++;
+                timerElement.textContent = `${dur}`;
+            }
+            //console.log(dur);
+        }, 1000);
+
+        function padZero(value) {
+            return (value < 10 ? '0' : '') + value;
+        }
+
+    </script>
+    <style>
+        .question-container {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 80%;
+            border: 1px solid #ccc;
+            width: 100%;
+            /*border-radius: 10px;*/
+            padding: 0px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            position: sticky;
+            top: 0;
+            width: calc(100% - 20px); /* Subtract padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #15ced8;
+            padding: 15px 10px;
+            border-radius: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        .question-id {
+        font-weight: bold;
+        }
+
+        .timer {
+        font-size: 14px;
+        color: #666;
+        }
+
+        .left-panel {
+            width: 20%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .question-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .question-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .question-item:hover {
+            background-color: #ccc;
+        }
+
+        .middle-panel {
+            width: 60%;
+            padding: 20px;
+        }
+
+        .question-display {
+            padding: 20px;
+            width: calc(100% - 44px); /* Subtract padding and border */
+            border: 2px solid #2f4394;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .selected {
+            background-color: #007bff; /* blue */
+            color: #ffffff; /* white */
+        }
+        .answered {
+            background-color: #19e8de; 
+        }
+        .test-header {
+            width: 80%;
+            height: 1inch; /* or 2.54cm */
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-id {
+        font-weight: bold;
+        }
+
+        .submit-button {
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        }
+
+        .submit-button:hover {
+        background-color: #3e8e41;
+        }
+        .review-icon {
+            display: none;
+        }
+
+        .review-icon.show {
+            display: inline-block;
+        }
+
+        #options-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+
+        /* Style option images */
+        #options-container img {
+        margin-bottom: 12px; /* Add space between options */
+        border: 1px solid black; /* Thick black border */
+        cursor: pointer; /* Change cursor on hover */
+        }
+
+        /* Style selected option */
+        #options-container .selected-image {
+        border: 5px solid blue; /* Change border color on selection */
+        }
+
+    </style>
+{% endblock page_content %}

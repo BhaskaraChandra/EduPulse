@@ -1,3 +1,4 @@
+import time
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from pymongo import MongoClient
@@ -7,6 +8,9 @@ from django.contrib.auth.hashers import make_password, check_password
 from functools import wraps
 from bson import ObjectId
 import logging
+
+from frontend.apiwrappers import questionsWrapper
+#from frontend.apiwrappers.questionsWrapper import get_topics_metadata
 logger = logging.getLogger(__name__)
 from django.views.decorators.csrf import csrf_exempt
 
@@ -14,7 +18,7 @@ import os
 import json
 from django.conf import settings
 from frontend.apiwrappers.TenantsAdapter import TenantsAdapter
-
+#import view_tests
 
 # MongoDB Atlas connection
 MONGO_URI = 'mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
@@ -49,7 +53,7 @@ def login_view(request):
         if user:
             # Get hashed password from MongoDB
             hashed_password = user["password"]  # Stored as a hashed value
-            print(user["usertype"])
+            #print(user["usertype"])
             # Compare the stored hashed password with the entered plain-text password
             if True or bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
                 request.session["user_id"] = str(user["_id"])  # Store session
@@ -59,7 +63,10 @@ def login_view(request):
                     print('tenantadmin')
                     return redirect("tenantdashboard")  # Redirect to the homepage or dashboard
                 elif(user["usertype"]=="consumer"):
-                    print('consumer')
+                    #print('consumer')
+                    user.pop("_id");user.pop("password");user.pop("created_by");user.pop("usertype")
+                    #print(user)
+                    request.session["user"]=user
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
                 # elif(user["usertype"]=="consumer"):
                 #     return redirect("usersdashboard") #Redirect to the usersdashboard
@@ -73,8 +80,9 @@ def login_view(request):
 def tenantdashboard(request):
     return render(request,"tenantdashboard.html")
 def user_dashboard(request):
-    print("user_dashboard")
-    return render(request, 'usersdashboard.html', {'user': request.user})
+    #print(f"user_dashboard: {request.session.get("user")}")
+    #print("-----",request.user)
+    return render(request, 'usersdashboard.html', {'user': request.session.get("user")})
 
 
 def logout_view(request):
@@ -278,28 +286,24 @@ def tests_view(request):
 
 
 def create_test_view(request):
-    json_file_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'data.json')  # Adjust path if needed
+    start_time = time.time()
+    print("Create Test View")
+    userObj = request.session.get("user")
+    user_topics = questionsWrapper.get_topics_metadata(userObj["email"])
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Time taken by create_test_view: {elapsed_time:.4f} seconds")
 
-    try:
-        with open(json_file_path, "r", encoding="utf-8") as file:
-            selected_topics = json.load(file)  # Load JSON from file
-
-        print("Loaded JSON Data for create_test_view:", json.dumps(selected_topics, indent=4))  # Debugging print
-
-    except Exception as e:
-        print("Error loading JSON file:", e)
-        selected_topics = {}  # Set empty dict if there's an error
+    # Log the elapsed time
+    #logging.info(f"Time taken by create_test_view: {elapsed_time:.4f} seconds")
 
     return render(request, "create_test.html", {
-        "selected_topics_json": json.dumps(selected_topics, ensure_ascii=False, indent=4)
+        "selected_topics_json": json.dumps(user_topics, ensure_ascii=False, indent=4)
     })
 
     
 def daily_challenge_view(request):
     return render(request, 'daily_challenge.html')
-
-def history_view(request):
-    return render(request, 'history.html')
 
 def topics_view(request):
     return render(request, 'topics.html')
@@ -309,58 +313,35 @@ def topics_view(request):
 
 
 def manage_topics_view(request):
-    #json_file_path = os.path.join(settings.BASE_DIR, 'frontend/static/data.json')
-    json_file_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'data.json')  # Adjust path if needed
-
-    with open(json_file_path, 'r', encoding='utf-8') as file:
-        topics_data = json.load(file)
-
-    # Retrieve previously stored session data if available
-    selected_topics = request.session.get("selected_topics", {})
-
-    # Debugging print to check session data in the backend
-    print("Session Data (selected_topics):", json.dumps(selected_topics, indent=4))
-
+    start_time = time.time()
+    #print("Manage Topics View")
+    topicsMetadata = questionsWrapper.get_topics_metadata()
+    userObj = request.session.get("user")
+    #print("User Object:", userObj)
+    userTopicsMetadata = questionsWrapper.get_topics_metadata(userObj["email"])
+    #print("Global Topics:", topicsMetadata)
+    #print("User Topics:", userTopicsMetadata)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Time taken by manage_topics_view: {elapsed_time:.4f} seconds")
     return render(request, 'manage_topics.html', {
-        "topics_json": json.dumps(topics_data),
-        "selected_topics_json": json.dumps(selected_topics)  # Ensure the correct variable name
+        "topics_json": json.dumps(topicsMetadata), #this is the generic topics json
+        "selected_topics_json": json.dumps(userTopicsMetadata)  # this is the user specific topics json
     })
 
 @csrf_exempt
 def save_selected_topics(request):
     if request.method == "POST":
         try:
+            userObj = request.session.get("user");#print("User Object:", userObj)
             data = json.loads(request.body)
             selected_topics = data.get("selected_topics", [])
-
-            if not selected_topics:
-                return JsonResponse({"message": "No topics selected"}, status=400)
-
-            structured_data = {}
-
-            for topic in selected_topics:
-                keys = topic.split(" - ")  # Ensure correct format
-                current_level = structured_data
-
-                for i, key in enumerate(keys):
-                    if i == len(keys) - 1:
-                        if key not in current_level:
-                            current_level[key] = []
-                    else:
-                        if key not in current_level:
-                            current_level[key] = {}
-                        elif isinstance(current_level[key], list):
-                            current_level[key] = {}
-
-                    current_level = current_level[key]
-
-            # Store structured data in session
-            request.session["selected_topics"] = structured_data
-            request.session.modified = True  # Ensure session updates
-
-            print("Stored Topics in Session:", json.dumps(structured_data, indent=4))
-
-            return JsonResponse({"message": "Topics saved successfully!", "data": structured_data}, status=200)
+            #print("Selected Topics:", json.dumps(selected_topics, indent=4))
+            questionsWrapper.save_selected_topics(userObj["email"],selected_topics)
+            # NOTE: use the below reference code to send any data to the frontend.
+            #request.session["selected_topics"] = structured_data
+            #request.session.modified = True  # Ensure session updates
+            return JsonResponse({"message": "Topics saved successfully!", "data": selected_topics}, status=200)
 
         except Exception as e:
             print(" Error:", e)

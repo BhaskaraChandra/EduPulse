@@ -63,8 +63,14 @@
     </div>
 
     <script>
+function formLoad()
+{
     let topicsData = JSON.parse('{{ topics_json|escapejs }}');
-
+// Initialize the tree view
+    let container = document.getElementById("topics-container");
+    createTreeView(topicsData, container);
+}
+formLoad();
 function createTreeView(data, parentElement) {
 
     for (let key in data) 
@@ -116,45 +122,69 @@ function createTreeView(data, parentElement) {
     }//end for loop
 }
 
-// Initialize the tree view
-let container = document.getElementById("topics-container");
-createTreeView(topicsData, container);
+
 
 function saveTopics() {
     let selectedData = {};
     let treeViewElement = document.getElementById("topics-container");
     traverseTreeView(treeViewElement, selectedData);
     console.log("Selected Data:", JSON.stringify(selectedData, null, 2));
-    alert(JSON.stringify(selectedData, null, 2));
+    //alert(JSON.stringify(selectedData, null, 2));
+    //return
+    fetch('/api/topics/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ selected_topics: selectedData })
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+    alert("Topics saved successfully for user: {{ user.username }}");
 }
 
-function traverseTreeView(element, selectedData, parentKey = null) 
+function traverseTreeView(element, selectedData, parentKey = null,level = 0) 
 {
-    element.childNodes.forEach(node => {
+    //alert("Parentkey:" + parentKey);
+    //alert("selectedData:" + selectedData);
+    element.childNodes.forEach(node => 
+    {
+        //alert(node.nodeType)
         if (node.nodeType === 1) 
         { // Ensure it's an element
             let checkbox = node.querySelector(".tree-checkbox");
             let label = node.querySelector("span").textContent.trim();
             let nestedUl = node.querySelector(".nested");
-            if (checkbox && checkbox.checked) {
+            //alert("checkbox:"+checkbox.checked+"\nLabel:"+label+"\nNestedUl:"+nestedUl+"\nlevel:"+level);
+            if (checkbox && checkbox.checked) 
+            {
+                
                 if (nestedUl) {
-                    if (!selectedData[label]) {
-                        selectedData[label] = {};
-                    }
-                    traverseTreeView(nestedUl, selectedData[label]);
-                } else {
+                    if (!selectedData[label]) 
+                        selectedData[label] = level==2?[]:{};
+                    //alert(label);
+                    traverseTreeView(nestedUl, selectedData[label],null,level+1);
+                } 
+                else {//TODO: this else part is never getting executed. need to check.
                     if (parentKey) {
                         if (!selectedData[parentKey]) {
                             selectedData[parentKey] = [];
                         }
+                        //alert("Beforepush:"+label);
                         selectedData[parentKey].push(label);
                     } else {
-                        selectedData[label] = [];
+                        //alert("addingArray:"+label);
+                        selectedData.push(label);
+                        //selectedData[label] = [];
                     }
                 }
             } 
-            else if (nestedUl) {
-                traverseTreeView(nestedUl, selectedData, label);
+            else if (nestedUl) 
+            {//we ideally dont need this.
+                //alert(label);
+                //traverseTreeView(nestedUl, selectedData, label);
             }
         }
         else alert("Exceptional case:" + node.nodeType);

@@ -1,0 +1,42 @@
+.accordion {
+    width: 100%;
+}
+
+.card {
+    margin-bottom: 10px;
+}
+
+.card-header {
+    padding: 10px;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.correct {
+    background-color: #C6F4D6;
+}
+
+.incorrect {
+    background-color: #F7C5C5;
+}
+.card-header .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+
+}
+
+
+.card-header .btn-block {
+    background-color: transparent;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    width: 100%;
+    text-align: left;
+}
+.card-header .btn-block:hover {
+    background-color: #f8f9fa;
+}

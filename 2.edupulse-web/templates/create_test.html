@@ -32,8 +32,8 @@
 </head>
 <body>
 
-    <h2>Create Test</h2>
-    <div class="container">
+    <h2 id="Title">Checking any existing Practice tests. Please wait</h2>
+    <div class="container" id="NewTestFrame">
         <label for="subject">Select Subject:</label>
         <select id="subject">
             <option value="">--Select Subject--</option>
@@ -45,10 +45,31 @@
         </select>
 
         <div id="topic-tree" class="tree hidden"></div>
-        <button id="generateTest">Generate Test</button>
+        <br><span id="lbl_dLevels">Difficulty Levels:</span><div id="levels-checkbox-container"></div>
+        <br><span id="lbl_nQuestions">No of Questions:</span>
+        <input type="range" id="nQuestionsRange" min="10" max="100" value="10" oninput="document.getElementById('nQuestions').textContent = this.value">
+        <span id="nQuestions">10</span>
+        <br><button id="generateTest">Generate Test</button>
     </div>
 
-    <script>
+<script>
+    //alert("createTest.html");
+    formLoad();
+    function formLoad()
+    {
+        $("#NewTestFrame").hide();//JQuery
+        var curUserTxt = sessionStorage.getItem('curUser');
+        curUser = JSON.parse(curUserTxt);
+        //alert(curUser.email);
+        getActiveQuickTest(curUser.email);
+        //creating the difficulty level checkboxes
+        var container = document.getElementById("levels-checkbox-container");
+        var html = "";
+        for (var i = 1; i <= 10; i++) {
+            html += '<input type="checkbox" id="level-' + i + '"><label for="level-' + i + '">' + i + '</label>';
+        }
+        container.innerHTML = html;
+
         let selectedTopics = JSON.parse('{{ selected_topics_json|escapejs }}');
     
         console.log("Received selected topics in frontend:", selectedTopics);
@@ -56,17 +77,6 @@
         let subjectDropdown = document.getElementById("subject");
         let gradeDropdown = document.getElementById("grade");
         let topicTreeContainer = document.getElementById("topic-tree");
-    
-        function populateDropdown(dropdown, options) {
-            dropdown.innerHTML = '<option value="">--Select--</option>';
-            options.forEach(option => {
-                let opt = document.createElement("option");
-                opt.value = option;
-                opt.textContent = option;
-                dropdown.appendChild(opt);
-            });
-        }
-    
         // Populate the Subject Dropdown
         if (Object.keys(selectedTopics).length > 0) {
             populateDropdown(subjectDropdown, Object.keys(selectedTopics));
@@ -76,7 +86,8 @@
     
         subjectDropdown.addEventListener("change", function() {
             let selectedSubject = subjectDropdown.value;
-            if (selectedSubject && selectedTopics[selectedSubject]) {
+            if (selectedSubject && selectedTopics[selectedSubject]) 
+            {
                 populateDropdown(gradeDropdown, Object.keys(selectedTopics[selectedSubject]));
                 gradeDropdown.disabled = false;
                 topicTreeContainer.classList.add("hidden");
@@ -85,7 +96,6 @@
                 topicTreeContainer.classList.add("hidden");
             }
         });
-    
         gradeDropdown.addEventListener("change", function() {
             let selectedSubject = subjectDropdown.value;
             let selectedGrade = gradeDropdown.value;
@@ -97,70 +107,135 @@
                 topicTreeContainer.classList.add("hidden");
             }
         });
-    
-
-function createNestedList(obj) {
-    let ul = document.createElement("ul");
-
-    for (let key in obj) {
-        let li = document.createElement("li");
-
-        
-        if (Array.isArray(obj[key])) {
-            li.textContent = key; // Main topic title
-            let subUl = document.createElement("ul");
-
-            obj[key].forEach(topic => {
-                let subLi = document.createElement("li");
-
-                let checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = topic;
-                checkbox.id = `checkbox-${topic.replace(/\s+/g, '-')}`; // Unique ID
-
-                let label = document.createElement("label");
-                label.htmlFor = checkbox.id;
-                label.textContent = topic;
-
-                subLi.appendChild(checkbox);
-                subLi.appendChild(label);
-                subUl.appendChild(subLi);
+        //Generate Test Button Event Handler
+        document.getElementById("generateTest").addEventListener("click", function () 
+        {
+            let selectedSubject = subjectDropdown.value;
+            let selectedGrade = [];selectedGrade.push(gradeDropdown.value);//TODO: handle multiple grades
+            let selectedTopics = [];
+            const numQuestions = document.getElementById('nQuestions').textContent;
+            //alert(curUser.email);
+            let email = curUser.email;
+            // Find all checked checkboxes
+            let checkboxes = document.querySelectorAll("#topic-tree input[type='checkbox']:checked");
+            checkboxes.forEach(checkbox => {
+                selectedTopics.push(checkbox.value);
             });
 
-            li.appendChild(subUl);
-        } else if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
-            li.textContent = key;
-            li.appendChild(createNestedList(obj[key])); // Recursively create sub-lists
-        } else {
-            li.textContent = key;
+            // Create JSON object
+            let selectedData = {
+                Subject: selectedSubject,
+                Grade: selectedGrade,
+                Topics: selectedTopics,//unused for now
+                Subtopics: selectedTopics,
+                Level: getCheckedDifficultyLevels(),
+                nQuestions: numQuestions,
+                userid: email
+            };
+            // Create an AJAX request
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/generate_test/', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(selectedData));
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // Handle the response from the server
+                    console.log(xhr.responseText);
+                    //alert("AjaxResponse received: "+xhr.responseText);
+                    getActiveQuickTest(curUser.email);
+                }
+            };
+            // Show JSON in an alert box
+            //alert(JSON.stringify(selectedData, null, 4));
+        });//End Generate Test Button Event Handler
+
+    }//End  of formLoad()
+    
+        function getActiveQuickTest(curUser_email)
+        {
+            // Create an AJAX request
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_active_quick_test/'+curUser_email, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) 
+                {// Handle the response from the server
+                    console.log(xhr.responseText);
+                    //alert("AjaxResponse received: "+xhr.responseText);
+                    var jsonData = JSON.parse(xhr.responseText);
+                    if("Error" in jsonData)
+                    {
+                        $("#NewTestFrame").show();
+                        $("#Title").text("Create Test");
+                    }
+                    else
+                    {
+                        sessionStorage.setItem('questionDetails', JSON.stringify(jsonData));
+                        var newTab = window.open('/livetest/', '_blank');
+                        $("#Title").text("Test is opened in new Tab");
+                        $("#NewTestFrame").hide();
+                    }
+                    //newTab.questionDetails = jsonData; // Pass the JSON data to the new tab
+                    //alert("AjaxResponse received: "+jsonData);
+                }
+            };
+        }
+        function populateDropdown(dropdown, options) {
+            dropdown.innerHTML = '<option value="">--Select--</option>';
+            options.forEach(option => {
+                let opt = document.createElement("option");
+                opt.value = option;
+                opt.textContent = option;
+                dropdown.appendChild(opt);
+            });
+        }
+        function getCheckedDifficultyLevels() {
+            const checkboxes = document.querySelectorAll('#levels-checkbox-container input[type="checkbox"]');
+            const checkedNumbers = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => Number(checkbox.nextElementSibling.textContent));
+            //return JSON.stringify(checkedNumbers);
+            return checkedNumbers;
         }
 
-        ul.appendChild(li);
-    }
+    
+    
 
-    return ul;
-}
-        document.getElementById("generateTest").addEventListener("click", function () {
-        let selectedSubject = subjectDropdown.value;
-        let selectedGrade = gradeDropdown.value;
-        let selectedTopics = [];
+        function createNestedList(obj) 
+        {
+            let ul = document.createElement("ul");
+            for (let key in obj) {
+                let li = document.createElement("li");
+                if (Array.isArray(obj[key])) {
+                    li.textContent = key; // Main topic title
+                    let subUl = document.createElement("ul");
 
-        // Find all checked checkboxes
-        let checkboxes = document.querySelectorAll("#topic-tree input[type='checkbox']:checked");
-        checkboxes.forEach(checkbox => {
-            selectedTopics.push(checkbox.value);
-        });
+                    obj[key].forEach(topic => {
+                        let subLi = document.createElement("li");
 
-        // Create JSON object
-        let selectedData = {
-            subject: selectedSubject,
-            grade: selectedGrade,
-            topics: selectedTopics
-        };
+                        let checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.value = topic;
+                        checkbox.id = `checkbox-${topic.replace(/\s+/g, '-')}`; // Unique ID
 
-        // Show JSON in an alert box
-        alert(JSON.stringify(selectedData, null, 4));
-    });
+                        let label = document.createElement("label");
+                        label.htmlFor = checkbox.id;
+                        label.textContent = topic;
+
+                        subLi.appendChild(checkbox);
+                        subLi.appendChild(label);
+                        subUl.appendChild(subLi);
+                    });
+                    li.appendChild(subUl);
+                } else if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
+                    li.textContent = key;
+                    li.appendChild(createNestedList(obj[key])); // Recursively create sub-lists
+                } else {
+                    li.textContent = key;
+                }
+                ul.appendChild(li);
+            }
+            return ul;
+        }
 
 
 </script>

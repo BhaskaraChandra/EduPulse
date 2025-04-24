@@ -33,7 +33,13 @@ def get_active_quick_test(request, curUser_email):
 def livetest(request):
     return render(request, 'livetest.html')
 
+@require_http_methods(['POST'])
+@csrf_exempt
 def testSummary(request):
+    qidsList = json.loads(request.body)
+    #print(qidsList)
+    qsSummary = testsWrapper.getTestSummary(qidsList)
+    return JsonResponse(qsSummary.json(), safe=False)
     return render(request, 'testSummary.html')
 
 @require_http_methods(['POST'])

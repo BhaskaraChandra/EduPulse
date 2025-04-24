@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LaTeX Display</title>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    #latex-display {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="latex-display"></div>
+
+  <script>
+    let latexString = `
+      \\text{Consider the elements with}\\\\
+	  \\text{electronic configurations given below:}\\\\
+      \\text{(A) } 1s^22s^22p^63s^23p^1\\\\
+      \\text{(B) } 1s^22s^22p^63s^23p^4\\\\
+      \\text{(C) } 1s^22s^22p^63s^23p^64s^23d^1\\\\
+      \\text{(D) } 1s^22s^22p^63s^23p^64s^2\\\\
+      \\text{Which of the following statements is correct regarding their metallic character?}
+    `;
+	
+	latexString = `\\displaylines{`+latexString+`}`;
+
+	latexString = latexString.replace(/\n/g, '\\\\');
+    document.getElementById("latex-display").innerHTML = `
+      \\[
+        ${latexString}
+      \\]
+    `;
+
+    MathJax.typeset();
+  </script>
+</body>
+</html>

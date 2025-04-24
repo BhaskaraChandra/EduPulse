@@ -13,7 +13,13 @@ def get_webservice(url: str, params: dict = None, headers: dict = None) -> reque
     except requests.exceptions.RequestException as err:
         print(f"Request Exception: {err}")
         return None
-    
+
+def get_user_questions_metadata(user_id: str) -> requests.Response:
+    api="userQuestions/"
+    response = requests.get(questionsServiceUrl+api, headers=headers, params={"userid": user_id})
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    return response.json() 
+
 def get_topics_metadata(user_id: str=None) -> requests.Response:
     try:
         print("get_topics_metadata:",user_id)

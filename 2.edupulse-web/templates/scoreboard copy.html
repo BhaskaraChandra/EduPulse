@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests History</title>
+    <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"-->
+    <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-alpine.css">
+        <!--link rel="stylesheet" href="testSummary.css"-->
+</head>
+<body>
+    <!--div class="accordion" id="testsAccordion"></div>
+    <div id="testsHistoryGrid"></div>
+    <div id="testDetails"></div-->
+    <div id="myGrid" style="height: 500px; width: 100%;" class="ag-theme-alpine"></div>
+
+</body>
+</html>
+
+
+<script>
+    //alert("createTest.html");
+formLoad();
+function formLoad() 
+{
+    var userMetrics = JSON.parse('{{ user_metrics | escapejs }}');
+    alert(JSON.stringify(userMetrics));
+    displayScoreBoard(userMetrics);
+    return;
+}
+
+// Function to flatten the JSON data
+function flattenData(data, parent = null) {
+  return Object.keys(data).reduce((acc, key) => {
+    if (key !== "_metrics") {
+      const row = {
+        Subject: key,
+        nCorrect: data[key]._metrics?.nCorrect || 0,
+        nInCorrect: data[key]._metrics?.nInCorrect || 0,
+        nTotal: data[key]._metrics?.nTotal || 0,
+        parent: parent
+      };
+      acc.push(row);
+      if (Object.keys(data[key]).length > 1) {
+        acc.push(...flattenData(data[key], key));
+      }
+    }
+    return acc;
+  }, []);
+}
+
+function displayScoreBoard(userMetrics)
+{
+    // Flatten the data
+    const flattenedData = flattenData(userMetrics);
+
+    // Define the grid columns
+    const columnDefs = [
+    {
+        field: 'Subject',
+        cellRenderer: 'agGroupCellRenderer',
+        cellRendererParams: {
+        innerRenderer: (params) => {
+            return params.value;
+        }
+        }
+    },
+    { field: 'nCorrect' },
+    { field: 'nInCorrect' },
+    { field: 'nTotal' }
+    ];
+
+    // Define the grid options
+    const gridOptions = {
+    columnDefs,
+    rowData: flattenedData,
+    treeData: true,
+    groupDefaultExpanded: -1, // Expand all rows by default
+    getDataPath: (data) => {
+        const path = [];
+        let current = data;
+        while (current.parent) {
+        path.unshift(current.parent);
+        current = flattenedData.find((row) => row.Subject === current.parent);
+        }
+        path.unshift(data.Subject);
+        return path;
+    }
+    };
+
+    // Create the grid
+    //new agGrid.Grid(document.getElementById('myGrid'), gridOptions);
+    const gridDiv = document.querySelector('#myGrid');
+    new agGrid.Grid(gridDiv, gridOptions);
+    
+}
+
+
+
+</script>

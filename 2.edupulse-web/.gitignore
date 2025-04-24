@@ -1,1 +1,6 @@
 /db.sqlite3
+/.vscode
+/frontend/__pycache__
+/myproject/__pycache__
+
+

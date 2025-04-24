@@ -45,7 +45,11 @@
         </select>
 
         <div id="topic-tree" class="tree hidden"></div>
-        <br><span id="lbl_dLevels">Difficulty Levels:</span><div id="levels-checkbox-container"></div>
+        <br><span id="lbl_dLevels">Difficulty Levels:</span>
+        <input type="checkbox" id="all-difficulty">Select All</input>
+        <div id="levels-checkbox-container"></div>
+        
+        <!--label for="level-' + i + '">' + i + '</label-->
         <br><span id="lbl_nQuestions">No of Questions:</span>
         <input type="range" id="nQuestionsRange" min="10" max="100" value="10" oninput="document.getElementById('nQuestions').textContent = this.value">
         <span id="nQuestions">10</span>
@@ -107,6 +111,12 @@
                 topicTreeContainer.classList.add("hidden");
             }
         });
+        difficultySelectAll = document.getElementById("all-difficulty");
+        difficultySelectAll.addEventListener("change", function () 
+        {
+            const checkboxes = document.querySelectorAll('#levels-checkbox-container input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {checkbox.checked = difficultySelectAll.checked});                
+        });
         //Generate Test Button Event Handler
         document.getElementById("generateTest").addEventListener("click", function () 
         {
@@ -132,6 +142,7 @@
                 nQuestions: numQuestions,
                 userid: email
             };
+            //alert(JSON.stringify(selectedData))
             // Create an AJAX request
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/generate_test/', true);
@@ -150,92 +161,125 @@
         });//End Generate Test Button Event Handler
 
     }//End  of formLoad()
-    
-        function getActiveQuickTest(curUser_email)
-        {
-            // Create an AJAX request
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/get_active_quick_test/'+curUser_email, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) 
-                {// Handle the response from the server
-                    console.log(xhr.responseText);
-                    //alert("AjaxResponse received: "+xhr.responseText);
-                    var jsonData = JSON.parse(xhr.responseText);
-                    if("Error" in jsonData)
-                    {
-                        $("#NewTestFrame").show();
-                        $("#Title").text("Create Test");
-                    }
-                    else
-                    {
-                        sessionStorage.setItem('questionDetails', JSON.stringify(jsonData));
-                        var newTab = window.open('/livetest/', '_blank');
-                        $("#Title").text("Test is opened in new Tab");
-                        $("#NewTestFrame").hide();
-                    }
-                    //newTab.questionDetails = jsonData; // Pass the JSON data to the new tab
-                    //alert("AjaxResponse received: "+jsonData);
+
+    function getActiveQuickTest(curUser_email)
+    {
+        // Create an AJAX request
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/get_active_quick_test/'+curUser_email, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) 
+            {// Handle the response from the server
+                console.log(xhr.responseText);
+                //alert("AjaxResponse received: "+xhr.responseText);
+                var jsonData = JSON.parse(xhr.responseText);
+                if("Error" in jsonData)
+                {
+                    $("#NewTestFrame").show();
+                    $("#Title").text("Create Test");
                 }
-            };
-        }
-        function populateDropdown(dropdown, options) {
-            dropdown.innerHTML = '<option value="">--Select--</option>';
-            options.forEach(option => {
+                else
+                {
+                    sessionStorage.setItem('questionDetails', JSON.stringify(jsonData));
+                    var newTab = window.open('/livetest/', '_blank');
+                    $("#Title").text("Test is opened in new Tab");
+                    $("#NewTestFrame").hide();
+                }
+                //newTab.questionDetails = jsonData; // Pass the JSON data to the new tab
+                //alert("AjaxResponse received: "+jsonData);
+            }
+        };
+    }
+    function populateDropdown(dropdown, options) {
+        //alert("populateDropdown");
+        dropdown.innerHTML = '<option value="">--Select--</option>';
+        options.forEach(option => {
+            //alert(option);
+            if (option !== "_metrics" && option !== "_id") {
                 let opt = document.createElement("option");
                 opt.value = option;
                 opt.textContent = option;
                 dropdown.appendChild(opt);
-            });
-        }
-        function getCheckedDifficultyLevels() {
-            const checkboxes = document.querySelectorAll('#levels-checkbox-container input[type="checkbox"]');
-            const checkedNumbers = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => Number(checkbox.nextElementSibling.textContent));
-            //return JSON.stringify(checkedNumbers);
-            return checkedNumbers;
-        }
-
-    
-    
-
-        function createNestedList(obj) 
-        {
-            let ul = document.createElement("ul");
-            for (let key in obj) {
-                let li = document.createElement("li");
-                if (Array.isArray(obj[key])) {
-                    li.textContent = key; // Main topic title
-                    let subUl = document.createElement("ul");
-
-                    obj[key].forEach(topic => {
-                        let subLi = document.createElement("li");
-
-                        let checkbox = document.createElement("input");
-                        checkbox.type = "checkbox";
-                        checkbox.value = topic;
-                        checkbox.id = `checkbox-${topic.replace(/\s+/g, '-')}`; // Unique ID
-
-                        let label = document.createElement("label");
-                        label.htmlFor = checkbox.id;
-                        label.textContent = topic;
-
-                        subLi.appendChild(checkbox);
-                        subLi.appendChild(label);
-                        subUl.appendChild(subLi);
-                    });
-                    li.appendChild(subUl);
-                } else if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
-                    li.textContent = key;
-                    li.appendChild(createNestedList(obj[key])); // Recursively create sub-lists
-                } else {
-                    li.textContent = key;
-                }
-                ul.appendChild(li);
             }
-            return ul;
+        });
+    }
+    function getCheckedDifficultyLevels() {
+        const checkboxes = document.querySelectorAll('#levels-checkbox-container input[type="checkbox"]');
+        const checkedNumbers = Array.from(checkboxes).filter(checkbox => checkbox.checked).map(checkbox => Number(checkbox.nextElementSibling.textContent));
+        //return JSON.stringify(checkedNumbers);
+        return checkedNumbers;
+    }
+
+
+
+
+    function createNestedList(obj) 
+    {//TODO: Element ids like ul and li to be changed to meaning ful elem ids.
+        let ul = document.createElement("ul");
+        for (let key in obj) {
+            if (key === "_metrics") continue;
+            let topicElm = document.createElement("li");
+            topicElm.textContent = key;//alert(key);
+            let subUl = document.createElement("ul");
+            for (let subtopic in obj[key]) {
+                if (subtopic === "_metrics") continue;
+                let subLi = document.createElement("li");
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = subtopic;
+                checkbox.id = `checkbox-${subtopic.replace(/\s+/g, '-')}`; // Unique ID
+                let label = document.createElement("label");
+                label.htmlFor = checkbox.id;
+                label.textContent = subtopic;
+                subLi.appendChild(checkbox);
+                subLi.appendChild(label);
+                subUl.appendChild(subLi);
+            }
+            topicElm.appendChild(subUl);
+            ul.appendChild(topicElm);
         }
+        return ul;
+    }
+
+    function createNestedListBruteForce(obj) 
+    {//unused function
+        let ul = document.createElement("ul");
+        for (let key in obj) {
+            if (key === "_metrics") continue;
+            let li = document.createElement("li");
+            if (Array.isArray(obj[key])) {
+                li.textContent = key; // Main topic title
+                let subUl = document.createElement("ul");
+
+                obj[key].forEach(topic => {
+                    let subLi = document.createElement("li");
+
+                    let checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.value = topic;
+                    checkbox.id = `checkbox-${topic.replace(/\s+/g, '-')}`; // Unique ID
+
+                    let label = document.createElement("label");
+                    label.htmlFor = checkbox.id;
+                    label.textContent = topic;
+
+                    subLi.appendChild(checkbox);
+                    subLi.appendChild(label);
+                    subUl.appendChild(subLi);
+                });
+                li.appendChild(subUl);
+            } else if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
+                li.textContent = key;alert(key);
+                li.appendChild(createNestedList(obj[key])); // Recursively create sub-lists
+            } else {
+                li.textContent = key;
+            }
+            ul.appendChild(li);
+        }
+        return ul;
+    }
 
 
 </script>

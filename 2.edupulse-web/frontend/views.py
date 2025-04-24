@@ -26,8 +26,8 @@ client = MongoClient(MONGO_URI)
 db = client["test"]  # Database name
 users_collection = db["users"]
 tenants_collection = db["tenants"]
-topics_collection = db["topics"]
-tenants = TenantsAdapter()
+#topics_collection = db["topics"]
+#tenants = TenantsAdapter()
 
 #users=UsersAdapter()
 
@@ -289,7 +289,23 @@ def create_test_view(request):
     start_time = time.time()
     print("Create Test View")
     userObj = request.session.get("user")
-    user_topics = questionsWrapper.get_topics_metadata(userObj["email"])
+    #user_topics = questionsWrapper.get_topics_metadata(userObj["email"])
+    #above method to get topics metadata is no longer being used, as the below method is being used.
+    user_questions = questionsWrapper.get_user_questions_metadata(userObj["email"])
+    for subject,subObj in user_questions.items():
+        if subject in ("_id", "_metrics"): continue
+        #print("subject:",subject,"subObj:", subObj)
+        for grade, gradeObj in subObj.items():
+            if grade in ("_metrics"): continue
+            for topic, topicObj in gradeObj.items():
+                if topic in ("_metrics"): continue
+                #print("topic:",topic,"topicObj:", topicObj)
+                for subtopic, subtopicObj in topicObj.items():
+                    if subtopic in ("_metrics"): continue
+                    subtopicObj = {"_metrics": subtopicObj["_metrics"]}
+                    user_questions[subject][grade][topic][subtopic] = subtopicObj
+                    pass
+    #print("user_questions:", user_questions)
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Time taken by create_test_view: {elapsed_time:.4f} seconds")
@@ -298,7 +314,7 @@ def create_test_view(request):
     #logging.info(f"Time taken by create_test_view: {elapsed_time:.4f} seconds")
 
     return render(request, "create_test.html", {
-        "selected_topics_json": json.dumps(user_topics, ensure_ascii=False, indent=4)
+        "selected_topics_json": json.dumps(user_questions, ensure_ascii=False, indent=4)
     })
 
     

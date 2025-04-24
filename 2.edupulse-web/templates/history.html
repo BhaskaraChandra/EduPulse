@@ -39,7 +39,7 @@ function formLoad()
             <tbody>
     `;
 
-    tests_history.tests.forEach((test) => {
+    tests_history.tests.slice().reverse().forEach((test) => {
         tableHtml += `
             <tr>
                 <td>${test.endTime}</td>
@@ -64,23 +64,43 @@ function formLoad()
 
 function viewTestDetails(test) {
     //test = JSON.parse(test.replace(/&quot;/g, '"'));
-    //alert(test)
-    sessionStorage.setItem('testResult', JSON.stringify(test));
-    var newTab = window.open('/testSummary/', '_blank');
-    //window.location.href = '/testSummary/';
-
-/*    var detailsHtml = `
-        <p>Start Time: ${test.startTime}</p>
-        <p>User ID: ${test.userid}</p>
-        <p>Test Duration (again): ${test.testduration}</p>
-        <p>Question Count: ${test.qCount}</p>
-        <p>Attempt Count: ${test.attemptCount}</p>
-        <p>Review Count: ${test.reviewCount}</p>
-        <p>Review: ${test.review}</p>
-    `;
-    document.getElementById('testDetails').innerHTML = detailsHtml;*/
-    // You can also use a modal or another way to display the details
+    //alert(JSON.stringify(test));
+    //alert(JSON.stringify(test["Qs"]))
+    //let qsList = [];for (let q in test.Qs) {qsList.push(q);}
+    //alert(qsList);
+    //LaunchTestSummaryScreen(qsList,test)
+    LaunchTestSummaryScreen(test)
 }
+//function LaunchTestSummaryScreen(qsList,test)
+function LaunchTestSummaryScreen(test)
+{
+    let qsList = [];for (let q in test.Qs) {qsList.push(q);}
+    var xhr = new XMLHttpRequest();// Create an AJAX request
+    xhr.open('POST', '/testSummary/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(qsList));
+    //xhr.send("{'key1': 'value1', 'key2': 'value2'}");
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) 
+        {// Handle the response from the server
+            //alert("AjaxResponse received: "+xhr.responseText); return;
+            var jsonData = JSON.parse(xhr.responseText);
+            jsonData["testResult"] = test;
+            if("Error" in jsonData)
+            {
+                alert("Error: "+jsonData.Error);
+                return;
+            }
+            else
+            {
+                sessionStorage.setItem('questionDetails', JSON.stringify(jsonData));
+                var newTab = window.open('/livetest/', '_blank');
+                $("#Title").text("Test is opened in new Tab");
+                $("#NewTestFrame").hide();
+            }
+        }
+    };
+}//end of function LaunchTestSummaryScreen
     function formLoad1()
     {
         var tests_history = JSON.parse('{{ tests_history | escapejs }}');

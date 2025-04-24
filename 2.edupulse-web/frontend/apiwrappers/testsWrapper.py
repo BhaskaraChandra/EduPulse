@@ -1,3 +1,4 @@
+from pyparsing import List
 import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"
@@ -25,6 +26,20 @@ def getActiveQuickTest(user_id: str=None) -> requests.Response:
     try:
         api="quicktest/"
         response = requests.get(testsServiceUrl + api, headers=headers, params={"useremail": user_id})
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        data=response.json()
+        return response
+    except requests.exceptions.RequestException as err:
+        print(f"Request Exception: {err}")
+        return None    
+    
+def getTestSummary(ids: List) -> requests.Response:
+    try:
+        #print("getTestSummary:",ids)
+        api="questionsSummary/"
+        #api="userQuestions/"
+        #response = requests.get(testsServiceUrl + api, headers=headers, params={"useremail": "dhoni@csk.com"})
+        response = requests.get(testsServiceUrl + api, headers=headers, params={"ids": ids})
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         return response

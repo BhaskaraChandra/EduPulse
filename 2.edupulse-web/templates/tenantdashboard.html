@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Sidebar with MongoDB</title>
+    <title>Tenant(Org) Dashboard</title>
     <style>
         /* General Styles */
         * {
@@ -303,7 +303,7 @@
 
         {% if option == "users" %}
             <h2>Total Users: {{ total_tenants }}</h2>
-            {% if tenant_data %}
+            {% if records %}
             <table class="user-table">
                 <thead>
                     <tr>
@@ -312,10 +312,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for tenant in tenant_data %}
+                    {% for tenant in records %}
                         <tr>
-                            <td>{{ tenant.username }}</td>
-                            <td>{{ tenant.email }}</td>
+                            <td>{{ tenant.userName }}</td>
+                            <td>{{ tenant.userEmail }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -329,13 +329,14 @@
 
     <div class="popup" id="popupForm" style="display: none;">
         <h2>Create User</h2>
-        <form method="POST" action="{% url 'dashboard' %}">
+        <form method="POST" action="{% url 'SubmitConsumer' %}">
             {% csrf_token %}
             <input type="hidden" name="option" id="userOption" value="">
+            <input type="hidden" name="tenantName" id="tenantName" value="">
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Create consumer</button>
+            <button type="submit">Create User</button>
             <button type="button" id="closePopup" class="close-btn">Cancel</button>
         </form>
     </div>

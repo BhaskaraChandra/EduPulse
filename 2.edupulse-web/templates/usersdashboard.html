@@ -68,8 +68,9 @@
 <body>
     <div class="sidebar" id="sidebar">
         <div class="profile-section">
+            <p class="load-content"><strong>{{ user.tenantName }}</strong></p>
             <img src="{{ user.profile.profile_pic.url }}" alt="" class="profile-pic">
-            <p class="load-content"><strong>{{ user.username }}</strong></p>
+            <p class="load-content"><strong>{{ user.userName }}</strong></p>
             <p>Score: 200117</p>
             <input type = "hidden" id='user-data' value='{{ user }}'>
 

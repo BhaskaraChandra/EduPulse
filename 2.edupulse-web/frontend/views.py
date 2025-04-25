@@ -9,7 +9,7 @@ from functools import wraps
 from bson import ObjectId
 import logging
 
-from frontend.apiwrappers import questionsWrapper
+from frontend.apiwrappers import questionsWrapper, usersWrapper
 #from frontend.apiwrappers.questionsWrapper import get_topics_metadata
 logger = logging.getLogger(__name__)
 from django.views.decorators.csrf import csrf_exempt
@@ -24,9 +24,8 @@ from frontend.apiwrappers.TenantsAdapter import TenantsAdapter
 MONGO_URI = 'mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 client = MongoClient(MONGO_URI)
 db = client["test"]  # Database name
-users_collection = db["users"]
-tenants_collection = db["tenants"]
-#topics_collection = db["topics"]
+#users_collection = db["users"]
+#tenants_collection = db["tenants"]
 #tenants = TenantsAdapter()
 
 #users=UsersAdapter()
@@ -46,25 +45,30 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-
+        password = "temp"
         # Find user in MongoDB
-        user = users_collection.find_one({"username": username})
+        #user = users_collection.find_one({"username": username})
+        user = usersWrapper.authenticate_user(username, password)
 
         if user:
             # Get hashed password from MongoDB
             hashed_password = user["password"]  # Stored as a hashed value
             #print(user["usertype"])
             # Compare the stored hashed password with the entered plain-text password
+            #below should be handled in a more secure way.
             if True or bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
                 request.session["user_id"] = str(user["_id"])  # Store session
-                if(user["usertype"]=="superadmin"):
-                    return redirect("dashboard")  # Redirect to the homepage or dashboard
-                elif(user["usertype"]=="tenantadmin"):
+                if(user["userType"]=="superadmin"):
+                    #tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
+                    tenants_data = usersWrapper.getTenants()
+                    return render(request, "dashboard.html", {"tenant_data": tenants_data})
+                elif(user["userType"]=="tenantadmin"):
                     print('tenantadmin')
+                    request.session["tenantName"]=user["tenantName"]
                     return redirect("tenantdashboard")  # Redirect to the homepage or dashboard
-                elif(user["usertype"]=="consumer"):
+                elif(user["userType"]=="consumer"):
                     #print('consumer')
-                    user.pop("_id");user.pop("password");user.pop("created_by");user.pop("usertype")
+                    user.pop("_id");user.pop("password");#user.pop("created_by");user.pop("usertype")
                     #print(user)
                     request.session["user"]=user
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
@@ -110,51 +114,82 @@ def SubmitTenantAdmin(request):
         if username and email and password:
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             try:
-                users_collection.insert_one({
-                    "username": username,
-                    "email": email,
-                    "usertype": "tenantadmin",
-                    "password": hashed_password,
-                    "tenant": tenantName
-                })
-                tenants_collection.update_one({"tenantName": tenantName},{"$inc": {"adminCount": 1}})
-
+                # users_collection.insert_one({
+                #     "username": username,
+                #     "email": email,
+                #     "usertype": "tenantadmin",
+                #     "password": hashed_password,
+                #     "tenant": tenantName
+                # })
+                #tenants_collection.update_one({"tenantName": tenantName},{"$inc": {"adminCount": 1}})
+                usersWrapper.addTenantAdmin(username, email, hashed_password, tenantName)  
                 messages.success(request, "TenantAdmin added successfully!")
-                #print("tenantadmin added successfully")
                 return redirect("sidebar_option", option="tenant")
             except Exception as e:
                 print(f"Error adding Tenant Admin: {e}")
                 #messages.error(request, f"Error adding Tenant Admin: {e}")
 
-@mongo_login_required
+#@mongo_login_required
 def SubmitTenant(request):
     print("XXXXXSubmitTenantClicked")
     if request.method == 'POST':
         option = request.POST.get("option")
         tenantName = request.POST.get("tenantName") #this shoiuld be tenantName
-        user_id = request.session.get("user_id")  #TODO: actually this userid is not needed here.
+        #user_id = request.session.get("user_id")  #TODO: actually this userid is not needed here.
         # Process the form data here
         print("Option:", option);print("tenant Name:", tenantName)
         if tenantName:
             try:
-                tenants_collection.insert_one({
-                    "user_id": user_id,
-                    "tenantName": tenantName,
-                    "adminCount": 0,
-                    "userCount": 0
-                })
+                # tenants_collection.insert_one({
+                #     "user_id": user_id,
+                #     "tenantName": tenantName,
+                #     "adminCount": 0,
+                #     "userCount": 0
+                # })
+                usersWrapper.createTenant(tenantName)
                 messages.success(request, "Tenant added successfully!")
                 #print("tenant added successfully")
                 return redirect("sidebar_option", option="tenant")
             except Exception as e:
                 messages.error(request, f"Error adding Tenant: {e}")
     pass
+
+def SubmitConsumer(request):
+    user_id = request.session.get("user_id")  
+    if request.method == "POST":
+        print("Received POST request")  
+        print("POST Data:", request.POST)  
+
+        option = request.POST.get("option")
+        print("Option:", option)
+        if option == "consumer":
+            #print("Option is consumer")
+            username = request.POST.get("username")
+            email = request.POST.get("email")
+            password = request.POST.get("password")
+            tenantName = request.POST.get("tenant")
+            username = request.POST.get("username")
+            email = request.POST.get("email")
+            password = request.POST.get("password")
+            tenantName = request.session.get("tenantName") #request.POST.get("tenantName")
+            if username and email and password:
+                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                try:
+                    usersWrapper.createUser(username, email, hashed_password, tenantName, "consumer")
+                    print("Consumer added successfully")
+                    messages.success(request, "Consumer added successfully!")
+                    return redirect("sidebar_option", option="users")
+                except Exception as e:
+                    print("Error:", e)
+                    messages.error(request, f"Error adding Consumer: {e}")
+
 @mongo_login_required
 def dashboard(request):
-    print("******dashboard called")
+    print("******dashboard called. COMPLETELY DUMMIFIED")
     user_id = request.session.get("user_id")  
-    user = users_collection.find_one({"_id": ObjectId(user_id)})  # Get logged-in user details
-    tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
+
+    #user = users_collection.find_one({"_id": ObjectId(user_id)})  # Get logged-in user details
+    #tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
     #return render(request, "dashboard.html", {"tenant_data": tenants_data})
 
     if request.method == "POST":
@@ -165,7 +200,7 @@ def dashboard(request):
         print("Option:", option)
 
         if option == "tenantadmin":
-            print("Option is tenantadmin")
+            #print("Option is tenantadmin")
             username = request.POST.get("username")
             email = request.POST.get("email")
             password = request.POST.get("password")
@@ -173,12 +208,12 @@ def dashboard(request):
             if username and email and password:
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 try:
-                    users_collection.insert_one({
-                        "username": username,
-                        "email": email,
-                        "usertype": "tenantadmin",
-                        "password": hashed_password,
-                    }) 
+                    # users_collection.insert_one({
+                    #     "username": username,
+                    #     "email": email,
+                    #     "usertype": "tenantadmin",
+                    #     "password": hashed_password,
+                    # }) 
                     # user_adapter.adduser(
                     #     "username"= username,
                     #     "email"= email,
@@ -194,21 +229,24 @@ def dashboard(request):
                     print("Error:", e)
                     messages.error(request, f"Error adding SuperAdmin: {e}")
 
+        '''This portion of code is moved to SubmitConsumer
         elif option == "consumer":
             username = request.POST.get("username")
             email = request.POST.get("email")
             password = request.POST.get("password")
-
+            tenantName = request.session.get("tenantName") #request.POST.get("tenantName")
             if username and email and password:
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 try:
-                    users_collection.insert_one({
-                        "username": username,
-                        "email": email,
-                        "usertype": "consumer",
-                        "password": hashed_password,
-                        "created_by": user_id  
-                    })
+
+                    # users_collection.insert_one({
+                    #     "username": username,
+                    #     "email": email,
+                    #     "usertype": "consumer",
+                    #     "password": hashed_password,
+                    #     "created_by": user_id  
+                    # })
+                    usersWrapper.createUser(username, email, hashed_password, tenantName, "consumer")
                     print("Consumer added successfully")
                     # user_topic_col=db["user_topic"]
                     
@@ -218,10 +256,10 @@ def dashboard(request):
                     messages.success(request, "Consumer added successfully!")
 
                     # Redirect based on user type
-                    if user and user["usertype"] == "tenantadmin":
-                        return redirect("tenantdashboard")  # Redirect to tenant dashboard
-                    else:
-                        return redirect("dashboard")  # Keep default for superadmin
+                    # if user and user["usertype"] == "tenantadmin":
+                    #     return redirect("tenantdashboard")  # Redirect to tenant dashboard
+                    # else:
+                    #     return redirect("dashboard")  # Keep default for superadmin
 
                 except Exception as e:
                     print("Error:", e)
@@ -230,10 +268,10 @@ def dashboard(request):
         elif option == "tenant":  # TODO this is adding a tenant.
             print("THIS CODE SHOULD NEVER EXECUTE")
             messages.error(request, f"Error adding tenant: {e}")
-
+        '''
     #print("default return from dashboard")
-    tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
-    return render(request, "dashboard.html", {"tenant_data": tenants_data})
+#    tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
+#    return render(request, "dashboard.html", {"tenant_data": tenants_data})
 
 
 
@@ -242,37 +280,44 @@ def sidebar(request, option=None):
     user_id = request.session.get("user_id")
     print("Side bar Option Clicked: ", option)  # Debugging
 
-    tenants_data = []
+    records = []
     total_tenants = 0
     total_superadmins = 0
 
-    if option == "users":
+    if option == "users":#This is when tenant admin logs in
         print("Fetching users data...")
-        user = users_collection.find_one({"_id": ObjectId(user_id)})  
+        users_data = usersWrapper.getUsersForTenantAdmin(user_id)
+        # user = users_collection.find_one({"_id": ObjectId(user_id)})  
 
-        if user and user["usertype"] == "tenantadmin": 
-            tenants_data = list(users_collection.find({"usertype": "consumer", "created_by": user_id}, {"_id": 0}))
-            total_tenants = len(tenants_data)
-        else:
-            tenants_data = list(users_collection.find({}, {"_id": 0}))
+        # if user and user["usertype"] == "tenantadmin": 
+        #     tenants_data = list(users_collection.find({"usertype": "consumer", "created_by": user_id}, {"_id": 0}))
+        #     total_tenants = len(tenants_data)
+        # else:
+        #     tenants_data = list(users_collection.find({}, {"_id": 0}))
 
-        print("Fetched Users Data:", tenants_data)  
+        print("Fetched Users Data:", users_data)
+        records = users_data  
         template = "tenantdashboard.html"
     
     elif option == "tenantDummy": #this is unused and dummy
         tenants_data = []
         template = "dashboard.html"
 
-    elif option == "tenant": #this is the actual Tenant Dashboard
+    elif option == "tenant": #this is the actual SuperAdmin Dashboard to add Tenants
         total_superadmins = 0 #users_collection.count_documents({"usertype": "superadmin"})
         #TODO: we may not need the above anymore for now.
-        tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))
-        total_tenants = len(tenants_data)
+        #tenants_dataold = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))
+        records = usersWrapper.getTenants()
+        for tenant in records:
+            tenant["tenantName"]=tenant["_id"] #stupid workaround to get the tenant name. otherwise _id is not getting displayed in javascript
+            print(tenant)
+        total_tenants = len(records)
         template = "dashboard.html"
 
     context = {
         "option": option,
-        "tenant_data": tenants_data,
+        "tenant_data": records,
+        "records": records,
         "total_tenants": total_tenants,
         "total_superadmins": total_superadmins
     }
@@ -291,7 +336,7 @@ def create_test_view(request):
     userObj = request.session.get("user")
     #user_topics = questionsWrapper.get_topics_metadata(userObj["email"])
     #above method to get topics metadata is no longer being used, as the below method is being used.
-    user_questions = questionsWrapper.get_user_questions_metadata(userObj["email"])
+    user_questions = questionsWrapper.get_user_questions_metadata(userObj["userEmail"])
     for subject,subObj in user_questions.items():
         if subject in ("_id", "_metrics"): continue
         #print("subject:",subject,"subObj:", subObj)

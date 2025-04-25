@@ -65,7 +65,8 @@
         var curUserTxt = sessionStorage.getItem('curUser');
         curUser = JSON.parse(curUserTxt);
         //alert(curUser.email);
-        getActiveQuickTest(curUser.email);
+        //alert(curUserTxt)
+        getActiveQuickTest(curUser.userEmail);
         //creating the difficulty level checkboxes
         var container = document.getElementById("levels-checkbox-container");
         var html = "";
@@ -125,7 +126,7 @@
             let selectedTopics = [];
             const numQuestions = document.getElementById('nQuestions').textContent;
             //alert(curUser.email);
-            let email = curUser.email;
+            let email = curUser.userEmail;
             // Find all checked checkboxes
             let checkboxes = document.querySelectorAll("#topic-tree input[type='checkbox']:checked");
             checkboxes.forEach(checkbox => {
@@ -142,7 +143,7 @@
                 nQuestions: numQuestions,
                 userid: email
             };
-            //alert(JSON.stringify(selectedData))
+            alert(JSON.stringify(selectedData))
             // Create an AJAX request
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/generate_test/', true);
@@ -153,7 +154,7 @@
                     // Handle the response from the server
                     console.log(xhr.responseText);
                     //alert("AjaxResponse received: "+xhr.responseText);
-                    getActiveQuickTest(curUser.email);
+                    getActiveQuickTest(curUser.userEmail);
                 }
             };
             // Show JSON in an alert box

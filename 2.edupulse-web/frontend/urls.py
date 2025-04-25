@@ -2,7 +2,7 @@ from django.urls import path
 
 from frontend.view_tests import generate_test, get_active_quick_test, livetest, metrics_view, submit_test, testSummary,history_view
 
-from .views import (SubmitTenant, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard, create_test_view, daily_challenge_view,
+from .views import (SubmitConsumer, SubmitTenant, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard, create_test_view, daily_challenge_view,
  topics_view,tests_view, save_selected_topics,manage_topics_view,dashboards_view, my_progress_view, compare_view, settings_view,SubmitTenantAdmin)
 
 
@@ -14,6 +14,7 @@ urlpatterns = [
     path("sidebar/<str:option>/", sidebar, name="sidebar_option"),
     path("SubmitTenant/", SubmitTenant, name="SubmitTenant"),
     path("SubmitTenantAdmin/", SubmitTenantAdmin, name="SubmitTenantAdmin"),
+    path("SubmitConsumer/", SubmitConsumer, name="SubmitConsumer"),
     path('usersdashboard/', user_dashboard, name='user_dashboard'),
     path('tests/', tests_view, name='tests'),
     path('create_test/', create_test_view, name='create_test'),

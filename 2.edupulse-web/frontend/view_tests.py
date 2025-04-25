@@ -57,7 +57,7 @@ def submit_test(request):
     return JsonResponse(testResult.json(), safe=False)
 
 def history_view(request):
-    user_email = request.session.get("user").get("email")
+    user_email = request.session.get("user").get("userEmail")
     tests = testsWrapper.getTestsHistory(user_email)
     #print(f"TestsHistory for user:{user_email}\n",tests.json())
     #request.session["tests_history"] = tests.json()
@@ -65,7 +65,7 @@ def history_view(request):
     return render(request, 'history.html',{'tests_history': json.dumps(tests.json(), ensure_ascii=False, indent=4)})
 
 def metrics_view(request):
-    user_email = request.session.get("user").get("email")
+    user_email = request.session.get("user").get("userEmail")
     metrics = testsWrapper.getUserMetrics(user_email)
     #print(f"Metrics for user:{user_email}\n",metrics.json())
     return render(request, 'scoreboard.html',{'user_metrics': json.dumps(metrics.json(), ensure_ascii=False, indent=4)})

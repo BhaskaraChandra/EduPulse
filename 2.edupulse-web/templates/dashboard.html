@@ -222,7 +222,7 @@
     </div>
 
     <div class="content">
-        <h2>Tenant Management</h2>
+        <h2>Super Administrator</h2>
     
         {% if option == "tenant" %}
             <a href="#" id="openPopup" class="add-tenant-btn">Add Tenant</a>
@@ -234,6 +234,7 @@
                         <tr style="background: #2c3e50; color: white;">
                             <th>Tenant Name</th>
                             <th>Admin Count</th>
+                            <th>User Count</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -242,6 +243,7 @@
                             <tr style="text-align: center; background: white;">
                                 <td>{{ tenant.tenantName }}</td>
                                 <td>{{ tenant.adminCount }}</td>
+                                <td>{{ tenant.userCount }}</td>
                                 <td><button class="adminpopup">Create Admin</button></td>
                             </tr>
                         {% endfor %}

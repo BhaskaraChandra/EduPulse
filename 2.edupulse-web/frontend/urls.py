@@ -9,7 +9,7 @@ from .views import (SubmitConsumer, SubmitTenant, sidebar, login_view, logout_vi
 urlpatterns = [
     path("", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
-    path("dashboard/", dashboard, name="dashboard"),
+    #path("dashboard/", dashboard, name="dashboard"),
     path("tenantdashboard/", tenantdashboard, name="tenantdashboard"),
     path("sidebar/<str:option>/", sidebar, name="sidebar_option"),
     path("SubmitTenant/", SubmitTenant, name="SubmitTenant"),

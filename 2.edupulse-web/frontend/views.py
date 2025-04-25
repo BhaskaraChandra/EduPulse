@@ -20,17 +20,6 @@ from django.conf import settings
 from frontend.apiwrappers.TenantsAdapter import TenantsAdapter
 #import view_tests
 
-# MongoDB Atlas connection
-MONGO_URI = 'mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-client = MongoClient(MONGO_URI)
-db = client["test"]  # Database name
-#users_collection = db["users"]
-#tenants_collection = db["tenants"]
-#tenants = TenantsAdapter()
-
-#users=UsersAdapter()
-
-
 def mongo_login_required(view_func):
     """ Custom decorator to check if user is authenticated using session. """
     @wraps(view_func)
@@ -46,8 +35,6 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         password = "temp"
-        # Find user in MongoDB
-        #user = users_collection.find_one({"username": username})
         user = usersWrapper.authenticate_user(username, password)
 
         if user:
@@ -59,7 +46,6 @@ def login_view(request):
             if True or bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
                 request.session["user_id"] = str(user["_id"])  # Store session
                 if(user["userType"]=="superadmin"):
-                    #tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
                     tenants_data = usersWrapper.getTenants()
                     return render(request, "dashboard.html", {"tenant_data": tenants_data})
                 elif(user["userType"]=="tenantadmin"):
@@ -72,8 +58,6 @@ def login_view(request):
                     #print(user)
                     request.session["user"]=user
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
-                # elif(user["usertype"]=="consumer"):
-                #     return redirect("usersdashboard") #Redirect to the usersdashboard
             else:
                 messages.error(request, "Invalid username or password")
         else:
@@ -84,8 +68,6 @@ def login_view(request):
 def tenantdashboard(request):
     return render(request,"tenantdashboard.html")
 def user_dashboard(request):
-    #print(f"user_dashboard: {request.session.get("user")}")
-    #print("-----",request.user)
     return render(request, 'usersdashboard.html', {'user': request.session.get("user")})
 
 
@@ -94,13 +76,13 @@ def logout_view(request):
     request.session.flush()  
     return redirect('login')
 
-@mongo_login_required
+#@mongo_login_required
 def dashboard_view(request):
     if "user_id" not in request.session:
         return JsonResponse({"error": "Unauthorized access"}, status=401)
     return render(request, "dashboard.html")
 
-@mongo_login_required
+#@mongo_login_required
 def SubmitTenantAdmin(request):
     print("SubmitTenantAdminClicked")
     if request.method == 'POST':
@@ -114,14 +96,6 @@ def SubmitTenantAdmin(request):
         if username and email and password:
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             try:
-                # users_collection.insert_one({
-                #     "username": username,
-                #     "email": email,
-                #     "usertype": "tenantadmin",
-                #     "password": hashed_password,
-                #     "tenant": tenantName
-                # })
-                #tenants_collection.update_one({"tenantName": tenantName},{"$inc": {"adminCount": 1}})
                 usersWrapper.addTenantAdmin(username, email, hashed_password, tenantName)  
                 messages.success(request, "TenantAdmin added successfully!")
                 return redirect("sidebar_option", option="tenant")
@@ -140,12 +114,6 @@ def SubmitTenant(request):
         print("Option:", option);print("tenant Name:", tenantName)
         if tenantName:
             try:
-                # tenants_collection.insert_one({
-                #     "user_id": user_id,
-                #     "tenantName": tenantName,
-                #     "adminCount": 0,
-                #     "userCount": 0
-                # })
                 usersWrapper.createTenant(tenantName)
                 messages.success(request, "Tenant added successfully!")
                 #print("tenant added successfully")
@@ -183,14 +151,10 @@ def SubmitConsumer(request):
                     print("Error:", e)
                     messages.error(request, f"Error adding Consumer: {e}")
 
-@mongo_login_required
-def dashboard(request):
+#@mongo_login_required
+def dashboard(request):#commented out the url for now. if we dont get any error in testing, this can be removed.
     print("******dashboard called. COMPLETELY DUMMIFIED")
     user_id = request.session.get("user_id")  
-
-    #user = users_collection.find_one({"_id": ObjectId(user_id)})  # Get logged-in user details
-    #tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
-    #return render(request, "dashboard.html", {"tenant_data": tenants_data})
 
     if request.method == "POST":
         print("Received POST request")  
@@ -208,19 +172,6 @@ def dashboard(request):
             if username and email and password:
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 try:
-                    # users_collection.insert_one({
-                    #     "username": username,
-                    #     "email": email,
-                    #     "usertype": "tenantadmin",
-                    #     "password": hashed_password,
-                    # }) 
-                    # user_adapter.adduser(
-                    #     "username"= username,
-                    #     "email"= email,
-                    #     "usertype"= "tenantadmin",
-                    #     "password"= hashed_password,
-
-                    # )
                     
                     print("Superadmin added successfully")
                     messages.success(request, "SuperAdmin added successfully!")
@@ -229,53 +180,9 @@ def dashboard(request):
                     print("Error:", e)
                     messages.error(request, f"Error adding SuperAdmin: {e}")
 
-        '''This portion of code is moved to SubmitConsumer
-        elif option == "consumer":
-            username = request.POST.get("username")
-            email = request.POST.get("email")
-            password = request.POST.get("password")
-            tenantName = request.session.get("tenantName") #request.POST.get("tenantName")
-            if username and email and password:
-                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                try:
-
-                    # users_collection.insert_one({
-                    #     "username": username,
-                    #     "email": email,
-                    #     "usertype": "consumer",
-                    #     "password": hashed_password,
-                    #     "created_by": user_id  
-                    # })
-                    usersWrapper.createUser(username, email, hashed_password, tenantName, "consumer")
-                    print("Consumer added successfully")
-                    # user_topic_col=db["user_topic"]
-                    
-                    # obj={}
-                    # obj["_id"]=email
-                    # user_topic_col.insertone(obj)
-                    messages.success(request, "Consumer added successfully!")
-
-                    # Redirect based on user type
-                    # if user and user["usertype"] == "tenantadmin":
-                    #     return redirect("tenantdashboard")  # Redirect to tenant dashboard
-                    # else:
-                    #     return redirect("dashboard")  # Keep default for superadmin
-
-                except Exception as e:
-                    print("Error:", e)
-                    messages.error(request, f"Error adding Consumer: {e}")
-
-        elif option == "tenant":  # TODO this is adding a tenant.
-            print("THIS CODE SHOULD NEVER EXECUTE")
-            messages.error(request, f"Error adding tenant: {e}")
-        '''
-    #print("default return from dashboard")
-#    tenants_data = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))  
-#    return render(request, "dashboard.html", {"tenant_data": tenants_data})
 
 
-
-@mongo_login_required
+#@mongo_login_required
 def sidebar(request, option=None):
     user_id = request.session.get("user_id")
     print("Side bar Option Clicked: ", option)  # Debugging
@@ -287,13 +194,6 @@ def sidebar(request, option=None):
     if option == "users":#This is when tenant admin logs in
         print("Fetching users data...")
         users_data = usersWrapper.getUsersForTenantAdmin(user_id)
-        # user = users_collection.find_one({"_id": ObjectId(user_id)})  
-
-        # if user and user["usertype"] == "tenantadmin": 
-        #     tenants_data = list(users_collection.find({"usertype": "consumer", "created_by": user_id}, {"_id": 0}))
-        #     total_tenants = len(tenants_data)
-        # else:
-        #     tenants_data = list(users_collection.find({}, {"_id": 0}))
 
         print("Fetched Users Data:", users_data)
         records = users_data  
@@ -306,7 +206,6 @@ def sidebar(request, option=None):
     elif option == "tenant": #this is the actual SuperAdmin Dashboard to add Tenants
         total_superadmins = 0 #users_collection.count_documents({"usertype": "superadmin"})
         #TODO: we may not need the above anymore for now.
-        #tenants_dataold = list(tenants_collection.find({"user_id": user_id}, {"_id": 0}))
         records = usersWrapper.getTenants()
         for tenant in records:
             tenant["tenantName"]=tenant["_id"] #stupid workaround to get the tenant name. otherwise _id is not getting displayed in javascript
@@ -407,13 +306,7 @@ def save_selected_topics(request):
         except Exception as e:
             print(" Error:", e)
             return JsonResponse({"error": str(e)}, status=500)
-
     return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-
-
-
 def dashboards_view(request):
     return render(request, 'dashboards.html')
 

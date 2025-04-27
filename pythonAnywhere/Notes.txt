@@ -1,0 +1,36 @@
+https://help.pythonanywhere.com/pages/ASGICommandLine
+
+API Token: e0baa6830fcd075ce37815e1766c5c54a9ec2304
+$env:API_TOKEN = "e0baa6830fcd075ce37815e1766c5c54a9ec2304"
+
+pip install --upgrade pythonanywhere
+
+add the below to PATH
+C:\Users\hammad\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\Scripts
+
+/home/chandrabhaskara/.virtualenvs/my_venv/bin/uvicorn --app-dir /home/chandrabhaskara/asyncdjango --uds ${DOMAIN_SOCKET} asyncdjango.asgi:application
+
+pa website create --domain chandrabhaskara.pythonanywhere.com --command '/home/chandrabhaskara/.virtualenvs/my_venv/bin/uvicorn --app-dir /home/chandrabhaskara/asyncdjango --uds ${DOMAIN_SOCKET} asyncdjango.asgi:application'
+
+*Working on the PA Bash console*
+pip install --upgrade pythonanywhere
+Setting up Git:
+	git config --global user.name "BhaskaraChandra"
+	git config --global user.email "chandra.bhaskara.s@gmail.com"
+	ssh-keygen -t rsa -b 4096
+	cat ~/.ssh/id_rsa.pub
+	#Log in to GitHub and go to Settings > SSH and GPG keys > New SSH key
+	#Paste the public key and add a label
+	git config --list
+	eval "$(ssh-agent -s)"
+	ssh-keyscan github.com
+	ssh-keyscan github.com >> ~/.ssh/known_hosts
+	git clone git@github.com:BhaskaraChandra/EduPulseSvc.git
+
+Fastapi webservice
+	mkvirtualenv my_venv --python=python3.10
+	pip install "uvicorn[standard]" fastapi
+	pa website create --domain chandrabhaskara.pythonanywhere.com --command '/home/chandrabhaskara/.virtualenvs/my_venv/bin/uvicorn --app-dir /home/chandrabhaskara/my_fastapi --uds ${DOMAIN_SOCKET} main:app'
+
+
+

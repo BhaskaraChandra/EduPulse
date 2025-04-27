@@ -143,7 +143,7 @@
                 nQuestions: numQuestions,
                 userid: email
             };
-            alert(JSON.stringify(selectedData))
+            //alert(JSON.stringify(selectedData))
             // Create an AJAX request
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/generate_test/', true);
@@ -245,7 +245,7 @@
     }
 
     function createNestedListBruteForce(obj) 
-    {//unused function
+    {//unused function can be cleaned up
         let ul = document.createElement("ul");
         for (let key in obj) {
             if (key === "_metrics") continue;
@@ -272,7 +272,7 @@
                 });
                 li.appendChild(subUl);
             } else if (typeof obj[key] === "object" && Object.keys(obj[key]).length > 0) {
-                li.textContent = key;alert(key);
+                li.textContent = key;//alert(key);
                 li.appendChild(createNestedList(obj[key])); // Recursively create sub-lists
             } else {
                 li.textContent = key;

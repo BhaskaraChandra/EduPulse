@@ -213,6 +213,7 @@ function displayQuestionLocal(questionId)
     }
     else
     {
+        choice = questionDetails.testResult["Qs"][questionId]["Choice"];
         document.getElementById("btnMarkForReview").style.display = "none";
         document.getElementById("btnSkipQuestion").style.display = "none";
         const timerElement = document.querySelector('.timer');
@@ -222,6 +223,8 @@ function displayQuestionLocal(questionId)
         timerElement.textContent = `${testResult["Qs"][Number(questionId)]["TimeToSubmit"]}`;
         displayLaTeXItem("clue-label","Clue: "+ data.clue);
         displayLaTeXItem("solution-label","Solution: "+data.solution);
+        qidDisplay.innerHTML = "Question: " + data._id + "     Right Option: " + data.key + "     Selected Option: " + choice;
+
         //displayLaTeXItem("solution-label","this is a multiline \\break text, spread into multiple lines");
         //alert(data.solution);
         //displayLaTeXItem("solution-label",data.solution);
@@ -365,7 +368,7 @@ const timerId = setInterval(() => {
 function padZero(value) {//unused function
     return (value < 10 ? '0' : '') + value;
 }
-function LaunchTestSummaryScreen(test)
+function LaunchTestSummaryScreen(test,samepage=false)
 {
     let qsList = [];for (let q in test.Qs) {qsList.push(q);}
     var xhr = new XMLHttpRequest();// Create an AJAX request
@@ -387,9 +390,17 @@ function LaunchTestSummaryScreen(test)
             else
             {
                 sessionStorage.setItem('questionDetails', JSON.stringify(jsonData));
-                var newTab = window.open('/livetest/', '_blank');
-                $("#Title").text("Test is opened in new Tab");
-                $("#NewTestFrame").hide();
+                if(samepage)
+                {
+                    //window.location.href = '/testSummary/';
+                    window.location.replace('/livetest/');//this avoids going back to the previous page                    
+                }
+                else
+                {
+                    var newTab = window.open('/livetest/', '_blank');
+                    //$("#Title").text("Test is opened in new Tab");
+                    //$("#NewTestFrame").hide();
+                }
             }
         }
     };
@@ -400,6 +411,7 @@ function handleSubmitButtonClick()
     //alert(JSON.stringify(testResponse));
     
     clearInterval(timerId);// to stop the timer
+    document.querySelector('.submit-button').disabled = true;
 
     testResponse["testduration"] = globalTestDuration;
     testResponse["endTime"] = new Date();
@@ -427,8 +439,8 @@ function handleSubmitButtonClick()
         //alert("onload called");
         if (xhr.status === 200) {
             var jsonData = JSON.parse(xhr.responseText);
-            alert(JSON.stringify(jsonData));
-            LaunchTestSummaryScreen(jsonData);
+            //alert(JSON.stringify(jsonData));
+            LaunchTestSummaryScreen(jsonData,true);
         } else {
             console.error('Error:', xhr.statusText);
         }

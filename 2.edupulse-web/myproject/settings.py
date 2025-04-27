@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-pz3&@*f6)r!1dk!0#+)m18pl8deo0zggsid&fxef18z1f%4vgv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['edupulsesvc.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['edupulse-d52j.onrender.com','edupulsesvc.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition

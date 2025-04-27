@@ -1,0 +1,36 @@
+Here are the steps to deploy your Django application to Render using Gunicorn:
+
+Step 1: Prepare Your Django Project
+1. Make sure your Django project has a requirements.txt file with all dependencies, including Gunicorn.
+2. Ensure your settings.py file has ALLOWED_HOSTS set to include your Render domain or * for testing.
+
+Step 2: Create a Procfile (Optional)
+Create a Procfile in your project root with the following content:
+
+
+bash
+web: gunicorn your_project.wsgi:application
+
+
+Replace your_project with the actual name of your Django project.
+
+Step 3: Create a Render Web Service
+1. Log in to your Render dashboard.
+2. Click on New > Web Service.
+3. Select your repository provider (e.g., GitHub).
+4. Authenticate and grant Render access to your repository.
+
+Step 4: Configure Your Web Service
+1. Select your repository and branch.
+2. Set the Environment to Python.
+3. Set the Build Command to pip install -r requirements.txt.
+4. If you have a Procfile, Render will automatically detect it. Otherwise, set the Start Command to gunicorn your_project.wsgi:application.
+
+Step 5: Configure Environment Variables
+1. Add environment variables for your Django project, such as SECRET_KEY, DEBUG (set to False), and any database or other settings.
+
+Step 6: Deploy Your Application
+1. Click Create Web Service to deploy your Django application.
+2. Render will build and deploy your application.
+
+That's it! Your Django application should now be live on Render.com.

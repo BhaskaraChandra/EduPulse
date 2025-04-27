@@ -2,7 +2,7 @@ from pyparsing import List
 import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"
-testsServiceUrl = "http://localhost:9117/"
+#testsServiceUrl = "http://localhost:9117/"
 #headers = {'Content-Type': 'application/json'}
 headers = {
     'Content-Type': 'application/json',

@@ -2,8 +2,9 @@ from pydantic import BaseModel
 import requests
 
 questionsServiceUrl = "https://edupulsesvc.onrender.com/"
-questionsServiceUrl = "http://localhost:9117/"
-userssServiceUrl = "http://localhost:9117/"
+userssServiceUrl = "https://edupulsesvc.onrender.com/"
+#questionsServiceUrl = "http://localhost:9117/"
+#userssServiceUrl = "http://localhost:9117/"
 
 headers = {'Content-Type': 'application/json'}
 

@@ -1,4 +1,4 @@
-from pyparsing import List
+from pyparsing.core import List
 import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"

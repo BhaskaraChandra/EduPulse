@@ -32,7 +32,7 @@ def get_active_quick_test(request, curUser_email):
 
 def livetest(request):
     print("DBG: rendering the livetest.html")
-    return render(request, 'livetest.html')
+    return render(request, 'liveTest.html')
 
 @require_http_methods(['POST'])
 @csrf_exempt

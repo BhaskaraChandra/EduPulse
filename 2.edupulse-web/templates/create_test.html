@@ -185,7 +185,8 @@
                 {
                     alert("Before loading livetest"+JSON.stringify(jsonData))
                     sessionStorage.setItem('questionDetails', JSON.stringify(jsonData));
-                    var newTab = window.open('/livetest/', '_blank');
+                    window.location.replace('/livetest/');
+                    //var newTab = window.open('/livetest/', '_blank');
                     $("#Title").text("Test is opened in new Tab");
                     $("#NewTestFrame").hide();
                 }

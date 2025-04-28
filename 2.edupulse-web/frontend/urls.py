@@ -2,7 +2,7 @@ from django.urls import path
 
 from frontend.view_tests import generate_test, get_active_quick_test, livetest, metrics_view, submit_test, testSummary,history_view
 
-from .views import (SubmitConsumer, SubmitTenant, sidebar, login_view, logout_view, dashboard,tenantdashboard,user_dashboard, create_test_view, daily_challenge_view,
+from .views import (SubmitConsumer, SubmitTenant, sidebar, login_view, logout_view, tenantdashboard,user_dashboard, create_test_view, daily_challenge_view,
  topics_view,tests_view, save_selected_topics,manage_topics_view,dashboards_view, my_progress_view, compare_view, settings_view,SubmitTenantAdmin)
 
 

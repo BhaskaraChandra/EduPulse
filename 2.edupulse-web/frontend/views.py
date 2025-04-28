@@ -94,7 +94,7 @@ def SubmitTenantAdmin(request):
         # Process the form data here
         print("Option:", option);print("Username:", username);print("Email:", email);print("Password:", password)
         if username and email and password:
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            hashed_password = "Exception" #bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             try:
                 usersWrapper.addTenantAdmin(username, email, hashed_password, tenantName)  
                 messages.success(request, "TenantAdmin added successfully!")
@@ -157,33 +157,33 @@ def SubmitConsumer(request):
                     messages.error(request, f"Error adding Consumer: {e}")
 
 #@mongo_login_required
-def dashboard(request):#commented out the url for now. if we dont get any error in testing, this can be removed.
-    print("******dashboard called. COMPLETELY DUMMIFIED")
-    user_id = request.session.get("user_id")  
+# def dashboard(request):#commented out the url for now. if we dont get any error in testing, this can be removed.
+#     print("******dashboard called. COMPLETELY DUMMIFIED")
+#     user_id = request.session.get("user_id")  
 
-    if request.method == "POST":
-        print("Received POST request")  
-        print("POST Data:", request.POST)  
+#     if request.method == "POST":
+#         print("Received POST request")  
+#         print("POST Data:", request.POST)  
 
-        option = request.POST.get("option")
-        print("Option:", option)
+#         option = request.POST.get("option")
+#         print("Option:", option)
 
-        if option == "tenantadmin":
-            #print("Option is tenantadmin")
-            username = request.POST.get("username")
-            email = request.POST.get("email")
-            password = request.POST.get("password")
+#         if option == "tenantadmin":
+#             #print("Option is tenantadmin")
+#             username = request.POST.get("username")
+#             email = request.POST.get("email")
+#             password = request.POST.get("password")
 
-            if username and email and password:
-                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                try:
+#             if username and email and password:
+#                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+#                 try:
                     
-                    print("Superadmin added successfully")
-                    messages.success(request, "SuperAdmin added successfully!")
-                    return redirect("dashboard")  # Keep this for superadmin
-                except Exception as e:
-                    print("Error:", e)
-                    messages.error(request, f"Error adding SuperAdmin: {e}")
+#                     print("Superadmin added successfully")
+#                     messages.success(request, "SuperAdmin added successfully!")
+#                     return redirect("dashboard")  # Keep this for superadmin
+#                 except Exception as e:
+#                     print("Error:", e)
+#                     messages.error(request, f"Error adding SuperAdmin: {e}")
 
 
 

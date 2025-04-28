@@ -131,7 +131,7 @@ def SubmitConsumer(request):
         option = request.POST.get("option")
         print("Option:", option)
         if option == "consumer":
-            #print("Option is consumer")
+            print("DBG: Option is consumer")
             username = request.POST.get("username")
             email = request.POST.get("email")
             password = request.POST.get("password")

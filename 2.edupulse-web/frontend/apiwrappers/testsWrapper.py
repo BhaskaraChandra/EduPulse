@@ -27,6 +27,7 @@ def getActiveQuickTest(user_id: str=None) -> requests.Response:
     try:
         api="quicktest/"
         response = requests.get(testsServiceUrl + api, headers=headers, params={"useremail": user_id})
+        print("testsWrapper: response: getQuickTest:",response.json())
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         return response

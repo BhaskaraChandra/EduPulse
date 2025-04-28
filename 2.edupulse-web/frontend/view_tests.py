@@ -25,7 +25,7 @@ def get_active_quick_test(request, curUser_email):
     #json_data = json.loads(request.body)# Get the JSON data from the request
     print(curUser_email)
     ret = testsWrapper.getActiveQuickTest(curUser_email)
-    #print("received:",ret)
+    print("Active Test Received at ViewTests:",ret.json())
     # Return a JSON response
     return JsonResponse(ret.json(), safe=False)
     return JsonResponse({'status': 'success', 'message': 'Test generated successfully'})

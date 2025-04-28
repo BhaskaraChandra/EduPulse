@@ -31,6 +31,7 @@ def get_active_quick_test(request, curUser_email):
     return JsonResponse({'status': 'success', 'message': 'Test generated successfully'})
 
 def livetest(request):
+    print("DBG: rendering the livetest.html")
     return render(request, 'livetest.html')
 
 @require_http_methods(['POST'])

@@ -143,12 +143,13 @@ def SubmitConsumer(request):
             if username and email and password:
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 try:
+                    print("DBG:Before calling createUser")
                     usersWrapper.createUser(username, email, hashed_password, tenantName, "consumer")
                     print("Consumer added successfully")
                     messages.success(request, "Consumer added successfully!")
                     return redirect("sidebar_option", option="users")
                 except Exception as e:
-                    print("Error:", e)
+                    print("Error in adding consumer:", e)
                     messages.error(request, f"Error adding Consumer: {e}")
 
 #@mongo_login_required

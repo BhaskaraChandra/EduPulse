@@ -39,6 +39,7 @@ class User(BaseModel):
 def createUser(username, email, hashed_password, tenantName, userType):
     userObj = User(userEmail=email, userName=username, password=hashed_password, tenantName=tenantName, userType=userType)
     api="users/"
+    print("Dbg: Createuser api about to be called ")
     response = requests.post(userssServiceUrl+api, headers=headers, json=userObj.model_dump())
     response.raise_for_status()  # Raise an exception for HTTP errors
     print("Createuser Response:",response.json())

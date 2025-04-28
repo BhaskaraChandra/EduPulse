@@ -41,6 +41,7 @@ def createUser(username, email, hashed_password, tenantName, userType):
     api="users/"
     response = requests.post(userssServiceUrl+api, headers=headers, json=userObj.model_dump())
     response.raise_for_status()  # Raise an exception for HTTP errors
+    print("Createuser Response:",response.json())
     return response.json()
     pass
 

@@ -131,7 +131,7 @@ def SubmitConsumer(request):
         option = request.POST.get("option")
         print("Option:", option)
         if option == "consumer":
-            print("DBG: Option is consumer")
+            #print("DBG: Option is consumer")
             username = request.POST.get("username")
             email = request.POST.get("email")
             password = request.POST.get("password")
@@ -140,10 +140,11 @@ def SubmitConsumer(request):
             email = request.POST.get("email")
             password = request.POST.get("password")
             tenantName = request.session.get("tenantName") #request.POST.get("tenantName")
-            print("DBG: after getting the values")
+            #print("DBG: after getting the values")
             if username and email and password:
                 print("DBG: username, email, password, tenantName:", username, email, password, tenantName)
-                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                hashed_password = "Exception" #bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                #TODO: commented out the above portion because we are getting exception when deployed on render
                 print("DBG: hashedd_password:", hashed_password)
                 try:
                     print("DBG:Before calling createUser")

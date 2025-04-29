@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
-from fastapi.responses import JSONResponse
+#from fastapi.responses import JSONResponse
 import requests
 import json
 from django.views.decorators.csrf import csrf_exempt

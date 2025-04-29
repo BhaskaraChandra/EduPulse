@@ -1,5 +1,7 @@
 #from pyparsing.core import List
+from http.client import HTTPException
 from typing import List
+from fastapi.responses import JSONResponse
 import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"
@@ -13,14 +15,16 @@ headers = {
 def generateQuickTest(quickTestConfig: dict=None) -> dict:
     try:
         api="quicktest/"
-        print(quickTestConfig)
+        #print(quickTestConfig)
         response = requests.post(testsServiceUrl+api, headers=headers,json=quickTestConfig)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
-        print("apiResponse:",data)
+        #print("apiResponse:",data)
         return response
     except requests.exceptions.RequestException as err:
         print(f"Request Exception: {err}")
+        return JSONResponse(content={"error": f"Request Exception: {err}"}, status_code=400)
+        #return HTTPException(status_code=400, detail="No questions found for the given criteria")
         return None
     
 def getActiveQuickTest(user_id: str=None) -> requests.Response:
@@ -56,7 +60,7 @@ def submitTest(quickTestConfig: dict=None) -> dict:
         response = requests.post(testsServiceUrl+api, headers=headers,json=quickTestConfig)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
-        print("apiResponse:",data)
+        #print("apiResponse:",data)
         return response
     except requests.exceptions.RequestException as err:
         print(f"Request Exception: {err}")

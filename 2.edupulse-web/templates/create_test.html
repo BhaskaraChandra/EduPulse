@@ -154,7 +154,15 @@
                     // Handle the response from the server
                     console.log(xhr.responseText);
                     //alert("AjaxResponse received: "+xhr.responseText);
-                    getActiveQuickTest(curUser.userEmail);
+                    var jsonData = JSON.parse(xhr.responseText);
+                    if(jsonData["testQs"].length)
+                        getActiveQuickTest(curUser.userEmail);
+                    else
+                        alert("No questions found for the selected criteria.");
+                }
+                else if (xhr.status === 400)
+                {
+                    alert("Error: "+xhr.responseText);
                 }
             };
             // Show JSON in an alert box

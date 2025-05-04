@@ -5,8 +5,11 @@ from fastapi.responses import JSONResponse
 import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"
-#testsServiceUrl = "http://localhost:9117/"
-#headers = {'Content-Type': 'application/json'}
+
+localService = True
+if localService:
+    testsServiceUrl = "http://localhost:9117/"
+
 headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -56,7 +59,7 @@ def getTestSummary(ids: List) -> requests.Response:
 def submitTest(quickTestConfig: dict=None) -> dict:
     try:
         api="submitquicktest/"
-        print("submitquicktest:",quickTestConfig)
+        #print("submitquicktest:",quickTestConfig)
         response = requests.post(testsServiceUrl+api, headers=headers,json=quickTestConfig)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()

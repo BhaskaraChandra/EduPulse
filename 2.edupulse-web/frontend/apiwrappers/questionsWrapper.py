@@ -1,18 +1,21 @@
 import requests
 
 questionsServiceUrl = "https://edupulsesvc.onrender.com/"
-#questionsServiceUrl = "http://localhost:9117/"
+
+localService = True
+if localService:
+    questionsServiceUrl = "http://localhost:9117/"
 
 headers = {'Content-Type': 'application/json'}
 
-def get_webservice(url: str, params: dict = None, headers: dict = None) -> requests.Response:
-    try:
-        response = requests.get(url, params=params, headers=headers)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        return response
-    except requests.exceptions.RequestException as err:
-        print(f"Request Exception: {err}")
-        return None
+# def get_webservice(url: str, params: dict = None, headers: dict = None) -> requests.Response:
+#     try:
+#         response = requests.get(url, params=params, headers=headers)
+#         response.raise_for_status()  # Raise an exception for HTTP errors
+#         return response
+#     except requests.exceptions.RequestException as err:
+#         print(f"Request Exception: {err}")
+#         return None
 
 def get_user_questions_metadata(user_id: str) -> requests.Response:
     api="userQuestions/"

@@ -15,7 +15,7 @@
             color: #333;
             text-align: center;
         }
-        .container {
+        .container_old {
             max-width: 600px;
             margin: auto;
             padding: 20px;
@@ -23,17 +23,105 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        .tree {
+        .tree_old {
             margin-top: 10px;
             padding-left: 20px;
         }
         .hidden { display: none; }
+		.container {
+		  max-width: 800px;
+		  margin: 40px auto;
+		  padding: 20px;
+		  background-color: #f9f9f9;
+		  border: 1px solid #ddd;
+		  border-radius: 10px;
+		  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		label {
+		  display: inline-block;
+		  margin-bottom: 10px;
+		  font-weight: bold;
+		}
+
+		select {
+          display: inline-block;
+		  /*width: 100%;*/
+		  height: 40px;
+		  margin-bottom: 20px;
+		  padding: 10px;
+		  border: 1px solid #ccc;
+		  border-radius: 5px;
+		}
+
+		select:disabled {
+		  background-color: #f0f0f0;
+		  cursor: not-allowed;
+		}
+
+		.tree {
+		  margin-bottom: 20px;
+		  padding: 10px;
+		  border: 1px solid #ccc;
+		  border-radius: 5px;
+		}
+
+		#levels-checkbox-container {
+		  margin-bottom: 20px;
+		}
+
+		#levels-checkbox-container label {
+		  display: inline-block;
+		  margin-right: 10px;
+		}
+
+		#nQuestionsRange {
+		  width: 100%;
+		  height: 10px;
+		  margin-bottom: 10px;
+		}
+
+		#generateTest {
+		  width: 100%;
+		  height: 40px;
+		  background-color: #4CAF50;
+		  color: #fff;
+		  padding: 10px;
+		  border: none;
+		  border-radius: 5px;
+		  cursor: pointer;
+		}
+
+		#generateTest:hover {
+		  background-color: #3e8e41;
+		}
+
+		#lbl_nQuestions {
+		  font-weight: bold;
+		  margin-bottom: 10px;
+		  display: block;
+		}
+        #lbl_dLevels {
+        font-weight: bold;
+        display: inline-block;
+        margin-right: 10px;
+        }
+
+        #all-difficulty {
+        display: inline-block;
+        margin-right: 5px;
+        }
+
+        #all-difficulty + label {
+        display: inline-block;
+        }
+
     </style>
 </head>
 <body>
 
     <h2 id="Title">Checking any existing Practice tests. Please wait</h2>
-    <div class="container" id="NewTestFrame">
+    <!--div class="container" id="NewTestFrame">
         <label for="subject">Select Subject:</label>
         <select id="subject">
             <option value="">--Select Subject--</option>
@@ -49,12 +137,33 @@
         <input type="checkbox" id="all-difficulty">Select All</input>
         <div id="levels-checkbox-container"></div>
         
-        <!--label for="level-' + i + '">' + i + '</label-->
         <br><span id="lbl_nQuestions">No of Questions:</span>
         <input type="range" id="nQuestionsRange" min="10" max="100" value="10" oninput="document.getElementById('nQuestions').textContent = this.value">
         <span id="nQuestions">10</span>
         <br><button id="generateTest">Generate Test</button>
-    </div>
+    </div-->
+	<div class="container" id="NewTestFrame">
+	  <label for="subject">Select Subject:</label>
+	  <select id="subject">
+		<option value="">--Select Subject--</option>
+	  </select>
+	  <label for="grade">Select Grade:</label>
+	  <select id="grade" disabled>
+		<option value="">--Select Grade--</option>
+	  </select>
+	  <div id="topic-tree" class="tree hidden"></div>
+	  <br>
+	  <span id="lbl_dLevels">Difficulty Levels:</span>
+	  <input type="checkbox" id="all-difficulty">
+	  <label for="all-difficulty">Select All</label>
+	  <div id="levels-checkbox-container"></div>
+	  <br>
+	  <span id="lbl_nQuestions">No of Questions:</span>
+	  <input type="range" id="nQuestionsRange" min="10" max="100" value="10" oninput="document.getElementById('nQuestions').textContent = this.value">
+	  <span id="nQuestions">10</span>
+	  <br>
+	  <button id="generateTest">Generate Test</button>
+	</div>
 
 <script>
     //alert("createTest.html");
@@ -297,17 +406,3 @@
       
 </body>
 </html> 
-
-
-
-
-
-
-
-
-
-
-
-
-
-

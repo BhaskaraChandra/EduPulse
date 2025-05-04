@@ -3,8 +3,11 @@ import requests
 
 questionsServiceUrl = "https://edupulsesvc.onrender.com/"
 userssServiceUrl = "https://edupulsesvc.onrender.com/"
-#questionsServiceUrl = "http://localhost:9117/"
-#userssServiceUrl = "http://localhost:9117/"
+
+localService = True
+if localService:
+    questionsServiceUrl = "http://localhost:9117/"
+    userssServiceUrl = "http://localhost:9117/"
 
 headers = {'Content-Type': 'application/json'}
 

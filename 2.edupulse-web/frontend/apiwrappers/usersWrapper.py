@@ -4,7 +4,7 @@ import requests
 questionsServiceUrl = "https://edupulsesvc.onrender.com/"
 userssServiceUrl = "https://edupulsesvc.onrender.com/"
 
-localService = True
+localService = False
 if localService:
     questionsServiceUrl = "http://localhost:9117/"
     userssServiceUrl = "http://localhost:9117/"

@@ -57,6 +57,18 @@ function displayScoreBoard(data)
   });
 }
 
+function getBackgroundColor(level) {
+  const colors = [
+    '#ADD8E6', // Light blue (level 0)
+    '#C6F4D6', // Light green (level 1)
+    '#F7DC6F', // Light yellow (level 2)
+    '#FFC0CB',  // Light pink (level 3)
+    '#C9E4CA'  // Pale lavender green (level 4)
+  ];
+
+  return colors[level % colors.length];
+}
+
 function createScoreCardRow(label,node, table, level, parentRow) 
 {
   if(node["_metrics"]["nCorrect"] == undefined) return;
@@ -82,6 +94,7 @@ function createScoreCardRow(label,node, table, level, parentRow)
   nodeName.textContent = label;//node.name;
   nameCell.appendChild(toggleButton);
   nameCell.appendChild(nodeName);
+  row.style.backgroundColor = getBackgroundColor(level);
   row.appendChild(nameCell);
 
   yes=node["_metrics"]["nCorrect"];no=node["_metrics"]["nInCorrect"];

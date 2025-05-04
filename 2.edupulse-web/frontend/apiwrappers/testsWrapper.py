@@ -6,7 +6,7 @@ import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"
 
-localService = True
+localService = False
 if localService:
     testsServiceUrl = "http://localhost:9117/"
 

@@ -99,7 +99,7 @@ import concurrent.futures
 def CreateAndSubmitTestWrapper(user_id):
     CreateAndSubmitTest(user_id)
 
-N = 20 #int(input("Enter the number of users: "))
+N = 10 #int(input("Enter the number of users: "))
 async def main():
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:

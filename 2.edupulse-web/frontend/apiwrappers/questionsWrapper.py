@@ -6,6 +6,9 @@ localService = False
 if localService:
     questionsServiceUrl = "http://localhost:9117/"
 
+import os
+questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
+
 headers = {'Content-Type': 'application/json'}
 
 # def get_webservice(url: str, params: dict = None, headers: dict = None) -> requests.Response:

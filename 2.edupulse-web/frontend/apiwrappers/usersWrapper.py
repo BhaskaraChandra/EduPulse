@@ -9,6 +9,10 @@ if localService:
     questionsServiceUrl = "http://localhost:9117/"
     userssServiceUrl = "http://localhost:9117/"
 
+import os
+questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
+userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
+
 headers = {'Content-Type': 'application/json'}
 
 def authenticate_user(username, password):

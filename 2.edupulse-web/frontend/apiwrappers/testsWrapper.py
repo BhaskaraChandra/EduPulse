@@ -9,6 +9,8 @@ testsServiceUrl = "https://edupulsesvc.onrender.com/"
 localService = False
 if localService:
     testsServiceUrl = "http://localhost:9117/"
+import os
+testsServiceUrl = os.environ.get('tsvc',testsServiceUrl)
 
 headers = {
     'Content-Type': 'application/json',

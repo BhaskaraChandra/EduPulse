@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 import requests
 
 testsServiceUrl = "https://edupulsesvc.onrender.com/"
+metricsServiceUrl = "https://edupulsesvc.onrender.com/"
 
 localService = False
 if localService:

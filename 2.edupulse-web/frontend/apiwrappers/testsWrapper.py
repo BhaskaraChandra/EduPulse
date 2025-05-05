@@ -9,9 +9,10 @@ testsServiceUrl = "https://edupulsesvc.onrender.com/"
 localService = False
 if localService:
     testsServiceUrl = "http://localhost:9117/"
+    metricsServiceUrl = "http://localhost:9117"
 import os
 testsServiceUrl = os.environ.get('tsvc',testsServiceUrl)
-
+metricsServiceUrl = os.environ.get('msvc',metricsServiceUrl)
 headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -84,7 +85,7 @@ def getTestsHistory(user_id: str, page: int = 1, page_size: int = 10) -> request
 def getUserMetrics(user_id: str) -> requests.Response:
     try:
         api="user_metrics/"
-        response = requests.get(testsServiceUrl + api, headers=headers, params={"user_email": user_id})
+        response = requests.get(metricsServiceUrl + api, headers=headers, params={"user_email": user_id})
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         return response

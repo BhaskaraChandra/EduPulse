@@ -87,7 +87,6 @@ def create_test_view(request):
     start_time = time.time()
     print("Create Test View")
     userObj = request.session.get("user")
-    #user_topics = questionsWrapper.get_topics_metadata(userObj["email"])
     #above method to get topics metadata is no longer being used, as the below method is being used.
     user_questions = questionsWrapper.get_user_questions_metadata(userObj["userEmail"])
     for subject,subObj in user_questions.items():
@@ -129,17 +128,16 @@ def topics_view(request):
 def manage_topics_view(request):
     start_time = time.time()
     #print("Manage Topics View")
-    topicsMetadata = questionsWrapper.get_topics_metadata()
     userObj = request.session.get("user")
     #print("User Object:", userObj)
-    userTopicsMetadata = questionsWrapper.get_topics_metadata(userObj["email"])
+    userTopicsMetadata = questionsWrapper.get_user_questions_metadata(userObj["userEmail"])
     #print("Global Topics:", topicsMetadata)
     #print("User Topics:", userTopicsMetadata)
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Time taken by manage_topics_view: {elapsed_time:.4f} seconds")
     return render(request, 'manage_topics.html', {
-        "topics_json": json.dumps(topicsMetadata), #this is the generic topics json
+        "topics_json": json.dumps(userTopicsMetadata), #this is the generic topics json
         "selected_topics_json": json.dumps(userTopicsMetadata)  # this is the user specific topics json
     })
 
@@ -147,11 +145,11 @@ def manage_topics_view(request):
 def save_selected_topics(request):
     if request.method == "POST":
         try:
-            userObj = request.session.get("user");#print("User Object:", userObj)
+            userObj = request.session.get("user");print("User Object:", userObj)
             data = json.loads(request.body)
             selected_topics = data.get("selected_topics", [])
             #print("Selected Topics:", json.dumps(selected_topics, indent=4))
-            questionsWrapper.save_selected_topics(userObj["email"],selected_topics)
+            questionsWrapper.save_selected_topics(userObj["userEmail"],selected_topics)
             # NOTE: use the below reference code to send any data to the frontend.
             #request.session["selected_topics"] = structured_data
             #request.session.modified = True  # Ensure session updates

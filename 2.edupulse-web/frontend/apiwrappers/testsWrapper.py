@@ -4,10 +4,10 @@ from typing import List
 from fastapi.responses import JSONResponse
 import requests
 
-testsServiceUrl = "https://edupulsesvc.onrender.com/"
-metricsServiceUrl = "https://edupulsesvc.onrender.com/"
+testsServiceUrl = "https://epsvc-qt.onrender.com/"
+metricsServiceUrl = "https://epsvc-m.onrender.com/"
 
-localService = False
+localService = True
 if localService:
     testsServiceUrl = "http://localhost:9117/"
     metricsServiceUrl = "http://localhost:9117"
@@ -50,8 +50,6 @@ def getTestSummary(ids: List) -> requests.Response:
     try:
         #print("getTestSummary:",ids)
         api="questionsSummary/"
-        #api="userQuestions/"
-        #response = requests.get(testsServiceUrl + api, headers=headers, params={"useremail": "dhoni@csk.com"})
         response = requests.get(testsServiceUrl + api, headers=headers, params={"ids": ids})
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()

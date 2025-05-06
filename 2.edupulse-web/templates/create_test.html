@@ -186,14 +186,14 @@
 
         let selectedTopics = JSON.parse('{{ selected_topics_json|escapejs }}');
     
-        console.log("Received selected topics in frontend:", selectedTopics);
+        //console.log("Received selected topics in frontend:", selectedTopics);
     
         let subjectDropdown = document.getElementById("subject");
         let gradeDropdown = document.getElementById("grade");
         let topicTreeContainer = document.getElementById("topic-tree");
         // Populate the Subject Dropdown
         if (Object.keys(selectedTopics).length > 0) {
-            populateDropdown(subjectDropdown, Object.keys(selectedTopics));
+            populateDropdown(subjectDropdown, Object.keys(selectedTopics),selectedTopics);
         } else {
             console.warn(" No subjects found in session data.");
         }
@@ -202,7 +202,7 @@
             let selectedSubject = subjectDropdown.value;
             if (selectedSubject && selectedTopics[selectedSubject]) 
             {
-                populateDropdown(gradeDropdown, Object.keys(selectedTopics[selectedSubject]));
+                populateDropdown(gradeDropdown, Object.keys(selectedTopics[selectedSubject]),selectedTopics[selectedSubject]);
                 gradeDropdown.disabled = false;
                 topicTreeContainer.classList.add("hidden");
             } else {
@@ -213,9 +213,10 @@
         gradeDropdown.addEventListener("change", function() {
             let selectedSubject = subjectDropdown.value;
             let selectedGrade = gradeDropdown.value;
-            if (selectedGrade && selectedTopics[selectedSubject][selectedGrade]) {
+            let topicsObj = selectedTopics[selectedSubject][selectedGrade]
+            if (selectedGrade && topicsObj /*&& topicsObj["_metrics"]["*"] == true*/) {
                 topicTreeContainer.innerHTML = "";
-                topicTreeContainer.appendChild(createNestedList(selectedTopics[selectedSubject][selectedGrade]));
+                topicTreeContainer.appendChild(createNestedList(topicsObj));
                 topicTreeContainer.classList.remove("hidden");
             } else {
                 topicTreeContainer.classList.add("hidden");
@@ -312,12 +313,13 @@
             }
         };
     }
-    function populateDropdown(dropdown, options) {
-        //alert("populateDropdown");
+    function populateDropdown(dropdown, options,object = null) {
+        //alert("populateDropdown:"+object);
         dropdown.innerHTML = '<option value="">--Select--</option>';
         options.forEach(option => {
             //alert(option);
-            if (option !== "_metrics" && option !== "_id") {
+            if (option !== "_metrics" && option !== "_id" && object[option]["_metrics"]["*"] == true) {
+                //alert("Enabled:"+option);
                 let opt = document.createElement("option");
                 opt.value = option;
                 opt.textContent = option;
@@ -340,11 +342,13 @@
         let ul = document.createElement("ul");
         for (let key in obj) {
             if (key === "_metrics") continue;
+            if(obj[key]["_metrics"]["*"] == false) continue;//means, this topic is disabled in the Manage Topics page.
             let topicElm = document.createElement("li");
             topicElm.textContent = key;//alert(key);
             let subUl = document.createElement("ul");
             for (let subtopic in obj[key]) {
                 if (subtopic === "_metrics") continue;
+                if(obj[key][subtopic]["_metrics"]["*"] == false) continue;//means, this subtopic is disabled in the Manage Topics page.
                 let subLi = document.createElement("li");
                 let checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
@@ -362,7 +366,7 @@
         }
         return ul;
     }
-
+/*
     function createNestedListBruteForce(obj) 
     {//unused function can be cleaned up
         let ul = document.createElement("ul");
@@ -400,7 +404,7 @@
         }
         return ul;
     }
-
+*/
 
 </script>
       

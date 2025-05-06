@@ -3,9 +3,6 @@ from django.urls import path
 from frontend.view_admin import SubmitConsumer, SubmitTenant, SubmitTenantAdmin, login_view, logout_view, settings_view, sidebar, tenantdashboard, user_dashboard
 from frontend.view_tests import compare_view, create_test_view, daily_challenge_view, dashboards_view, generate_test, get_active_quick_test, livetest, manage_topics_view, metrics_view, my_progress_view, save_selected_topics, submit_test, testSummary,history_view, tests_view, topics_view
 
-#from .views import (create_test_view, daily_challenge_view,
-# topics_view,tests_view, save_selected_topics,manage_topics_view,dashboards_view, my_progress_view, compare_view, settings_view,SubmitTenantAdmin)
-
 
 urlpatterns = [
     #Admin paths

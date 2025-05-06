@@ -78,6 +78,7 @@ def CreateAndSubmitTest(userid):
     #await asyncio.sleep(1)
     start_time = time.time()
     user_questions = get_user_questions_metadata(userid)
+    #user_questions = testsWrapper.getUserMetrics(userid).json()
     testConfig = composeTestConfig(user_questions)
     ret = testsWrapper.generateQuickTest(testConfig.model_dump())
     ret = testsWrapper.getActiveQuickTest(userid)
@@ -99,13 +100,14 @@ import concurrent.futures
 def CreateAndSubmitTestWrapper(user_id):
     CreateAndSubmitTest(user_id)
 
-N = 10 #int(input("Enter the number of users: "))
+N = 40 #int(input("Enter the number of users: "))
 async def main():
     loop = asyncio.get_running_loop()
-    with concurrent.futures.ThreadPoolExecutor() as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
         tasks = []
         for i in range(1, N + 1):
             user_id = f"perf_user{i}"
+            #print(f"Running for user: {user_id}")
             task = loop.run_in_executor(pool, CreateAndSubmitTestWrapper, user_id)
             tasks.append(task)
         await asyncio.gather(*tasks)

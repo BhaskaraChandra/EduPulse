@@ -411,8 +411,8 @@ function handleSubmitButtonClick()
     //alert(JSON.stringify(testResponse));
     
     clearInterval(timerId);// to stop the timer
-    document.querySelector('.submit-button').disabled = true;
-
+    //document.querySelector('.submit-button').style.disabled = true;
+    document.querySelector('.submit-button').style.display = "none";
     testResponse["testduration"] = globalTestDuration;
     testResponse["endTime"] = new Date();
 

@@ -75,11 +75,15 @@ function createTreeView(data, parentElement) {
 
     for (let key in data) 
     {
+        if (key === "_id" || key === "_metrics") {
+            continue;
+        }
         let ul = document.createElement("ul");
         let li = document.createElement("li");
         li.className = "tree-item";
 
         let checkbox = document.createElement("input");
+        checkbox.checked = data[key]["_metrics"]["*"] ;
         checkbox.type = "checkbox";
         checkbox.className = "tree-checkbox";
 
@@ -91,12 +95,16 @@ function createTreeView(data, parentElement) {
 
         let nestedUl = document.createElement("ul");
         nestedUl.className = "nested";
-
+        if(checkbox.checked)
+        {
+            nestedUl.style.display = "block";
+        }
         if (typeof data[key] === "object" && !Array.isArray(data[key])) {
             createTreeView(data[key], nestedUl);
             li.appendChild(nestedUl);
         } else if (Array.isArray(data[key])) {
-            data[key].forEach(subtopic => {
+            alert("Looks like obsolete code. you can delete this if you havent seen this recently while testing")
+            /*data[key].forEach(subtopic => {
                 let subLi = document.createElement("li");
                 let subCheckbox = document.createElement("input");
                 subCheckbox.type = "checkbox";
@@ -109,7 +117,7 @@ function createTreeView(data, parentElement) {
                 subLi.appendChild(subLabel);
                 nestedUl.appendChild(subLi);
             });
-            li.appendChild(nestedUl);
+            li.appendChild(nestedUl);*/
         }
 
         ul.appendChild(li);
@@ -122,13 +130,68 @@ function createTreeView(data, parentElement) {
     }//end for loop
 }
 
-
+function ScanAndUpdateSubTopics(subject,grade,topic, element, selectedData)
+{
+    element.childNodes.forEach(node => 
+    {//Looping through Grades
+        let checkbox = node.querySelector(".tree-checkbox");
+        let subtopic = node.querySelector("span").textContent.trim();
+        let nestedUl = node.querySelector(".nested");
+        if (checkbox /*&& checkbox.checked*/) 
+        {
+            selectedData[subject][grade][topic][subtopic]["_metrics"]["*"] = checkbox.checked;
+        } 
+    });
+}
+function ScanAndUpdateTopics(subject,grade, element, selectedData)
+{
+    element.childNodes.forEach(node => 
+    {//Looping through Grades
+        let checkbox = node.querySelector(".tree-checkbox");
+        let topic = node.querySelector("span").textContent.trim();
+        let nestedUl = node.querySelector(".nested");
+        if (checkbox /*&& checkbox.checked*/) 
+        {
+            selectedData[subject][grade][topic]["_metrics"]["*"] = checkbox.checked;
+            ScanAndUpdateSubTopics(subject,grade,topic, nestedUl, selectedData);
+        } 
+    });
+}
+function ScanAndUpdateGrades(subject, element, selectedData)
+{
+    element.childNodes.forEach(node => 
+    {//Looping through Grades
+        let checkbox = node.querySelector(".tree-checkbox");
+        let grade = node.querySelector("span").textContent.trim();
+        let nestedUl = node.querySelector(".nested");
+        if (checkbox /*&& checkbox.checked*/) 
+        {
+            selectedData[subject][grade]["_metrics"]["*"] = checkbox.checked;
+            ScanAndUpdateTopics(subject, grade, nestedUl, selectedData);
+        } 
+    });
+}
+function ScanAndUpdateSelections(element, selectedData) 
+{
+    element.childNodes.forEach(node => 
+    {//Looping through subjects
+        let checkbox = node.querySelector(".tree-checkbox");
+        let subject = node.querySelector("span").textContent.trim();
+        let nestedUl = node.querySelector(".nested");
+        if (checkbox /*&& checkbox.checked*/) 
+        {
+            selectedData[subject]["_metrics"]["*"] = checkbox.checked;
+            ScanAndUpdateGrades(subject, nestedUl, selectedData);
+        } 
+    });
+}
 
 function saveTopics() {
-    let selectedData = {};
+    let selectedData = JSON.parse('{{ topics_json|escapejs }}');
     let treeViewElement = document.getElementById("topics-container");
-    traverseTreeView(treeViewElement, selectedData);
-    console.log("Selected Data:", JSON.stringify(selectedData, null, 2));
+    //traverseTreeView(treeViewElement, selectedData);
+    ScanAndUpdateSelections(treeViewElement, selectedData);
+    //console.log("Selected Data:", JSON.stringify(selectedData, null, 2));
     //alert(JSON.stringify(selectedData, null, 2));
     //return
     fetch('/api/topics/', {
@@ -144,7 +207,7 @@ function saveTopics() {
     .catch(error => console.error('Error:', error));
     alert("Topics saved successfully for user: {{ user.username }}");
 }
-
+/*
 function traverseTreeView(element, selectedData, parentKey = null,level = 0) 
 {
     //alert("Parentkey:" + parentKey);
@@ -160,7 +223,6 @@ function traverseTreeView(element, selectedData, parentKey = null,level = 0)
             //alert("checkbox:"+checkbox.checked+"\nLabel:"+label+"\nNestedUl:"+nestedUl+"\nlevel:"+level);
             if (checkbox && checkbox.checked) 
             {
-                
                 if (nestedUl) {
                     if (!selectedData[label]) 
                         selectedData[label] = level==2?[]:{};
@@ -190,7 +252,7 @@ function traverseTreeView(element, selectedData, parentKey = null,level = 0)
         else alert("Exceptional case:" + node.nodeType);
     });
 }
-
+*/
 
 </script>
 </body>

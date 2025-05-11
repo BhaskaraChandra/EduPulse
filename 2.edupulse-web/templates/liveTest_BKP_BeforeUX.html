@@ -1,5 +1,9 @@
 {% load static %}
 {% block page_content %}
+    <!--h1>Live Test</h1-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails }}"-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails|json_script:'question-details' }}"-->
+    <!--input type="hidden" id="question-details" value="{{ questionDetails|safe }}"-->
     <div class="test-header">
         <!--span class="test-id">Test ID: {{ test_id }}</span-->
         <span class="test-id">"Live Test"</span>
@@ -9,11 +13,14 @@
             <button class="submit-button">Submit</button>
         </div>
     </div>
-    <div class="container">
+        <div class="container">
         <div class="left-panel">
             <div class="question-list"></div>
         </div>
         <div class="middle-panel">
+            <!--label>\[If $f(x) = 3x^2 + 2x - 5$, then $f'(x)$ is   equal   to\]</label-->
+              
+            <!--div class="question-display"></div--> 
             <div class="question-header">
                 <span class="question-id"  id="question-id"><b>Question</b></span>
                 <span class="timer">00:00</span>
@@ -79,13 +86,10 @@ window.onload = function()
         {
             questionListHtml += '<div class="question-item" '+
             'data-question-id="' + key + '">' + key + 
-            '<button type="button" style="display: none;" id="rvw' + key + '">?</button>' +
-
             '<img src="data:image/png;base64,' + reviewImage + 
                 '" alt="Review Image" class="review-icon" width = 25 height = 25 id="review-icon-' + key + '">' +
             '<img src="data:image/png;base64,' + ActiveImage + 
                 '" alt="Active Image" class="review-icon" width = 25 height = 25 id="active-icon-' + key + '">' +
-
             '</div>';
         }
         if(questionIdCur==0) questionIdCur = key;//to automate clicking the first question
@@ -129,30 +133,22 @@ function AddQuestionClickEvents()
     // Add event listeners to each question item on the left panel
     questionList.addEventListener('click', (e) => {
         if (e.target.classList.contains('question-item')) {
-            // Remove active class from previous question
-            const previousActive = document.querySelector('.question-item.active');
-            if (previousActive) {
-                previousActive.classList.remove('active');
-            }
             const questionId = e.target.getAttribute('data-question-id');
             if(questionIdCur != 0)
             {
                 //const btn=document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
                 //txt = btn.innerHTML.replace("<b>","").replace("</b>","");
-                //const Actvicon = document.getElementById('active-icon-'+questionIdCur);
-                //Actvicon.classList.remove('review-icon.show');
-                //Actvicon.classList.add('review-icon');
+                const Actvicon = document.getElementById('active-icon-'+questionIdCur);
+                Actvicon.classList.remove('review-icon.show');
+                Actvicon.classList.add('review-icon');
                 //btn.innerHTML = txt;
-                //document.getElementById("rvw" + questionIdCur).style.display = "none";
             }
             questionIdCur = questionId;
-            
-            e.target.classList.add('active');// Add active class to current question
             //const btn=document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
             //btn.innerHTML = '<b>' + btn.innerHTML + '</b';
-            //const Actvicon1 = document.getElementById('active-icon-'+questionIdCur);
-            //Actvicon1.classList.remove('review-icon');
-            //Actvicon1.classList.add('review-icon.show');
+            const Actvicon1 = document.getElementById('active-icon-'+questionIdCur);
+            Actvicon1.classList.remove('review-icon');
+            Actvicon1.classList.add('review-icon.show');
             // Display the question in the middle panel
             displayQuestionLocal(questionId);
         }
@@ -187,9 +183,8 @@ function displayQuestionLocal(questionId)
         </ul>
         <button type="button" id="btnSkipQuestion">SkipQuestion</button>
         <button type="button" id="btnMarkForReview">Mark For Review</button>
-        <button type="button" id="clue">ShowClue</button>
         <div>
-        <label id=clue-label class="clue-solution" style="display:none"></label>
+        <label id=clue-label class="clue-solution"></label>
         <label id=solution-label></label><br>
         </div>
     `;
@@ -204,8 +199,6 @@ function displayQuestionLocal(questionId)
         displayLaTeXItem("Btnption1",data.Q[2]);
         displayLaTeXItem("Btnption2",data.Q[3]);
         displayLaTeXItem("Btnption3",data.Q[4]);
-        document.getElementById("clue-label").style.display = "none";
-        displayLaTeXItem("clue-label","Clue: "+ data.clue);
     }
 
     if(liveMode)
@@ -231,6 +224,10 @@ function displayQuestionLocal(questionId)
         displayLaTeXItem("clue-label","Clue: "+ data.clue);
         displayLaTeXItem("solution-label","Solution: "+data.solution);
         qidDisplay.innerHTML = "Question: " + data._id + "     Right Option: " + data.key + "     Selected Option: " + choice;
+
+        //displayLaTeXItem("solution-label","this is a multiline \\break text, spread into multiple lines");
+        //alert(data.solution);
+        //displayLaTeXItem("solution-label",data.solution);
     }
 }//END displayQuestionLocal(questionId)
 function displayLaTeXItem(elementid,text)
@@ -240,6 +237,22 @@ function displayLaTeXItem(elementid,text)
     ltx = `\\[${groom}\\]`;
     document.getElementById(elementid).innerHTML = ltx;
     MathJax.tex = {inlineMath: [['$', '$'], ['\\(', '\\)']],linebreaks: { automatic: true }};
+    /*MathJax.tex = {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        tags: 'ams',
+        tagSide: 'right',
+        tagIndent: '0.8em',
+        multlineWidth: '85%',
+        displayAlign: 'center',
+        displayIndent: '0',
+        linebreaks: { automatic: true }
+    };*/
+    //document.getElementById(elementid).style.maxWidth = '100%';
+    //document.getElementById(elementid).style.overflowX = 'auto';
+    //document.getElementById(elementid).style.wordWrap = 'break-word';
+    //document.getElementById(elementid).style.wordBreak = 'break-all';
     MathJax.typeset([document.getElementById(elementid)]);
 }
 function displayImageItem(elementid,text)
@@ -279,27 +292,18 @@ function addTextOptionButtonListeners()
             button.classList.add('selected');// Add selected class to clicked Button
         }
     });//END adding event listeners for each text option button click.
-
-    document.getElementById("clue").addEventListener("click", function() 
-    {
-        document.getElementById("clue-label").style.display = "block";
-    });
-
     const btnMark = document.getElementById("btnMarkForReview");
     btnMark.addEventListener('click', () => 
     {
         const questionItem = Array.from(questionItems).find(item => item.getAttribute('data-question-id') === questionIdCur);
-        const questionbtn = document.querySelector(`.question-item[data-question-id="${questionIdCur}"]`);
-        //rvwicon = document.getElementById('review-icon-'+questionIdCur);
+        rvwicon = document.getElementById('review-icon-'+questionIdCur);
         if(btnMark.innerHTML == "Mark For Review")
         {
             btnMark.innerHTML = "Mark Reviewed";
-            //rvwicon.classList.remove('review-icon');
-            //rvwicon.classList.add('review-icon.show');
-            //questionbtn.classList.add("marked-for-review");
+            rvwicon.classList.remove('review-icon');
+            rvwicon.classList.add('review-icon.show');
             //questionItem.textContent = questionItem.textContent + "**";
             //data.markedAsReview = "1";
-            document.getElementById("rvw" + questionIdCur).style.display = "block";
             testResponse["Qs"][questionIdCur]["Review"] = true;
             testResponse["reviewCount"]++;
             //alert("");
@@ -307,12 +311,10 @@ function addTextOptionButtonListeners()
         else
         {
             btnMark.innerHTML = "Mark For Review";
-            //rvwicon.classList.remove('review-icon.show');
-            //rvwicon.classList.add('review-icon');
-            //questionItem.classList.remove("marked-for-review");
+            rvwicon.classList.remove('review-icon.show');
+            rvwicon.classList.add('review-icon');
             //questionItem.textContent = questionItem.textContent.replace("**","");
             //data.markedAsReview = "0";
-            document.getElementById("rvw" + questionIdCur).style.display = "none";
             testResponse["Qs"][questionIdCur]["Review"] = false;
             testResponse["reviewCount"]--;
         }
@@ -350,10 +352,7 @@ let globalTestDuration = 0;
 const timerId = setInterval(() => {
     const timerElement = document.querySelector('.timer');
     status = "Attempted: "+ testResponse['attemptCount'] +"/"+ testResponse['qCount'] +" | In Review: "+ testResponse['reviewCount'];
-      const min = String(Math.floor(globalTestDuration / 60)).padStart(2, '0');
-      const sec = String(globalTestDuration % 60).padStart(2, '0');
-      document.getElementById('testtimer').textContent = `${min}:${sec}`;
-    //document.getElementById("testtimer").innerHTML = globalTestDuration;
+    document.getElementById("testtimer").innerHTML = globalTestDuration;
     document.getElementById("teststatus").innerHTML = status;//TODO: metrics: 
 
     //console.log("qid"+questionIdCur);
@@ -361,9 +360,7 @@ const timerId = setInterval(() => {
     if(questionIdCur != 0)
     {
         dur = testResponse["Qs"][questionIdCur]["TimeSpent"]++;
-        const min = String(Math.floor(dur / 60)).padStart(2, '0');
-        const sec = String(dur % 60).padStart(2, '0');
-        timerElement.textContent = `${min}:${sec}`;
+        timerElement.textContent = `${dur}`;
     }
     //console.log(dur);
 }, 1000);
@@ -414,8 +411,8 @@ function handleSubmitButtonClick()
     //alert(JSON.stringify(testResponse));
     
     clearInterval(timerId);// to stop the timer
-    document.querySelector('.submit-button').disabled = true;
-
+    //document.querySelector('.submit-button').style.disabled = true;
+    document.querySelector('.submit-button').style.display = "none";
     testResponse["testduration"] = globalTestDuration;
     testResponse["endTime"] = new Date();
 
@@ -450,6 +447,24 @@ function handleSubmitButtonClick()
     };
     xhr.send(JSON.stringify(testResponse));
     //alert("Test submitted successfully");
+    /*xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // Handle the response from the server
+            console.log(xhr.responseText);
+            alert("AjaxResponse received: "+xhr.responseText);
+            document.body.innerHTML = xhr.responseText;
+            testResult = JSON.parse(xhr.responseText);
+            summary = "Total Questions: "+testResult["total"];
+            summary += "\nCorrect: "+testResult["correct"];
+            summary += "\nScore: "+testResult["score"];
+            summary += "\nIncorrect: "+testResult["wrong"];
+            summary += "\nNot Attempted: "+testResult["unattempted"];
+            summary += "\nMarked for Review: "+testResult["review"];
+            summary += "\nTotal Time: "+testResult["TestDuration"]+" seconds";
+            alert(summary);
+
+        }
+    };*/
 
     console.log('Submit button clicked!');
 }
@@ -488,7 +503,7 @@ document.querySelector('.submit-button').addEventListener('click', handleSubmitB
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #c1cabb 0%, #8adc53 100%);
+            background-color: #15ced8;
             padding: 15px 10px;
             border-radius: 10px;
             border-bottom: 1px solid #ccc;
@@ -520,7 +535,7 @@ document.querySelector('.submit-button').addEventListener('click', handleSubmitB
             margin: 0;
         }
 
-        .question-item-chandra {
+        .question-item {
             padding: 10px;
             border-bottom: 1px solid #ccc;
             cursor: pointer;
@@ -528,67 +543,10 @@ document.querySelector('.submit-button').addEventListener('click', handleSubmitB
             align-items: center;
         }
 
-        .question-item {
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            border: 2px solid #b28653;
-            border-radius: 8px;
-            /*color: #a3d812;*/
-            background: linear-gradient(135deg, #e6ddd6 0%, #d3ae5c 100%);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            font-size: 1em;
-            box-shadow: 0 1px 4px rgba(51, 65, 85, 0.08);
-            position: relative;
-        }
-        .question-item.active {
-            background: linear-gradient(135deg,  #e6ddd6 0%, #d8721d 100%);
-            border: 2px solid #d97706;
-            box-shadow: 0 2px 8px rgba(51, 65, 85, 0.15);
-            padding-left: 35px;
-            width: calc(80%);
-            /*transform: scaleX(1.05);*/
-        }
-        .question-item.answered {
-            background: linear-gradient(90deg,  #acc9d3 0%, #50badd 100%);
-            /*background: #3b82f6 !important;  /* Blue for answered questions */
-            border: 1px solid #666769;
-            color: #ffffff !important;
-        }
-        .question-item.marked-for-review {
-            content: "?";
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background: #9333ea;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 20px;
-            font-weight: bold;
-            margin-left: auto;
-        }
-        .question-item.marked-for-review::after {
-            content: "?";
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background: #9333ea;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 20px;
-            font-weight: bold;
-            margin-left: auto;
-        }
         .question-item:hover {
             background-color: #ccc;
             display: flex;
             align-items: center;
-            transform: scaleX(1.05);
         }
 
         .middle-panel {
@@ -616,7 +574,7 @@ document.querySelector('.submit-button').addEventListener('click', handleSubmitB
         .wrong {
             background-color: #e82719; 
         }
-        .test-header-Chandra {
+        .test-header {
             width: 80%;
             height: 1inch; /* or 2.54cm */
             background-color: #f0f0f0;
@@ -627,27 +585,13 @@ document.querySelector('.submit-button').addEventListener('click', handleSubmitB
             border-bottom: 1px solid #ccc;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .test-header {
-            width: calc(100% - 16px);
-            min-height: 36px;
-            background: linear-gradient(90deg, #a3bdca 0%, #55b3e3 100%);
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 16px;
-            border-radius: 0;
-            margin: 0 0 0 0;
-            margin-right: 16px;
-            box-shadow: 0 2px 12px rgba(51, 65, 85, 0.15);
-        }
 
         .test-id {
         font-weight: bold;
         }
 
         .submit-button {
-        background-color: hsla(122, 80%, 20%, 0.797);
+        background-color: #4CAF50;
         color: #fff;
         padding: 10px 20px;
         border: none;

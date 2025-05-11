@@ -10,7 +10,7 @@ metricsServiceUrl = "https://epsvc-m.onrender.com/"
 localService = True
 if localService:
     testsServiceUrl = "http://localhost:9117/"
-    metricsServiceUrl = "http://localhost:9117"
+    metricsServiceUrl = "http://localhost:9117/"
 import os
 testsServiceUrl = os.environ.get('tsvc',testsServiceUrl)
 metricsServiceUrl = os.environ.get('msvc',metricsServiceUrl)

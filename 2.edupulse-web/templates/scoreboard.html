@@ -57,6 +57,17 @@ function displayScoreBoard(data)
   });
 }
 
+function getBackgroundGradient(level) {
+  const gradients = [
+    'linear-gradient(to bottom, #ADD8E6, #87CEEB)', // Light blue gradient
+    'linear-gradient(to bottom, #C6F4D6, #8BC34A)', // Light green gradient
+    'linear-gradient(to bottom, #F7DC6F, #F2C464)', // Light yellow gradient
+    'linear-gradient(to bottom, #FFC0CB, #FFB6C1)', // Light pink gradient
+    'linear-gradient(to bottom, #C9E4CA, #B2FFFC)' // Pale lavender green gradient
+  ];
+  return gradients[level % gradients.length];
+}
+
 function getBackgroundColor(level) {
   const colors = [
     '#ADD8E6', // Light blue (level 0)
@@ -94,7 +105,8 @@ function createScoreCardRow(label,node, table, level, parentRow)
   nodeName.textContent = label;//node.name;
   nameCell.appendChild(toggleButton);
   nameCell.appendChild(nodeName);
-  row.style.backgroundColor = getBackgroundColor(level);
+  //row.style.backgroundColor = getBackgroundColor(level);
+  row.style.backgroundImage = getBackgroundGradient(level);
   row.appendChild(nameCell);
 
   yes=node["_metrics"]["nCorrect"];no=node["_metrics"]["nInCorrect"];

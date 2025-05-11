@@ -14,7 +14,7 @@
 
   <script>
     let latexString = `
-      \\text{Consider the elements with}\\\\
+      \\text{Consider the} \\\\ \\text{elements with}\\\\
 	  \\text{electronic configurations given below:}\\\\
       \\text{(A) } 1s^22s^22p^63s^23p^1\\\\
       \\text{(B) } 1s^22s^22p^63s^23p^4\\\\
@@ -23,6 +23,7 @@
       \\text{Which of the following statements is correct regarding their metallic character?}
     `;
 	
+	let latexString = "If $P(x) = x^2 - 5x + 6$, $\\\\$ then $P(2)$ is equal to:";
 	latexString = `\\displaylines{`+latexString+`}`;
 
 	latexString = latexString.replace(/\n/g, '\\\\');

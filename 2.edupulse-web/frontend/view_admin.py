@@ -27,7 +27,7 @@ def login_view(request):
                 request.session["user_id"] = str(user["_id"])  # Store session
                 if(user["userType"]=="superadmin"):
                     tenants_data = usersWrapper.getTenants()
-                    return render(request, "dashboard.html", {"tenant_data": tenants_data})
+                    return render(request, "superadmin_dashboard.html", {"tenant_data": tenants_data})
                 elif(user["userType"]=="tenantadmin"):
                     print('tenantadmin')
                     request.session["tenantName"]=user["tenantName"]
@@ -46,9 +46,12 @@ def login_view(request):
     return render(request, "login.html")
 
 def tenantdashboard(request):
-    return render(request,"tenantdashboard.html")
+    return render(request,"tenantadmin_dashboard.html")
 def user_dashboard(request):
     return render(request, 'usersdashboard.html', {'user': request.session.get("user")})
+# def user_dashboard(request):
+#     #print('views.py')
+#     return render(request, 'usersdashboard.html', {'user': request.user})
 
 
 def logout_view(request):
@@ -57,13 +60,11 @@ def logout_view(request):
     return redirect('login')
 
 
-#@mongo_login_required
-def dashboard_view(request):
-    if "user_id" not in request.session:
-        return JsonResponse({"error": "Unauthorized access"}, status=401)
-    return render(request, "dashboard.html")
+# def dashboard_view(request):
+#     if "user_id" not in request.session:
+#         return JsonResponse({"error": "Unauthorized access"}, status=401)
+#     return render(request, "superadmin_dashboard.html")
 
-#@mongo_login_required
 def SubmitTenantAdmin(request):
     print("SubmitTenantAdminClicked")
     if request.method == 'POST':
@@ -84,7 +85,6 @@ def SubmitTenantAdmin(request):
                 print(f"Error adding Tenant Admin: {e}")
                 #messages.error(request, f"Error adding Tenant Admin: {e}")
 
-#@mongo_login_required
 def SubmitTenant(request):
     print("XXXXXSubmitTenantClicked")
     if request.method == 'POST':
@@ -117,9 +117,9 @@ def SubmitConsumer(request):
             email = request.POST.get("email")
             password = request.POST.get("password")
             tenantName = request.POST.get("tenant")
-            username = request.POST.get("username")
-            email = request.POST.get("email")
-            password = request.POST.get("password")
+            # username = request.POST.get("username")
+            # email = request.POST.get("email")
+            # password = request.POST.get("password")
             tenantName = request.session.get("tenantName") #request.POST.get("tenantName")
             #print("DBG: after getting the values")
             if username and email and password:
@@ -137,38 +137,6 @@ def SubmitConsumer(request):
                     print("Error in adding consumer:", e)
                     messages.error(request, f"Error adding Consumer: {e}")
 
-#@mongo_login_required
-# def dashboard(request):#commented out the url for now. if we dont get any error in testing, this can be removed.
-#     print("******dashboard called. COMPLETELY DUMMIFIED")
-#     user_id = request.session.get("user_id")  
-
-#     if request.method == "POST":
-#         print("Received POST request")  
-#         print("POST Data:", request.POST)  
-
-#         option = request.POST.get("option")
-#         print("Option:", option)
-
-#         if option == "tenantadmin":
-#             #print("Option is tenantadmin")
-#             username = request.POST.get("username")
-#             email = request.POST.get("email")
-#             password = request.POST.get("password")
-
-#             if username and email and password:
-#                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-#                 try:
-                    
-#                     print("Superadmin added successfully")
-#                     messages.success(request, "SuperAdmin added successfully!")
-#                     return redirect("dashboard")  # Keep this for superadmin
-#                 except Exception as e:
-#                     print("Error:", e)
-#                     messages.error(request, f"Error adding SuperAdmin: {e}")
-
-
-
-#@mongo_login_required
 def sidebar(request, option=None):
     user_id = request.session.get("user_id")
     print("Side bar Option Clicked: ", option)  # Debugging
@@ -183,11 +151,11 @@ def sidebar(request, option=None):
 
         print("Fetched Users Data:", users_data)
         records = users_data  
-        template = "tenantdashboard.html"
+        template = "tenantadmin_dashboard.html"
     
-    elif option == "tenantDummy": #this is unused and dummy
-        tenants_data = []
-        template = "dashboard.html"
+    # elif option == "tenantDummy": #this is unused and dummy
+    #     tenants_data = []
+    #     template = "d-ashboard.html"
 
     elif option == "tenant": #this is the actual SuperAdmin Dashboard to add Tenants
         total_superadmins = 0 #users_collection.count_documents({"usertype": "superadmin"})
@@ -197,7 +165,7 @@ def sidebar(request, option=None):
             tenant["tenantName"]=tenant["_id"] #stupid workaround to get the tenant name. otherwise _id is not getting displayed in javascript
             print(tenant)
         total_tenants = len(records)
-        template = "dashboard.html"
+        template = "superadmin_dashboard.html"
 
     context = {
         "option": option,

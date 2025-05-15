@@ -43,7 +43,12 @@ INSTALLED_APPS = [
     'userdashboard'
 ]
 
-
+'''
+MONGO_URI = "mongodb+srv://sai444134:1234567899@cluster0.6nyzm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(MONGO_URI)
+db = client["test"]  # Database Name
+users_collection = db["tenants"]  # Collection Name
+'''
 LOGIN_URL = "/dashboard"
 
 

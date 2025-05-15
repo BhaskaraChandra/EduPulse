@@ -207,58 +207,7 @@
         color: #333;
         padding: 10px;
     }
-/*view pop*/
-.viewpop {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        margin-top: 10px;
-        margin-left: 5px;
-        transition: 0.3s;
-        width: auto;
-        margin-bottom: 5px;
-        gap: 2px;
-    }     
 
-    .viewpop:hover {
-        background: #2980b9;
-    }
-      .viewpopus {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            width: 300px;
-            text-align: center;
-        } 
-        .close-btns {
-            background: #e74c3c;
-            margin-top: 10px;
-            padding: 10px, 10px;
-        }
-
-        .close-btns:hover {
-            background: #c0392b;
-        }
-        .viewpopups button {
-            /* background: #27ae60; */
-            background: #FB641B;
-            color: white;
-            border: none;
-            margin-top: 4px;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
 
 </style>
 </head>
@@ -293,7 +242,7 @@
                         {% for tenant in tenant_data %}
                             <tr style="text-align: center; background: white;">
                                 <td>{{ tenant.tenantName }}</td>
-                                <td>{{ tenant.adminCount }}<button class="viewpop">view</button></td>
+                                <td>{{ tenant.adminCount }}</td>
                                 <td>{{ tenant.userCount }}</td>
                                 <td><button class="adminpopup">Create Admin</button></td>
                             </tr>
@@ -329,32 +278,20 @@
             <button type="button" class="close-btn">Cancel</button>
         </form>
     </div>
-    <div class="viewpopus" id="viewadmins" style="display: none;">
-    <h2></h2> <!-- Add this line -->
-    <button type="button" class="close-btns">close</button>
-    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #2c3e50; color: white;">
-                <th>Admin Name</th>
-                <th>Admin Email</th>
-            </tr>
-        </thead>
-        <tbody id="adminDetailsforTenants">
-            <!-- Admin details will be dynamically populated here -->
-        </tbody>
-    </table>
-</div>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    function showAddTenantPopup() {
+
+document.addEventListener("DOMContentLoaded", function () 
+{
+    function showAddTenantPopup()
+    {
         const addTenantPopup = document.getElementById("addTenantPopupForm");
         addTenantPopup.style.display = "block";
         addTenantPopup.querySelector(".close-btn").addEventListener("click", function () {
             addTenantPopup.style.display = "none";
         });
     }
-
-    function showAddTenantAdminPopup(tenantName) {
+    function showAddTenantAdminPopup(tenantName)
+    {
         const addTenantAdminPopup = document.getElementById("addTenantAdminPopupForm");
         const popupTitle = addTenantAdminPopup.querySelector("h2");
         popupTitle.textContent = `Create Admin For ${tenantName}`;
@@ -366,16 +303,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function viewAdminPopup(tenantName) {
-        const viewAdminPopup = document.getElementById("viewadmins");
-        const popupTitle = viewAdminPopup.querySelector("h2");
-        popupTitle.textContent = `Admin details for ${tenantName}`;
-        viewAdminPopup.style.display = "block";
-        viewAdminPopup.querySelector(".close-btns").addEventListener("click",function () {
-            viewAdminPopup.style.display = "none";
-        })
-    }
-
     // Open popup when clicking on "Create Tenant", "Create Superadmin", "Add Tenant"
     document.querySelectorAll("#openPopup").forEach(button => {
         button.addEventListener("click", function (event) {
@@ -384,6 +311,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (button.classList.contains("create-superadmin-btn")) {
                 alert("Currently, creating superadmin is not supported.");
             } else if (button.classList.contains("add-tenant-btn")) {
+                //alert("adding a tenant")
                 showAddTenantPopup();
             }
         });
@@ -399,84 +327,8 @@ document.addEventListener("DOMContentLoaded", function () {
             showAddTenantAdminPopup(tenantName);
         });
     });
-
-    document.querySelectorAll(".viewpop").forEach(button => {
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-            const row = this.closest("tr");
-            const tenantName = row.querySelector("td:first-child").textContent.trim();
-            admins = postAPIRequest("{% url 'getTenantadminForTenant' %}", {"tenantName":tenantName}) // Call the API with tenant name
-            .then((admins) => {
-                //alert(admins);
-                // Get the table body where admin details will be displayed
-                var adminDetailsTableBody = document.getElementById("adminDetailsforTenants");
-                // Clear any existing rows in the table
-                adminDetailsTableBody.innerHTML = "";
-                // If admins is not an array, wrap it in an array
-                if (!Array.isArray(admins)) {
-                    admins = [admins];
-                }
-                // Iterate over the admins and create table rows for each
-                admins.forEach(function(admin) {
-                    var row = document.createElement("tr");
-                    var nameCell = document.createElement("td");
-                    var emailCell = document.createElement("td");
-                    nameCell.textContent = admin.username || admin.userName || admin.name || "";
-                    emailCell.textContent = admin.email || admin.userEmail || "";
-                    row.appendChild(nameCell);
-                    row.appendChild(emailCell);
-                    adminDetailsTableBody.appendChild(row);
-                });
-                viewAdminPopup(tenantName);
-            })
-            .catch((error) => {
-                console.log(error);
-                // Handle the error
-            });
-            //alert(admins);
-
-        });
-    });
 });
 
-function postAPIRequest(api, input) {
-  return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', api, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
-    xhr.send(JSON.stringify(input));
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          var admins = JSON.parse(xhr.responseText);
-          resolve(admins);
-        } else {
-          reject(xhr.statusText);
-        }
-      }
-    };
-  });
-}
-
-
-// Helper function to get the CSRF token from cookies
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-</script>              
+</script>                 
 </body>
 </html>

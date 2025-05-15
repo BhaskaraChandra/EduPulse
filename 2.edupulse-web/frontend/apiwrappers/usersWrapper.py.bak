@@ -64,10 +64,5 @@ def getUsersForTenantAdmin(adminUser_id):
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json() 
 
-def getTenantadminForTenant(tenantName):
-    api="get_tenant_admins_for_tenant/"
-    response = requests.get(userssServiceUrl+api, headers=headers,params={"tenantName": tenantName})
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    print("getAdminsfromTenant Response:",response.json())
-    return response.json()
+    pass
 #############################################################################################

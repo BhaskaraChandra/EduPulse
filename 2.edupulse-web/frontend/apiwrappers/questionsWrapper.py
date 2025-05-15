@@ -2,7 +2,7 @@ import requests
 
 questionsServiceUrl = "https://epsvc-qt.onrender.com/"
 
-localService = True
+localService = False
 if localService:
     questionsServiceUrl = "http://localhost:9117/"
 

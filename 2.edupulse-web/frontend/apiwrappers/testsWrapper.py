@@ -7,7 +7,7 @@ import requests
 testsServiceUrl = "https://epsvc-qt.onrender.com/"
 metricsServiceUrl = "https://epsvc-m.onrender.com/"
 
-localService = True
+localService = False
 if localService:
     testsServiceUrl = "http://localhost:9117/"
     metricsServiceUrl = "http://localhost:9117/"

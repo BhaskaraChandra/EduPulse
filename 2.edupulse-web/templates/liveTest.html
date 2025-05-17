@@ -225,6 +225,22 @@ function displayQuestionLocal(questionId)
     }
 }//END displayQuestionLocal(questionId)
 function displayLaTeXItem(elementid,text)
+{//version researched by Durga.
+    var groom = groomLatexString(text);
+    // Preserve $ for inline and display math
+    let ltx=groom;
+    /*//This block can be deleted after thorough testing
+    if (groom.includes('\\begin{matrix}') || groom.includes('\\begin{pmatrix}') || groom.includes('\\begin{bmatrix}')) {
+        // For matrices, ensure display math mode
+        ltx = groom.includes('\\[') ? groom : `\\[${groom}\\]`;
+    } else {
+        // For other LaTeX, preserve original formatting
+        ltx = groom.includes('\\[') || groom.includes('\\(') ? groom : `\\[${groom}\\]`;
+    }*/
+    document.getElementById(elementid).innerHTML = ltx;
+    MathJax.typeset([document.getElementById(elementid)]);
+}
+function displayLaTeXItemTraditionalUNUSED(elementid,text)
 {
     var groom = groomLatexString(text);
     groom = groom.replace(/\$/g, '');
@@ -247,10 +263,15 @@ function displayImageItem(elementid,text)
 }
 function groomLatexString(latexString) {
   return latexString.replace(/(\$.*?\$)|([^\$]+)/g, (match, mathPart, textPart) => {
-    return mathPart ? mathPart : '\\text{' + textPart + '}';
+    return mathPart ? mathPart : textPart;
   });
 }
 
+function groomLatexStringV0_UNUSED(latexString) {
+  return latexString.replace(/(\$.*?\$)|([^\$]+)/g, (match, mathPart, textPart) => {
+    return mathPart ? mathPart : '\\text{' + textPart + '}';
+  });
+}
 // Function to add event listeners to the options buttons for the current question.
 const questionItems = document.querySelectorAll('.question-item');
 function addTextOptionButtonListeners() 
@@ -456,13 +477,44 @@ function handleSubmitButtonClick()
 document.querySelector('.submit-button').addEventListener('click', handleSubmitButtonClick);
 
 </script>
+<!--MathJax/Latex related script and styles-->
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\(', '\)']],
+    displayMath: [['\[', '\]']],
+    processEscapes: true,
+    tags: 'ams',
+    linebreaks: {
+      automatic: true,
+      width: 'container'
+    }
+  },
+  chtml: {
+    displayAlign: 'left',
+    displayIndent: '2em'
+  }
+};
+</script>
 <style>
-.MathJax_Display {
-  overflow-x: auto;
-  max-width: 100%;
-  word-wrap: break-word;
-  word-break: break-all;
-}
+        .MathJax_Display {
+        overflow-x: auto;
+        max-width: 100%;
+        white-space: pre-wrap !important;
+        word-wrap: break-word;
+        margin: 1em 0;
+        }
+
+        .MathJax_Display > mjx-container[jax="CHTML"] {
+        overflow-x: visible !important;
+        max-width: 100%;
+        display: inline-block !important;
+        }
+
+</style>
+<!--END MathJax/Latex related script and styles-->
+
+<style>
         .question-container {
         border: 1px solid #ccc;
         border-radius: 10px;

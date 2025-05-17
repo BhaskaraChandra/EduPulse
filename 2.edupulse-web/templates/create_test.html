@@ -101,7 +101,7 @@
 		  margin-bottom: 10px;
 		  display: block;
 		}
-        #lbl_dLevels {
+        #lbl_dLevels, #Solved, #Unsolved, #Unattempted {
         font-weight: bold;
         display: inline-block;
         margin-right: 10px;
@@ -162,6 +162,11 @@
 	  <input type="range" id="nQuestionsRange" min="10" max="100" value="10" oninput="document.getElementById('nQuestions').textContent = this.value">
 	  <span id="nQuestions">10</span>
 	  <br>
+      <span id="lbl_include">Include:</span>
+      <input type="checkbox" id="Solved">Solved</input>
+      <input type="checkbox" id="Unsolved">Unsolved</input>
+      <input type="checkbox" id="Unattempted">Unattempted</input>
+
 	  <button id="generateTest">Generate Test</button>
 	</div>
 

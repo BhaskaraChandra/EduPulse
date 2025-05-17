@@ -1,13 +1,16 @@
 from pydantic import BaseModel
 import requests
 
-questionsServiceUrl = "https://epsvc-qt.onrender.com/"
-userssServiceUrl = "https://epsvc-u.onrender.com/"
+from .appConfig import appConfig
+config = appConfig()
 
-localService = False
-if localService:
-    questionsServiceUrl = "http://localhost:9117/"
-    userssServiceUrl = "http://localhost:9117/"
+questionsServiceUrl = config.questions_service_url
+userssServiceUrl = config.users_service_url
+
+# l-ocalService = False
+# if localService:
+#     questionsServiceUrl = "http://localhost:9117/"
+#     userssServiceUrl = "http://localhost:9117/"
 
 import os
 questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
@@ -18,7 +21,11 @@ headers = {'Content-Type': 'application/json'}
 def authenticate_user(username, password):
     api="users/authenticate"
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
-    response.raise_for_status()  # Raise an exception for HTTP errors
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+    #response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json()
 def createTenant(tenantName):
     api="tenants/"
@@ -34,13 +41,13 @@ def getTenants():
 
 class User(BaseModel):
     userEmail: str
-    userName: str
+    userName: str = ""
     userGrade: str =""
     userLevel: str = ""
     profilePic: str = ""
     userGroup: str = ""
-    userType: str
-    tenantName: str
+    userType: str = ""
+    tenantName: str = ""
     password: str = ""
 
 def createUser(username, email, hashed_password, tenantName, userType):
@@ -52,6 +59,15 @@ def createUser(username, email, hashed_password, tenantName, userType):
     print("Createuser Response:",response.json())
     return response.json()
     pass
+
+def updateUser(email,  hashed_password = "", profilePic=""):
+    userObj = User(userEmail=email, profilePic=profilePic, password=hashed_password)
+    api="users/" #PUT request to update the non blank fields of user.
+    #print("Dbg: Update User api about to be called ")
+    response = requests.put(userssServiceUrl+api, headers=headers, json=userObj.model_dump())
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    print("Update User Response:",response.json())
+    return response.json()
 
 def addTenantAdmin(username, email, hashed_password, tenantName) :
     return createUser(username, email, hashed_password, tenantName,"tenantadmin")

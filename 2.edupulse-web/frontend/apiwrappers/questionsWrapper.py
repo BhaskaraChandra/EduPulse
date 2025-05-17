@@ -1,10 +1,13 @@
 import requests
 
-questionsServiceUrl = "https://epsvc-qt.onrender.com/"
+from .appConfig import appConfig
 
-localService = False
-if localService:
-    questionsServiceUrl = "http://localhost:9117/"
+config = appConfig()
+questionsServiceUrl = config.questions_service_url
+
+# l-ocalService = False
+# if localService:
+#     questionsServiceUrl = "http://localhost:9117/"
 
 import os
 questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)

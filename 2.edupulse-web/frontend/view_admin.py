@@ -16,7 +16,7 @@ def login_view(request):
         password = request.POST.get("password")
         password = "temp"
         user = usersWrapper.authenticate_user(username, password)
-
+        #print(user)
         if user:
             # Get hashed password from MongoDB
             hashed_password = user["password"]  # Stored as a hashed value
@@ -37,11 +37,12 @@ def login_view(request):
                     user.pop("_id");user.pop("password");#user.pop("created_by");user.pop("usertype")
                     #print(user)
                     request.session["user"]=user
+                    #usersWrapper.updateUser(user["userEmail"],profilePic="UPDATED BASE 64 string")
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
             else:
-                messages.error(request, "Invalid username or password")
+                return render(request, "login.html",{'Error': "Invalid username or password"})
         else:
-            messages.error(request, "Invalid username or password")
+            return render(request, "login.html",{'Error': "Invalid username or password"})
 
     return render(request, "login.html")
 

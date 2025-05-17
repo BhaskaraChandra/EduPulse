@@ -4,13 +4,16 @@ from typing import List
 from fastapi.responses import JSONResponse
 import requests
 
-testsServiceUrl = "https://epsvc-qt.onrender.com/"
-metricsServiceUrl = "https://epsvc-m.onrender.com/"
+from .appConfig import appConfig
 
-localService = False
-if localService:
-    testsServiceUrl = "http://localhost:9117/"
-    metricsServiceUrl = "http://localhost:9117/"
+config = appConfig()
+testsServiceUrl = config.tests_service_url
+metricsServiceUrl = config.metrics_service_url
+
+# l-ocalService = False
+# if localService:
+#     testsServiceUrl = "http://localhost:9117/"
+#     metricsServiceUrl = "http://localhost:9117/"
 import os
 testsServiceUrl = os.environ.get('tsvc',testsServiceUrl)
 metricsServiceUrl = os.environ.get('msvc',metricsServiceUrl)

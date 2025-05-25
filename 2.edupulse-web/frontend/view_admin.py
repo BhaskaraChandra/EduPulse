@@ -14,7 +14,7 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        password = "temp"
+        #password = "temp"
         user = usersWrapper.authenticate_userV2(username, password)
         #print(user)
         if user:

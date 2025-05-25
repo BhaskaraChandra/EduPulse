@@ -1,4 +1,4 @@
-import jwt
+#import jwt
 from pydantic import BaseModel
 import requests
 
@@ -18,16 +18,6 @@ questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
 headers = {'Content-Type': 'application/json'}
-# Verify JWT token
-# def verify_jwt_token(token):
-#     secret_key = 'your_secret_key_here_IntentionallyDidntChangeIt'
-#     try:
-#         payload = jwt.decode(token, secret_key, algorithms=['HS256'])
-#         return payload
-#     except jwt.ExpiredSignatureError:
-#         return None
-#     except jwt.InvalidTokenError:
-#         return None
     
 def authenticate_userV2(username, password):
     api="users/authenticateV2"

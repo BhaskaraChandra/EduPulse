@@ -16,6 +16,17 @@ import os
 questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
+def verify_jwt_token(token):
+    return token
+    '''try:
+        #payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+        return token
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None'''
+
+
 headers = {'Content-Type': 'application/json'}
 
 def authenticate_userV2(username, password):
@@ -27,7 +38,7 @@ def authenticate_userV2(username, password):
         print("response:",response.json())
         if response.status_code == 200:
             jwt = response.json()
-            user = jwt#verify_jwt_token(jwt)
+            user = verify_jwt_token(jwt)
             if user:
                 return user,jwt
             else:

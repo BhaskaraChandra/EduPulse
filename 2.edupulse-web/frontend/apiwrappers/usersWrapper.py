@@ -38,7 +38,7 @@ def authenticate_userV2(username, password):
         print("response:",response.json())
         if response.status_code == 200:
             jwt = response.json()
-            user = verify_jwt_token(jwt)
+            user = jwt #verify_jwt_token(jwt)
             if user:
                 return user,jwt
             else:

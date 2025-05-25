@@ -32,7 +32,7 @@ def authenticate_user(username, password):
     #hitTest()
     print("calling authenticate_user:",userssServiceUrl+api)
     try:
-        response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
+        response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password},timeout=10)
         print("response:",response.json())
         if response.status_code == 200:
             jwt = response.json()

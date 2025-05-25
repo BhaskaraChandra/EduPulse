@@ -21,6 +21,7 @@ userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 headers = {'Content-Type': 'application/json'}
 def hitTest(hdrs={},**kwargs):
     api="/"
+    print("calling hittest:",userssServiceUrl+api)
     response = requests.get(userssServiceUrl+api, headers=headers)
     response.raise_for_status()  # Raise an exception for HTTP errors
     print("HitTestResponse:",response.json())

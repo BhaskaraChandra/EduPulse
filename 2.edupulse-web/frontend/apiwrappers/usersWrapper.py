@@ -22,7 +22,9 @@ headers = {'Content-Type': 'application/json'}
 
 def authenticate_user(username, password):
     api="users/authenticateV2"
+    print("calling authenticate_user:",userssServiceUrl+api)
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
+    print("response:",response.json())
     if response.status_code == 200:
         jwt = response.json()
         user = verify_jwt_token(jwt)

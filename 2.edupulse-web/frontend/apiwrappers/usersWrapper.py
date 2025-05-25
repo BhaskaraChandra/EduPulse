@@ -28,7 +28,7 @@ def hitTest(hdrs={},**kwargs):
     return response.json() 
 
 def authenticate_user(username, password):
-    api="users/authenticateV2"
+    api="users/authenticate"
     #hitTest()
     print("calling authenticate_user:",userssServiceUrl+api)
     try:

@@ -18,6 +18,27 @@ userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
 headers = {'Content-Type': 'application/json'}
 
+def authenticate_userV2(username, password):
+    api="users/authenticateV2"
+    #hitTest()
+    print("calling authenticate_userv2:",userssServiceUrl+api)
+    try:
+        response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password},timeout=10)
+        print("response:",response.json())
+        if response.status_code == 200:
+            jwt = response.json()
+            user = jwt#verify_jwt_token(jwt)
+            if user:
+                return user,jwt
+            else:
+                return None,None
+        else:
+            return None,None
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None,None
+    
+
 def authenticate_user(username, password):
     api="users/authenticate"
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})

@@ -17,7 +17,7 @@ questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
 headers = {'Content-Type': 'application/json'}
-    
+
 def authenticate_userV2(username, password):
     api="users/authenticateV2"
     #hitTest()
@@ -27,7 +27,7 @@ def authenticate_userV2(username, password):
         print("response:",response.json())
         if response.status_code == 200:
             jwt = response.json()
-            user = jwt #verify_jwt_token(jwt)
+            user = jwt#verify_jwt_token(jwt)
             if user:
                 return user,jwt
             else:
@@ -41,9 +41,7 @@ def authenticate_userV2(username, password):
 
 def authenticate_user(username, password):
     api="users/authenticate"
-    print("calling authenticate_userv2:",userssServiceUrl+api)
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
-    print("response:",response.json())
     if response.status_code == 200:
         return response.json()
     else:

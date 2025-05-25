@@ -19,9 +19,16 @@ questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
 headers = {'Content-Type': 'application/json'}
+def hitTest(hdrs={},**kwargs):
+    api="/"
+    response = requests.get(userssServiceUrl+api, headers=headers)
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    print("HitTestResponse:",response.json())
+    return response.json() 
 
 def authenticate_user(username, password):
     api="users/authenticateV2"
+    hitTest()
     print("calling authenticate_user:",userssServiceUrl+api)
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
     print("response:",response.json())

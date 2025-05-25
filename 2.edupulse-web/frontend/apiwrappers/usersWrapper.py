@@ -31,6 +31,21 @@ def authenticate_user(username, password):
     api="users/authenticateV2"
     #hitTest()
     print("calling authenticate_user:",userssServiceUrl+api)
+    try:
+        response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
+        print("response:",response.json())
+        if response.status_code == 200:
+            jwt = response.json()
+            user = verify_jwt_token(jwt)
+            if user:
+                return user,jwt
+            else:
+                return None,None
+        else:
+            return None,None
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None,None
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
     print("response:",response.json())
     if response.status_code == 200:

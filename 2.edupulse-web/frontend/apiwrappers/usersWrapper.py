@@ -1,4 +1,3 @@
-#import jwt
 from pydantic import BaseModel
 import requests
 
@@ -42,7 +41,9 @@ def authenticate_userV2(username, password):
 
 def authenticate_user(username, password):
     api="users/authenticate"
+    print("calling authenticate_userv2:",userssServiceUrl+api)
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
+    print("response:",response.json())
     if response.status_code == 200:
         return response.json()
     else:

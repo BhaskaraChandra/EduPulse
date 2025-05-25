@@ -16,7 +16,7 @@ def login_view(request):
         password = request.POST.get("password")
         #password = "temp"
         password = password.encode('utf-8')
-        user = usersWrapper.authenticate_user(username, password)
+        user = usersWrapper.authenticate_userV2(username, password)
         #print(user)
         if user:
             # Get hashed password from MongoDB

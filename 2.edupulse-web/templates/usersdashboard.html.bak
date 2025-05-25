@@ -96,6 +96,7 @@
             <!--a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
             <a href="{% url 'my_progress' %}" class="load-content">My Progress</a>
             <a href="{% url 'compare' %}" class="load-content">Compare</a-->
+            <!--a href="{% url 'settings' %}" class="load-content">Settings</a-->
 	        <a href="{% url 'settings' %}" class="load-content">Settings</a>
             <a href="{% url 'logout' %}">Logout</a>
         </div>    

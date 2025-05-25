@@ -1,0 +1,366 @@
+{% load static %}
+{% block page_content %}
+    <div class="test-header">
+        <span class="test-id">"ContentEditor"</span>
+        <div class="right-controls">
+        </div>
+    </div>
+    <div class="container">
+        <div class="left-panel">
+            <div class="content-list"></div>
+        </div>
+        <div class="middle-panel">
+            <div class="content-header">
+                <span class="content-id"  id="content-id"><b>content</b></span>
+            </div>
+            <div class="content-display" id="content-display"></div>
+        </div>
+    </div>
+    
+    <script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\(', '\)']],
+    displayMath: [['\[', '\]']],
+    processEscapes: true,
+    tags: 'ams',
+    linebreaks: {
+      automatic: true,
+      width: 'container'
+    }
+  },
+  chtml: {
+    displayAlign: 'left',
+    displayIndent: '2em'
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="data.js"></script>
+<script>
+//globals
+const contentList = document.querySelector('.content-list');
+const contentDisplay = document.getElementById('content-display');
+contentIdCur = 0;
+var contentDetails = {};
+var liveMode = true;
+//Onload function
+window.onload = function() 
+{//alert("onload");
+    contentDetails = JSON.parse(sessionStorage.getItem('contentDetails'));
+    var contentListHtml = '';
+    for (var key in contentDetails) 
+    {
+        if (contentDetails.hasOwnProperty(key)) 
+        {
+            contentListHtml += '<div class="content-item" '+
+            'data-content-id="' + key + '">' + key + 
+            '<button type="button" style="display: none;" id="rvw' + key + '">?</button>' +
+            '</div>';
+        }
+        if(contentIdCur==0) contentIdCur = key;//to automate clicking the first content
+    }
+    contentList.innerHTML = contentListHtml;
+    AddcontentClickEvents();
+    const btn = document.querySelector(`.content-item[data-content-id="${contentIdCur}"]`);
+    if (btn) btn.click();//to automate clicking the first content
+};
+
+
+// Function to add event listeners to each content item on the left panel
+function AddcontentClickEvents()
+{
+    // Add event listeners to each content item on the left panel
+    contentList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('content-item')) {
+            // Remove active class from previous content
+            const previousActive = document.querySelector('.content-item.active');
+            if (previousActive) {
+                previousActive.classList.remove('active');
+            }
+            const contentId = e.target.getAttribute('data-content-id');
+            if(contentIdCur != 0)
+            {
+            }
+            contentIdCur = contentId;
+            
+            e.target.classList.add('active');// Add active class to current content
+            displaycontentLocal(contentId);
+        }
+    });
+}//AddcontentClickEvents
+
+function displaycontentLocal(contentId) 
+{// Function to display the Selected content
+    //console.log(contentDetails[contentId]);
+    data=contentDetails[contentId];
+    //alert(JSON.stringify(data));
+    qidDisplay = document.getElementById("content-id");
+    qidDisplay.innerHTML = "content: " + data._id;
+    //console.log(data.contentPng);
+    contentDisplay.innerHTML = `
+        <div>
+            <img id="content-image" />
+            <label id=content-label></label><br>
+        </div>
+    `;
+    if(data.Q[0].startsWith("iVBORw0"))
+    {//means, this is an image
+        //document.getElementById("content-image").src = "data:image/png;base64," + data.Q[0];
+    }
+    else
+    {
+        displayLaTeXItem("content-label",data.Q[0]);
+    }
+}//END displaycontentLocal(contentId)
+function displayLaTeXItem(elementid, text) {
+    var groom = groomLatexString(text);
+    // Preserve $ for inline and display math
+    let ltx;
+    if (groom.includes('\\begin{matrix}') || groom.includes('\\begin{pmatrix}') || groom.includes('\\begin{bmatrix}')) {
+        // For matrices, ensure display math mode
+        ltx = groom.includes('\\[') ? groom : `\\[${groom}\\]`;
+    } else {
+        // For other LaTeX, preserve original formatting
+        ltx = groom.includes('\\[') || groom.includes('\\(') ? groom : `\\[${groom}\\]`;
+    }
+    document.getElementById(elementid).innerHTML = ltx;
+    MathJax.typeset([document.getElementById(elementid)]);
+}
+function displayImageItem(elementid,text)
+{
+    document.getElementById(elementid).src = "data:image/png;base64," + text;
+}
+function groomLatexString(latexString) {
+  return latexString.replace(/(\$.*?\$)|([^\$]+)/g, (match, mathPart, textPart) => {
+    return mathPart ? mathPart : '\\text{' + textPart + '}';
+  });
+}
+
+const contentItems = document.querySelectorAll('.content-item');
+
+</script>
+<style>
+.MathJax_Display {
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: pre-wrap !important;
+  word-wrap: break-word;
+  margin: 1em 0;
+}
+.MathJax_Display > mjx-container[jax="CHTML"] {
+  overflow-x: visible !important;
+  max-width: 100%;
+  display: inline-block !important;
+}
+        .content-container {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 80%;
+            border: 1px solid #ccc;
+            width: 100%;
+            /*border-radius: 10px;*/
+            padding: 0px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-header {
+            position: sticky;
+            top: 0;
+            width: calc(100% - 20px); /* Subtract padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #c1cabb 0%, #8adc53 100%);
+            padding: 15px 10px;
+            border-radius: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-top: 5px;
+        }
+        .clue-solution {
+            display: block;
+            text-align: left;
+        }
+        .content-id {
+        font-weight: bold;
+        }
+
+        .timer {
+        font-size: 14px;
+        color: #666;
+        }
+
+        .left-panel {
+            width: 17%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .content-item-chandra {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .content-item {
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border: 2px solid #b28653;
+            border-radius: 8px;
+            /*color: #a3d812;*/
+            background: linear-gradient(135deg, #e6ddd6 0%, #d3ae5c 100%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 1em;
+            box-shadow: 0 1px 4px rgba(51, 65, 85, 0.08);
+            position: relative;
+        }
+        .content-item.active {
+            background: linear-gradient(135deg,  #e6ddd6 0%, #d8721d 100%);
+            border: 2px solid #d97706;
+            box-shadow: 0 2px 8px rgba(51, 65, 85, 0.15);
+            padding-left: 35px;
+            width: calc(80%);
+            /*transform: scaleX(1.05);*/
+        }
+        .content-item.answered {
+            background: linear-gradient(90deg,  #acc9d3 0%, #50badd 100%);
+            /*background: #3b82f6 !important;  /* Blue for answered contents */
+            border: 1px solid #666769;
+            color: #ffffff !important;
+        }
+        .content-item.marked-for-review {
+            content: "?";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #9333ea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        .content-item.marked-for-review::after {
+            content: "?";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #9333ea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        .content-item:hover {
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            transform: scaleX(1.05);
+        }
+
+        .middle-panel {
+            width: 60%;
+            padding: 20px;
+        }
+
+        .content-display {
+            padding: 20px;
+            width: calc(100% - 44px); /* Subtract padding and border */
+            border: 2px solid #2f4394;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .selected {
+            background-color: #007bff; /* blue */
+            color: #ffffff; /* white */
+        }
+        .answered {
+            background-color: #19e8de; 
+        }
+        .correct {
+            background-color: #19e819; 
+        }
+        .wrong {
+            background-color: #e82719; 
+        }
+        .test-header-Chandra {
+            width: 80%;
+            height: 1inch; /* or 2.54cm */
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .test-header {
+            width: calc(100% - 16px);
+            min-height: 36px;
+            background: linear-gradient(90deg, #a3bdca 0%, #55b3e3 100%);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;  
+            border-radius: 0;
+            margin: 0 0 0 0;
+            margin-right: 16px;
+            box-shadow: 0 2px 12px rgba(51, 65, 85, 0.15);
+        }
+
+        .test-id {
+        font-weight: bold;
+        }
+
+
+
+        #options-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+
+        /* Style option images */
+        #options-container img {
+        margin-bottom: 12px; /* Add space between options */
+        border: 1px solid black; /* Thick black border */
+        cursor: pointer; /* Change cursor on hover */
+        }
+
+        /* Style selected option */
+        #options-container .selected-image {
+        border: 5px solid blue; /* Change border color on selection */
+        }
+
+        .right-controls {
+            display: flex;
+            align-items: center;
+        }
+
+
+
+</style>
+{% endblock page_content %}

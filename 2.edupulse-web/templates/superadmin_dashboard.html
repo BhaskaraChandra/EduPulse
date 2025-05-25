@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-size: large;
             font-family: 'Arial', sans-serif;
         }
 
@@ -227,6 +228,25 @@
     .viewpop:hover {
         background: #2980b9;
     }
+    .viewpo {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+        margin-left: 5px;
+        transition: 0.3s;
+        width: auto;
+        margin-bottom: 5px;
+        gap: 2px;
+    }     
+
+    .viewpo:hover {
+        background: #2980b9;
+    }
       .viewpopus {
             display: none;
             position: fixed;
@@ -239,15 +259,36 @@
             border-radius: 10px;
             width: 300px;
             text-align: center;
+            z-index: 1000;
+        } 
+        .viewpopu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            z-index: 1000;
         } 
         .close-btns {
-            background: #e74c3c;
-            margin-top: 10px;
-            padding: 10px, 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            transition: color 0.3s;
         }
 
         .close-btns:hover {
-            background: #c0392b;
+            color: #e74c3c;
+            background: none;
         }
         .viewpopups button {
             /* background: #27ae60; */
@@ -259,6 +300,7 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        
 
 </style>
 </head>
@@ -278,7 +320,7 @@
         {% if option == "tenant" %}
             <a href="#" id="openPopup" class="add-tenant-btn">Add Tenant</a>
         <!--h2>debug: </h2-->
-            <h2>Total Tenants: {{ total_tenants }}</h2>
+            <h2>Total Tenants: {{ user.total_tenants }}</h2>
             {% if tenant_data %}
                 <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
                     <thead>
@@ -294,7 +336,7 @@
                             <tr style="text-align: center; background: white;">
                                 <td>{{ tenant.tenantName }}</td>
                                 <td>{{ tenant.adminCount }}<button class="viewpop">view</button></td>
-                                <td>{{ tenant.userCount }}</td>
+                                <td>{{ tenant.userCount }}<button class="viewpo">view</button></td>
                                 <td><button class="adminpopup">Create Admin</button></td>
                             </tr>
                         {% endfor %}
@@ -330,20 +372,44 @@
         </form>
     </div>
     <div class="viewpopus" id="viewadmins" style="display: none;">
-    <h2></h2> <!-- Add this line -->
-    <button type="button" class="close-btns">close</button>
-    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #2c3e50; color: white;">
-                <th>Admin Name</th>
-                <th>Admin Email</th>
-            </tr>
-        </thead>
-        <tbody id="adminDetailsforTenants">
-            <!-- Admin details will be dynamically populated here -->
-        </tbody>
-    </table>
-</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;"></h2>
+            <button type="button" class="close-btns" aria-label="Close" style="background: none; border: none; font-size: 24px; color: #666; cursor: pointer; padding: 0; margin: 0;">×</button>
+        </div>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th>Admin Name</th>
+                    <th>Admin Email</th>
+                </tr>
+            </thead>
+            <tbody id="adminDetailsforTenants">
+                <!-- Admin details will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+    <div class="viewpopu" id="viewusers" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;"></h2>
+            <button type="button" class="close-btns" aria-label="Close" style="background: none; border: none; font-size: 24px; color: #666; cursor: pointer; padding: 0; margin: 0;">×</button>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <select id="groupSelect" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <option value="">Select a group</option>
+            </select>
+        </div>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th>User Email</th>
+                    <th>User Group</th>
+                </tr>
+            </thead>
+            <tbody id="userDetailsforTenants">
+                <!-- Admin details will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     function showAddTenantPopup() {
@@ -371,9 +437,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupTitle = viewAdminPopup.querySelector("h2");
         popupTitle.textContent = `Admin details for ${tenantName}`;
         viewAdminPopup.style.display = "block";
-        viewAdminPopup.querySelector(".close-btns").addEventListener("click",function () {
+        viewAdminPopup.querySelector(".close-btns").addEventListener("click", function () {
             viewAdminPopup.style.display = "none";
-        })
+        });
+    }
+    function viewUsersPopup(tenantName) {
+        const viewAdminPopup = document.getElementById("viewsusers");
+        const popupTitle = viewAdminPopup.querySelector("h2");
+        popupTitle.textContent = `user details for ${tenantName}`;
+        viewAdminPopup.style.display = "block";
+        viewAdminPopup.querySelector(".close-btns").addEventListener("click", function () {
+            viewAdminPopup.style.display = "none";
+        });
     }
 
     // Open popup when clicking on "Create Tenant", "Create Superadmin", "Add Tenant"
@@ -405,7 +480,8 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
             const row = this.closest("tr");
             const tenantName = row.querySelector("td:first-child").textContent.trim();
-            admins = postAPIRequest("{% url 'getTenantadminForTenant' %}", {"tenantName":tenantName}) // Call the API with tenant name
+            admins = postAPIRequest("{% url 'getTenantadminForTenant' %}", {"tenantName":tenantName}) 
+            // Call the API with tenant name
             .then((admins) => {
                 //alert(admins);
                 // Get the table body where admin details will be displayed
@@ -435,6 +511,98 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             //alert(admins);
 
+        });
+    });//End Adding events for view admin popup
+    curTenantName = "";
+    const groupSelect = document.getElementById("groupSelect");
+    // Add event listener for group selection
+    groupSelect.addEventListener("change", function() 
+    {
+        const selectedGroup = this.value;
+        if (selectedGroup) {
+            tenantName = curTenantName;
+            const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+            userDetailsTableBody.innerHTML = "";
+            //alert(tenantName+"/"+selectedGroup);
+            postAPIRequest("{% url 'usersForTheTenant' %}", {
+                "tenantName": tenantName,
+                "groupName": selectedGroup
+            })
+            .then((users) => {
+                const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+                userDetailsTableBody.innerHTML = "";
+                
+                if (!Array.isArray(users)) {
+                    users = [users];
+                }
+                
+                users.forEach(user => {
+                    const row = document.createElement("tr");
+                    const emailCell = document.createElement("td");
+                    const groupCell = document.createElement("td");
+                    
+                    emailCell.textContent = user.email || user.userEmail || "";
+                    groupCell.textContent = user.groupname || user.userGroup || selectedGroup;
+                    
+                    row.appendChild(emailCell);
+                    row.appendChild(groupCell);
+                    userDetailsTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load users for: ' + tenantName+"/"+selectedGroup+ error.message);
+            });//End Post API Request
+        } else {
+            const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+            userDetailsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="2" style="text-align: center;">Please select a group</td>
+                </tr>
+            `;
+        }
+    });//End Adding event listener for group selection on the popup.
+
+
+    document.querySelectorAll(".viewpo").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            const row = this.closest("tr");
+            const tenantName = row.querySelector("td:first-child").textContent.trim();
+            curTenantName = tenantName;
+            const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+            userDetailsTableBody.innerHTML = "";
+            //alert(tenantName);
+           // First get all groups for the tenant
+            postAPIRequest("{% url 'getGroupsForTenant' %}", {"tenantName": tenantName})
+            .then((groups) => {
+                const groupSelect = document.getElementById("groupSelect");
+                groupSelect.innerHTML = '<option value="">Select a group</option>';
+                
+                let groupList = Array.isArray(groups) ? groups : (groups.groups || []);
+                groupList.forEach(group => {
+                    const option = document.createElement("option");
+                    option.value = group;
+                    option.textContent = group;
+                    groupSelect.appendChild(option);
+                });
+
+                // Show the popup
+                const viewUsersPopup = document.getElementById("viewusers");
+                const popupTitle = viewUsersPopup.querySelector("h2");
+                popupTitle.textContent = `Users for ${tenantName}`;
+                viewUsersPopup.style.display = "block";
+                // Add close button functionality
+                viewUsersPopup.querySelector(".close-btns").addEventListener("click", function () {
+                    const groupSelect = document.getElementById("groupSelect");
+                    groupSelect.innerHTML = '<option value="">Select a group</option>';
+                    viewUsersPopup.style.display = "none";
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load groups: ' + error.message);
+            });
         });
     });
 });

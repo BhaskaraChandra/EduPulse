@@ -3,6 +3,7 @@ from http.client import HTTPException
 from typing import List
 from fastapi.responses import JSONResponse
 import requests
+from .commons import jwt_required, verify_jwt_token
 
 from .appConfig import appConfig
 
@@ -22,11 +23,12 @@ headers = {
     'Accept': 'application/json'
 }
 
-def generateQuickTest(quickTestConfig: dict=None) -> dict:
+@jwt_required 
+def generateQuickTest(quickTestConfig: dict=None,hdrs={},** kwargs) -> dict:
     try:
         api="quicktest/"
         #print(quickTestConfig)
-        response = requests.post(testsServiceUrl+api, headers=headers,json=quickTestConfig)
+        response = requests.post(testsServiceUrl+api, headers=hdrs,json=quickTestConfig)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         #print("apiResponse:",data)
@@ -37,10 +39,11 @@ def generateQuickTest(quickTestConfig: dict=None) -> dict:
         #return HTTPException(status_code=400, detail="No questions found for the given criteria")
         return None
     
-def getActiveQuickTest(user_id: str=None) -> requests.Response:
+@jwt_required 
+def getActiveQuickTest(user_id: str=None,hdrs={},** kwargs) -> requests.Response:
     try:
         api="quicktest/"
-        response = requests.get(testsServiceUrl + api, headers=headers, params={"useremail": user_id})
+        response = requests.get(testsServiceUrl + api, headers=hdrs, params={"useremail": user_id})
         #print("DBG:testsWrapper: response: getQuickTest:",response.json())
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
@@ -49,11 +52,12 @@ def getActiveQuickTest(user_id: str=None) -> requests.Response:
         print(f"Request Exception: {err}")
         return None    
     
-def getTestSummary(ids: List) -> requests.Response:
+@jwt_required 
+def getTestSummary(ids: List,hdrs={},** kwargs) -> requests.Response:
     try:
         #print("getTestSummary:",ids)
         api="questionsSummary/"
-        response = requests.get(testsServiceUrl + api, headers=headers, params={"ids": ids})
+        response = requests.get(testsServiceUrl + api, headers=hdrs, params={"ids": ids})
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         return response
@@ -61,11 +65,12 @@ def getTestSummary(ids: List) -> requests.Response:
         print(f"Request Exception: {err}")
         return None    
     
-def submitTest(quickTestConfig: dict=None) -> dict:
+@jwt_required 
+def submitTest(quickTestConfig: dict=None,hdrs={},** kwargs) -> dict:
     try:
         api="submitquicktest/"
         #print("submitquicktest:",quickTestConfig)
-        response = requests.post(testsServiceUrl+api, headers=headers,json=quickTestConfig)
+        response = requests.post(testsServiceUrl+api, headers=hdrs,json=quickTestConfig)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         #print("apiResponse:",data)
@@ -74,20 +79,22 @@ def submitTest(quickTestConfig: dict=None) -> dict:
         print(f"Request Exception: {err}")
         return None
 
-def getTestsHistory(user_id: str, page: int = 1, page_size: int = 10) -> requests.Response:
+@jwt_required 
+def getTestsHistory(user_id: str, page: int = 1, page_size: int = 10,hdrs={},** kwargs) -> requests.Response:
     try:
         api="tests-history/"
-        response = requests.get(testsServiceUrl + api, headers=headers, params={"useremail": user_id})
+        response = requests.get(testsServiceUrl + api, headers=hdrs, params={"useremail": user_id})
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         return response
     except requests.exceptions.RequestException as err:
         print(f"Request Exception: {err}")
         return None    
-def getUserMetrics(user_id: str) -> requests.Response:
+@jwt_required 
+def getUserMetrics(user_id: str,hdrs={},** kwargs) -> requests.Response:
     try:
         api="user_metrics/"
-        response = requests.get(metricsServiceUrl + api, headers=headers, params={"user_email": user_id})
+        response = requests.get(metricsServiceUrl + api, headers=hdrs, params={"user_email": user_id})
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         return response

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from frontend.view_admin import SubmitConsumer, SubmitTenant, SubmitTenantAdmin, getTenantadminForTenant, login_view, logout_view, settings_view, sidebar, tenantdashboard, user_dashboard
+from frontend.view_admin import SubmitConsumer, SubmitTenant, SubmitTenantAdmin, addGroupToTenant, addUsersToGroup, getGroupsForTenant, getTenantadminForTenant, groupUsers, login_view, logout_view, settings_view, sidebar, tenantGroups, tenantdashboard, updateUser, user_dashboard, usersForTheTenant
 from frontend.view_tests import compare_view, create_test_view, daily_challenge_view, dashboards_view, generate_test, get_active_quick_test, livetest, manage_topics_view, metrics_view, my_progress_view, save_selected_topics, submit_test, testSummary,history_view, tests_view, topics_view
 
 
@@ -15,6 +15,15 @@ urlpatterns = [
     path("SubmitTenantAdmin/", SubmitTenantAdmin, name="SubmitTenantAdmin"),
     path("SubmitConsumer/", SubmitConsumer, name="SubmitConsumer"),
     #path("dashboard/", dashboard, name="dashboard"),
+    path('tenantGroups/', tenantGroups, name='tenantGroups'),
+    path('groupUsers/', groupUsers, name='groupUsers'),
+    path('usersdashboard/', user_dashboard, name='user_dashboard'),
+    path('getTenantadminForTenant/', getTenantadminForTenant, name='getTenantadminForTenant'),
+    path('getGroupsForTenant/', getGroupsForTenant, name="getGroupsForTenant"),
+    path('usersForTheTenant/', usersForTheTenant, name="usersForTheTenant"),
+    path('addGroupToTenant/', addGroupToTenant, name="addGroupToTenant"),
+    path('addUsersToGroup/', addUsersToGroup, name="addUsersToGroup"),
+    path('updateUser/', updateUser, name='updateUser'),
 
     #enduser paths
     path('settings/', settings_view, name='settings'),

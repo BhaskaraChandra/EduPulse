@@ -26,11 +26,9 @@ function formLoad()
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Total</th>
-                    <th>Correct</th>
-                    <th>Wrong</th>
-                    <!--th>Unattempted</th-->
+                    <th class="date-column" style="width:110px;">Date</th>
+                    <th>Summary</th>
+                    <th>T(R+W+U)</th>
                     <th>Score</th>
                     <th>Test Duration</th>
                     <th>Action</th>
@@ -40,15 +38,15 @@ function formLoad()
     `;
 
     tests_history.tests.slice().reverse().forEach((test) => {
+        config = JSON.parse(test.config);
+        displayTime = getTranslatedTime(test.endTime);
         tableHtml += `
             <tr>
-                <td>${test.endTime}</td>
-                <td>${test.total}</td>
-                <td>${test.correct}</td>
-                <td>${test.wrong}</td>
-                <!--td>${test.unattempted}</td-->
+                <td>${displayTime}</td>
+                <td>${config.Subject}[${config.Grade}][${config.Topics}]</td>
+                <td>${test.total}(${test.correct}+${test.wrong}+${test.unattempted})</td>
                 <td>${test.score}</td>
-                <td>${test.testduration} seconds</td>
+                <td>${test.testduration} sec</td>
                 <td><button class="btn btn-sm btn-primary" onclick="viewTestDetails(${JSON.stringify(test).replace(/"/g, '&quot;')})">View</button></td>
             </tr>
         `;
@@ -60,6 +58,32 @@ function formLoad()
     `;
 
     document.getElementById('testsHistoryGrid').innerHTML = tableHtml;
+}
+function getTranslatedTime(endTime) {
+  const endDate = new Date(endTime);
+  const currentTime = new Date();
+  const timeDiff = currentTime.getTime() - endDate.getTime();
+
+  const seconds = Math.floor(timeDiff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days >= 7) {
+    return endDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  } else if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  } else {
+    return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+  }
 }
 
 function viewTestDetails(test) {

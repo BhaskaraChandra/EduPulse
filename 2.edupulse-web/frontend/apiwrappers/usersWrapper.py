@@ -41,6 +41,7 @@ def authenticate_userV2(username, password):
         if response.status_code == 200:
             jswt = response.json()
             user = verify_jwt_token(jswt)
+            print("user:",user)
             if user:
                 return user,jswt
             else:

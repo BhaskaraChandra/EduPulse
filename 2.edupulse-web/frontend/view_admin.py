@@ -34,10 +34,11 @@ def login_view(request):
                     return redirect("tenantdashboard")  # Redirect to the homepage or dashboard
                 elif(user["userType"]=="consumer"):
                     #print('consumer')
-                    user.pop("_id");user.pop("password");#user.pop("created_by");user.pop("usertype")
+                    user.pop("_id");#user.pop("password");#user.pop("created_by");user.pop("usertype")
                     #print(user)
                     request.session["user"]=user
                     #usersWrapper.updateUser(user["userEmail"],profilePic="UPDATED BASE 64 string")
+                    print("redirecting to user_dashboard.html")
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
             else:
                 return render(request, "login.html",{'Error': "Invalid username or password"})

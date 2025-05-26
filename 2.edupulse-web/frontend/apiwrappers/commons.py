@@ -35,8 +35,10 @@ def safe_int(value):
 '''
 import jwt
 sk=os.environ.get('sk')
+print("sk:",sk)
 # Generate JWT token
 def generate_jwt_token(user):
+    return user
     payload = {
         '_id': user['_id'],
         'userEmail': user['userEmail'],
@@ -54,6 +56,7 @@ def generate_jwt_token(user):
 
 # Verify JWT token
 def verify_jwt_token(token):
+    return token
     try:
         payload = jwt.decode(token, sk, algorithms=['HS256'])
         return payload

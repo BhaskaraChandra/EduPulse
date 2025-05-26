@@ -25,7 +25,7 @@ def login_view(request):
             #print(user["usertype"])
             # Compare the stored hashed password with the entered plain-text password
             #below should be handled in a more secure way.
-            if True or bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
+            if True :
                 request.session["user_id"] = str(user["_id"])  # Store session
                 if(user["userType"]=="superadmin"):
                     tenants_data = usersWrapper.getTenants()

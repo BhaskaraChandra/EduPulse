@@ -18,14 +18,15 @@ questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
 def verify_jwt_token(token):
-    return token
-    '''try:
-        #payload = jwt.decode(token, secret_key, algorithms=['HS256'])
-        return token
+    #return token
+    try:
+        sk=os.environ.get('sk')
+        payload = jwt.decode(token, sk, algorithms=['HS256'])
+        return payload
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:
-        return None'''
+        return None
 
 
 headers = {'Content-Type': 'application/json'}

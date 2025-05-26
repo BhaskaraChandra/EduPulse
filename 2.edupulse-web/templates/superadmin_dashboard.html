@@ -4,114 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduPulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* General Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
             display: flex;
             height: 100vh;
-            background: #f4f4f4;
+            background: #f8fafc;
+            color: #1e293b;
         }
 
         /* Sidebar Styles */
         .sidebar {
-            width: 250px;
-            /* height: 100%; */
+            width: 280px;
             height: 100vh;
-            background: #2c3e50;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             position: fixed;
             padding-top: 60px;
-            box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
+            transition: all 0.3s ease;
         }
 
         .sidebar a {
-            display: block;
-            color: white;
-            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            color: #e2e8f0;
+            padding: 16px 25px;
             text-decoration: none;
             font-size: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
         }
 
         .sidebar a:hover {
-            background: #34495e;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(5px);
         }
 
         /* Content Area */
         .content {
             flex: 1;
-            padding: 20px;
-            margin-left: 250px;
+            padding: 30px;
+            margin-left: 280px;
+            background: #f8fafc;
         }
+
         .dynamic-content {
-            
-            width: 300px;
-            padding: 45px;
-            margin-top: 10px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 30px;
+            margin-top: 20px;
             background: white;
             border-radius: 16px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
         }
-    
+
         h2 {
-            color: #2c3e50;
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
         }
 
         p {
-            color: #555;
-            line-height: 1.6;
+            color: #64748b;
+            line-height: 1.7;
+            font-size: 15px;
         }
-        .create-tenant-btn {
-            /*TODO:seems like this is unused. verify and cleanup*/
-            display: inline-block;
-            /* background: #27ae60; */
-            background: #2c3e50;
+
+        /* Button Styles */
+        .create-tenant-btn, .create-superadmin-btn, .add-tenant-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #3b82f6;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            transition: 0.3s;
-        }
-        .create-superadmin-btn{
-            display: inline-block;
-            background: #27ae60;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            transition: 0.3s;
-
-        }
-        .add-tenant-btn{
-            display: inline-block;
-            background: blueviolet;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            transition: 0.3s;
-
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
-        .create-tenant-btn:hover {
-            /* background: #219150; */
-            background: #2c3e50;
+        .create-tenant-btn:hover, .create-superadmin-btn:hover, .add-tenant-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        /* Popup Modal */
-         .popup {
+        .create-superadmin-btn {
+            background: #10b981;
+        }
+
+        .create-superadmin-btn:hover {
+            background: #059669;
+        }
+
+        .add-tenant-btn {
+            background: #8b5cf6;
+        }
+
+        .add-tenant-btn:hover {
+            background: #7c3aed;
+        }
+
+        /* Popup Styles */
+        .popup {
             display: none;
             position: fixed;
             top: 50%;
@@ -119,12 +139,12 @@
             transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-radius: 10px;
             width: 300px;
             text-align: center;
-        } 
-         
+            z-index: 1000;
+        }
 
         .popup form {
             display: flex;
@@ -133,15 +153,19 @@
 
         .popup input {
             margin: 6px 0;
-            /* margin-top: 10px; */
-            /* margin-bottom: 5px; */
             padding: 11px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .popup input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
         .popup button {
-            /* background: #27ae60; */
             background: #FB641B;
             color: white;
             border: none;
@@ -149,10 +173,12 @@
             padding: 10px;
             cursor: pointer;
             border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
         .popup button:hover {
-            background: #219150;
+            background: #e85a0f;
+            transform: translateY(-2px);
         }
 
         .close-btn {
@@ -163,71 +189,9 @@
         .close-btn:hover {
             background: #c0392b;
         }
-        .adminpopup {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        margin-top: 10px;
-        transition: 0.3s;
-        width: auto;
-    }     
 
-    .adminpopup:hover {
-        background: #2980b9;
-    }
-    /* Style for select dropdown */
-    .popup select {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 8px;
-        margin-top: 6px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background: white;
-        font-size: 12px;
-        color: #555;
-        appearance: none; /* Removes default arrow in some browsers */
-        -webkit-appearance: none;
-        -moz-appearance: none;
-    }
-
-    /* Style for dropdown arrow */
-    .popup select:focus {
-        outline: none;
-        border-color: #27ae60;
-    }
-
-    /* Optional: Style dropdown options */
-    .popup select option {
-        background: white;
-        color: #333;
-        padding: 10px;
-    }
-/*view pop*/
-.viewpop {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        margin-top: 10px;
-        margin-left: 5px;
-        transition: 0.3s;
-        width: auto;
-        margin-bottom: 5px;
-        gap: 2px;
-    }     
-
-    .viewpop:hover {
-        background: #2980b9;
-    }
-      .viewpopus {
+        /* View Admin Popup Styles */
+        .viewpopus {
             display: none;
             position: fixed;
             top: 50%;
@@ -235,54 +199,443 @@
             transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-radius: 10px;
-            width: 300px;
-            text-align: center;
-        } 
-        .close-btns {
-            background: #e74c3c;
-            margin-top: 10px;
-            padding: 10px, 10px;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
-        .close-btns:hover {
-            background: #c0392b;
+        .viewpopus h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-align: left;
         }
-        .viewpopups button {
-            /* background: #27ae60; */
-            background: #FB641B;
+
+        .viewpopus table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 15px 0;
+            background: white;
+        }
+
+        .viewpopus th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .viewpopus td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            text-align: left;
+        }
+
+        .viewpopus tr:hover {
+            background: #f8f9fa;
+        }
+
+        .viewpopus .close-btns {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            transition: color 0.3s;
+            z-index: 1;
+        }
+
+        .viewpopus .close-btns:hover {
+            color: #e74c3c;
+        }
+
+        /* Ensure popup content stays in place */
+        .viewpopus > div {
+            position: relative;
+            padding-right: 30px;
+        }
+
+        /* Prevent content jumping */
+        .viewpopus table tbody {
+            display: table;
+            width: 100%;
+        }
+
+        .viewpopus table tbody tr {
+            display: table-row;
+        }
+
+        .viewpopus table tbody td {
+            display: table-cell;
+        }
+
+        /* View Popup Buttons */
+        .viewpop, .viewpo {
+            background: #3498db;
             color: white;
             border: none;
-            margin-top: 4px;
-            padding: 10px;
-            cursor: pointer;
+            padding: 8px 15px;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
-</style>
+        .viewpop i, .viewpo i {
+            font-size: 12px;
+        }
+
+        .viewpop:hover, .viewpo:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* Select Dropdown Styles */
+        #groupSelect {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        #groupSelect:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar a span {
+                display: none;
+            }
+            
+            .content {
+                margin-left: 80px;
+            }
+            
+            .popup {
+                width: 90%;
+                max-width: 400px;
+            }
+        }
+
+        /* View User Popup Styles */
+        .viewpopu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .viewpopu h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-align: left;
+        }
+
+        .viewpopu table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 15px 0;
+            background: white;
+        }
+
+        .viewpopu th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .viewpopu td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            text-align: left;
+        }
+
+        .viewpopu tr:hover {
+            background: #f8f9fa;
+        }
+
+        .viewpopu .close-btns {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            transition: color 0.3s;
+            z-index: 1;
+        }
+
+        .viewpopu .close-btns:hover {
+            color: #e74c3c;
+        }
+
+        .viewpopu > div {
+            position: relative;
+            padding-right: 30px;
+        }
+
+        .viewpopu table tbody {
+            display: table;
+            width: 100%;
+        }
+
+        .viewpopu table tbody tr {
+            display: table-row;
+        }
+
+        .viewpopu table tbody td {
+            display: table-cell;
+        }
+
+        /* Create Admin Button Styles */
+        .adminpopup {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .adminpopup i {
+            font-size: 14px;
+        }
+
+        .adminpopup:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* View Buttons in Table */
+        .viewpop, .viewpo {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .viewpop i, .viewpo i {
+            font-size: 12px;
+        }
+
+        .viewpop:hover, .viewpo:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Group Select in User Popup */
+        .viewpopu #groupSelect {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .viewpopu #groupSelect:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Create Admin Popup Styles */
+        #addTenantAdminPopupForm {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            width: 350px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #addTenantAdminPopupForm h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        #addTenantAdminPopupForm form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #addTenantAdminPopupForm input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        #addTenantAdminPopupForm input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        #addTenantAdminPopupForm button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #addTenantAdminPopupForm button[type="submit"] {
+            background: #FB641B;
+            color: white;
+        }
+
+        #addTenantAdminPopupForm button[type="submit"]:hover {
+            background: #e85a0f;
+            transform: translateY(-2px);
+        }
+
+        #addTenantAdminPopupForm .close-btn {
+            background: #e74c3c;
+            color: white;
+            margin-top: 5px;
+        }
+
+        #addTenantAdminPopupForm .close-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
 
 
     <div class="sidebar">
         {% if option != "users" %}  
-            <a href="{% url 'sidebar_option' 'tenant' %}">Tenants</a>
+            <a href="{% url 'sidebar_option' 'tenant' %}"><i class="fas fa-building"></i> Tenants</a>
         {% endif %}
-        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        <a href="{% url 'logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
     <div class="content">
-        <h2>Super Administrator</h2>
+        <h2><i class="fas fa-user-shield"></i> Super Administrator</h2>
     
         {% if option == "tenant" %}
-            <a href="#" id="openPopup" class="add-tenant-btn">Add Tenant</a>
-        <!--h2>debug: </h2-->
-            <h2>Total Tenants: {{ total_tenants }}</h2>
+            <a href="#" id="openPopup" class="add-tenant-btn"><i class="fas fa-plus"></i> Add Tenant</a>
+            <h2><i class="fas fa-users"></i> Total Tenants: {{ user.total_tenants }}</h2>
             {% if tenant_data %}
-                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                <table>
                     <thead>
-                        <tr style="background: #2c3e50; color: white;">
+                        <tr>
                             <th>Tenant Name</th>
                             <th>Admin Count</th>
                             <th>User Count</th>
@@ -291,11 +644,11 @@
                     </thead>
                     <tbody>
                         {% for tenant in tenant_data %}
-                            <tr style="text-align: center; background: white;">
+                            <tr>
                                 <td>{{ tenant.tenantName }}</td>
-                                <td>{{ tenant.adminCount }}<button class="viewpop">view</button></td>
-                                <td>{{ tenant.userCount }}</td>
-                                <td><button class="adminpopup">Create Admin</button></td>
+                                <td>{{ tenant.adminCount }}<button class="viewpop"><i class="fas fa-eye"></i> view</button></td>
+                                <td>{{ tenant.userCount }}<button class="viewpo"><i class="fas fa-eye"></i> view</button></td>
+                                <td><button class="adminpopup"><i class="fas fa-user-plus"></i> Create Admin</button></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -322,28 +675,52 @@
             {% csrf_token %}
             <input type="hidden" name="option" value="tenantadmin">
             <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" value="abcd@gmail.com" placeholder="Email">
-            <input type="password" name="password" value="11433434" placeholder="Password">
-            <input type="hidden" id = "tenantNameHiddenField" name="tenant" value='${tenantName}'>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="hidden" id="tenantNameHiddenField" name="tenant" value="">
             <button type="submit">Add Tenant Admin</button>
             <button type="button" class="close-btn">Cancel</button>
         </form>
     </div>
     <div class="viewpopus" id="viewadmins" style="display: none;">
-    <h2></h2> <!-- Add this line -->
-    <button type="button" class="close-btns">close</button>
-    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #2c3e50; color: white;">
-                <th>Admin Name</th>
-                <th>Admin Email</th>
-            </tr>
-        </thead>
-        <tbody id="adminDetailsforTenants">
-            <!-- Admin details will be dynamically populated here -->
-        </tbody>
-    </table>
-</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;"></h2>
+            <button type="button" class="close-btns" aria-label="Close" style="background: none; border: none; font-size: 24px; color: #666; cursor: pointer; padding: 0; margin: 0;">×</button>
+        </div>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th>Admin Name</th>
+                    <th>Admin Email</th>
+                </tr>
+            </thead>
+            <tbody id="adminDetailsforTenants">
+                <!-- Admin details will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+    <div class="viewpopu" id="viewusers" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;"></h2>
+            <button type="button" class="close-btns" aria-label="Close" style="background: none; border: none; font-size: 24px; color: #666; cursor: pointer; padding: 0; margin: 0;">×</button>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <select id="groupSelect" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <option value="">Select a group</option>
+            </select>
+        </div>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th>User Email</th>
+                    <th>User Group</th>
+                </tr>
+            </thead>
+            <tbody id="userDetailsforTenants">
+                <!-- Admin details will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     function showAddTenantPopup() {
@@ -371,9 +748,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupTitle = viewAdminPopup.querySelector("h2");
         popupTitle.textContent = `Admin details for ${tenantName}`;
         viewAdminPopup.style.display = "block";
-        viewAdminPopup.querySelector(".close-btns").addEventListener("click",function () {
+        viewAdminPopup.querySelector(".close-btns").addEventListener("click", function () {
             viewAdminPopup.style.display = "none";
-        })
+        });
+    }
+    function viewUsersPopup(tenantName) {
+        const viewAdminPopup = document.getElementById("viewsusers");
+        const popupTitle = viewAdminPopup.querySelector("h2");
+        popupTitle.textContent = `user details for ${tenantName}`;
+        viewAdminPopup.style.display = "block";
+        viewAdminPopup.querySelector(".close-btns").addEventListener("click", function () {
+            viewAdminPopup.style.display = "none";
+        });
     }
 
     // Open popup when clicking on "Create Tenant", "Create Superadmin", "Add Tenant"
@@ -394,8 +780,8 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function (event) {
             event.preventDefault();
             // Find the corresponding tenant name from the table row
-            const row = this.closest("tr"); // Get the closest table row
-            const tenantName = row.querySelector("td:first-child").textContent.trim(); // Get the first column (tenant name)
+            const row = this.closest("tr");
+            const tenantName = row.querySelector("td:first-child").textContent.trim();
             showAddTenantAdminPopup(tenantName);
         });
     });
@@ -405,9 +791,9 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
             const row = this.closest("tr");
             const tenantName = row.querySelector("td:first-child").textContent.trim();
-            admins = postAPIRequest("{% url 'getTenantadminForTenant' %}", {"tenantName":tenantName}) // Call the API with tenant name
+            // Call the API with tenant name
+            postAPIRequest("{% url 'getTenantadminForTenant' %}", {"tenantName":tenantName}) 
             .then((admins) => {
-                //alert(admins);
                 // Get the table body where admin details will be displayed
                 var adminDetailsTableBody = document.getElementById("adminDetailsforTenants");
                 // Clear any existing rows in the table
@@ -427,14 +813,113 @@ document.addEventListener("DOMContentLoaded", function () {
                     row.appendChild(emailCell);
                     adminDetailsTableBody.appendChild(row);
                 });
-                viewAdminPopup(tenantName);
+                // Show the popup
+                const viewAdminPopup = document.getElementById("viewadmins");
+                const popupTitle = viewAdminPopup.querySelector("h2");
+                popupTitle.textContent = `Admin details for ${tenantName}`;
+                viewAdminPopup.style.display = "block";
+                // Add close button functionality
+                viewAdminPopup.querySelector(".close-btns").addEventListener("click", function () {
+                    viewAdminPopup.style.display = "none";
+                });
             })
             .catch((error) => {
                 console.log(error);
                 // Handle the error
             });
-            //alert(admins);
+        });
+    });
 
+    curTenantName = "";
+    const groupSelect = document.getElementById("groupSelect");
+    // Add event listener for group selection
+    groupSelect.addEventListener("change", function() 
+    {
+        const selectedGroup = this.value;
+        if (selectedGroup) {
+            tenantName = curTenantName;
+            const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+            userDetailsTableBody.innerHTML = "";
+            //alert(tenantName+"/"+selectedGroup);
+            postAPIRequest("{% url 'usersForTheTenant' %}", {
+                "tenantName": tenantName,
+                "groupName": selectedGroup
+            })
+            .then((users) => {
+                const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+                userDetailsTableBody.innerHTML = "";
+                
+                if (!Array.isArray(users)) {
+                    users = [users];
+                }
+                
+                users.forEach(user => {
+                    const row = document.createElement("tr");
+                    const emailCell = document.createElement("td");
+                    const groupCell = document.createElement("td");
+                    
+                    emailCell.textContent = user.email || user.userEmail || "";
+                    groupCell.textContent = user.groupname || user.userGroup || selectedGroup;
+                    
+                    row.appendChild(emailCell);
+                    row.appendChild(groupCell);
+                    userDetailsTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load users for: ' + tenantName+"/"+selectedGroup+ error.message);
+            });//End Post API Request
+        } else {
+            const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+            userDetailsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="2" style="text-align: center;">Please select a group</td>
+                </tr>
+            `;
+        }
+    });//End Adding event listener for group selection on the popup.
+
+
+    document.querySelectorAll(".viewpo").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            const row = this.closest("tr");
+            const tenantName = row.querySelector("td:first-child").textContent.trim();
+            curTenantName = tenantName;
+            const userDetailsTableBody = document.getElementById("userDetailsforTenants");
+            userDetailsTableBody.innerHTML = "";
+            //alert(tenantName);
+           // First get all groups for the tenant
+            postAPIRequest("{% url 'getGroupsForTenant' %}", {"tenantName": tenantName})
+            .then((groups) => {
+                const groupSelect = document.getElementById("groupSelect");
+                groupSelect.innerHTML = '<option value="">Select a group</option>';
+                
+                let groupList = Array.isArray(groups) ? groups : (groups.groups || []);
+                groupList.forEach(group => {
+                    const option = document.createElement("option");
+                    option.value = group;
+                    option.textContent = group;
+                    groupSelect.appendChild(option);
+                });
+
+                // Show the popup
+                const viewUsersPopup = document.getElementById("viewusers");
+                const popupTitle = viewUsersPopup.querySelector("h2");
+                popupTitle.textContent = `Users for ${tenantName}`;
+                viewUsersPopup.style.display = "block";
+                // Add close button functionality
+                viewUsersPopup.querySelector(".close-btns").addEventListener("click", function () {
+                    const groupSelect = document.getElementById("groupSelect");
+                    groupSelect.innerHTML = '<option value="">Select a group</option>';
+                    viewUsersPopup.style.display = "none";
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load groups: ' + error.message);
+            });
         });
     });
 });

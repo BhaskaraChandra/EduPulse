@@ -1,0 +1,290 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>tenantGroups Management</title>
+    <style>
+        .create-group-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 300px;
+        }
+        .create-group-popup input,
+        .create-group-popup select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .create-group-popup button {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .group-selector {
+            padding: 4px 8px;
+            font-size: 14px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin: 10px;">
+        <button id="createGroupBtn" type="button" style="padding: 8px 15px; background: #2c3e50; color: white;">Create User</button>
+    </div>
+    
+    <div class="viewpopus" id="viewadmins">
+        <div class="header-container">
+            <h2 style="margin: 0;">Users for the group:</h2>
+            <select id="groupSelector" class="group-selector">
+                <option value="">Select Group</option>
+            </select>
+        </div>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th>User Email</th>
+                    <th>User group</th>
+                </tr>
+            </thead>
+            <tbody id="adminDetailsforTenants">
+                <!-- Users will be listed here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Create Group Popup -->
+    <div class="create-group-popup" id="createUserPopup">
+        <h3>Create New User</h3>
+        <form id="createUserForm" autocomplete="off">
+            <input type="text" id="Username" placeholder="User Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <select id="group">
+                <option value="">Select Group</option>
+                <!-- Groups will be populated dynamically -->
+            </select>
+            <button type="submit">Create User</button>
+            <button type="button" id="closeUserPopupBtn">Close</button>
+        </form>
+    </div>
+
+    <!--script src="{% static 'jsapi.js' %}"></script-->
+
+    <script>
+        (function() {
+            const userData = JSON.parse(sessionStorage.getItem('curUser'));
+            const tenantName = userData?.tenantName || '{{ user.tenantName }}';
+            const groupSelector = document.getElementById('groupSelector');
+            const createUserPopup = document.getElementById('createUserPopup');
+            const createGroupBtn = document.getElementById('createGroupBtn');
+            const closeUserPopupBtn = document.getElementById('closeUserPopupBtn');
+            const createUserForm = document.getElementById('createUserForm');
+            const adminDetailsforTenants = document.getElementById('adminDetailsforTenants');
+            const groupSelect = document.getElementById('group');
+
+            function resetUserForm() {
+                createUserForm.reset();
+                groupSelect.selectedIndex = 0;
+            }
+
+            function initializePage() {
+                // Populate group dropdowns
+                postAPIRequest("{% url 'getGroupsForTenant' %}", {"tenantName": tenantName})
+                .then((groups) => {
+                    let groupList = Array.isArray(groups) ? groups : (groups.groups || []);
+                    // Sort groups alphabetically
+                    groupList.sort((a, b) => a.localeCompare(b));
+                    
+                    // Populate both dropdowns
+                    const dropdowns = [groupSelector, groupSelect];
+                    dropdowns.forEach(dropdown => {
+                        dropdown.innerHTML = '<option value="">Select Group</option>';
+                        groupList.forEach((group) => {
+                            const option = document.createElement('option');
+                            option.value = group;
+                            option.textContent = group;
+                            dropdown.appendChild(option);
+                        });
+                    });
+
+                    // Set initial group if available
+                    if (groupList.length > 0) {
+                        groupSelector.value = groupList[0];
+                        loadUsers(groupList[0]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading groups:', error);
+                    alert('Failed to load groups: ' + error.message);
+                });
+
+                // Group selector change handler
+                groupSelector.addEventListener('change', (e) => {
+                    const selectedGroup = e.target.value;
+                    if (selectedGroup) {
+                        loadUsers(selectedGroup);
+                    } else {
+                        adminDetailsforTenants.innerHTML = `
+                            <tr>
+                                <td colspan="2" style="text-align: center;">Please select a group</td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                createGroupBtn.addEventListener('click', () => {
+                    createUserPopup.style.display = 'block';
+                    resetUserForm();
+                });
+
+                closeUserPopupBtn.addEventListener('click', () => {
+                    createUserPopup.style.display = 'none';
+                    resetUserForm();
+                });
+
+                createUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const username = document.getElementById('Username').value;
+                    const email = document.getElementById('email').value;
+                    const selectedGroup = groupSelect.value;
+
+                    if (!username || !email || !selectedGroup) {
+                        alert('Please fill all fields');
+                        return;
+                    }
+
+                    postAPIRequest("{% url 'addUsersToGroup' %}", {
+                        userName: username,
+                        email: email,
+                        groupName: selectedGroup,
+                        tenantName: tenantName
+                    })
+                    .then(response => {
+                        if (response.status === 'success' || response.success) {
+                            alert('User created!');
+                            loadUsers(selectedGroup);
+                            createUserPopup.style.display = 'none';
+                            resetUserForm();
+                        } else {
+                            alert('Failed to create user.');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                    });
+                });
+            }
+
+            function loadUsers(groupName) {
+                if (!groupName) {
+                    adminDetailsforTenants.innerHTML = `
+                        <tr>
+                            <td colspan="2" style="text-align: center;">Please select a group</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                postAPIRequest("{% url 'usersForTheTenant' %}", {
+                    "tenantName": tenantName,
+                    "groupName": groupName
+                })
+                .then((users) => {
+                    adminDetailsforTenants.innerHTML = '';
+                    document.getElementById('viewadmins').style.display = 'block';
+
+                    if (users && Array.isArray(users) && users.length > 0) {
+                        // Sort users by email alphabetically
+                        users.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
+                        
+                        users.forEach((user) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td style="text-align: center;">${user.email || 'N/A'}</td>
+                                <td style="text-align: center;">${user.groupname || 'N/A'}</td>
+                            `;
+                            adminDetailsforTenants.appendChild(row);
+                        });
+                    } else {
+                        adminDetailsforTenants.innerHTML = `
+                            <tr>
+                                <td colspan="2" style="text-align: center;">No users found</td>
+                            </tr>
+                        `;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('Failed to load users: ' + error.message);
+                });
+            }
+
+            initializePage();
+        })();
+// COMMON Functions below Soon to be moved to jsapi.js to a common location
+function postAPIRequest(api, input) {
+  return new Promise((resolve, reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', api, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+    xhr.send(JSON.stringify(input));
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          //alert(xhr.responseText)
+          var admins = JSON.parse(xhr.responseText);
+          resolve(admins);
+        } else {
+          let msg = xhr.statusText || 'Request failed';
+          // Try to parse error message from response
+          try {
+            const errObj = JSON.parse(xhr.responseText);
+            if (errObj && errObj.error) {
+              msg = errObj.error;
+            }
+          } catch (e) {}
+          reject(new Error(msg));
+        }
+      }
+    };
+  });
+}
+
+
+// Helper function to get the CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+</body>
+</html>

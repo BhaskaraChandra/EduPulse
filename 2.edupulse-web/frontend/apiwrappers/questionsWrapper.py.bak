@@ -1,5 +1,5 @@
 import requests
-from frontend.apiwrappers.commons import jwt_required, verify_jwt_token
+
 from .appConfig import appConfig
 
 config = appConfig()
@@ -22,10 +22,10 @@ headers = {'Content-Type': 'application/json'}
 #     except requests.exceptions.RequestException as err:
 #         print(f"Request Exception: {err}")
 #         return None
-@jwt_required 
-def get_user_questions_metadata(user_id: str,hdrs={},** kwargs) -> requests.Response:
+
+def get_user_questions_metadata(user_id: str) -> requests.Response:
     api="userQuestions/"
-    response = requests.get(questionsServiceUrl+api, headers=hdrs, params={"userid": user_id})
+    response = requests.get(questionsServiceUrl+api, headers=headers, params={"userid": user_id})
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json() 
 
@@ -59,12 +59,11 @@ def get_user_questions_metadata(user_id: str,hdrs={},** kwargs) -> requests.Resp
 #         print(f"Request Exception: {err}")
 #         return None
 
-@jwt_required 
-def save_selected_topics(user_id: str=None,selected_topics: dict=None,hdrs={},** kwargs) -> dict:
+def save_selected_topics(user_id: str=None,selected_topics: dict=None) -> dict:
     try:
         api=f"usertopicsMetadata/" 
         params = {"userid": user_id}
-        response = requests.post(questionsServiceUrl + api, headers=hdrs, params=params, json=selected_topics)
+        response = requests.post(questionsServiceUrl + api, headers=headers, params=params, json=selected_topics)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data=response.json()
         #print("apiResponse:",data)

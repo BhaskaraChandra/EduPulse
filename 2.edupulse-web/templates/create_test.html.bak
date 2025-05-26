@@ -165,8 +165,7 @@
       <span id="lbl_include">Include:</span>
       <input type="checkbox" id="Solved">Solved</input>
       <input type="checkbox" id="Unsolved">Unsolved</input>
-      <input type="checkbox" id="Unattempted" checked>Unattempted</input>
-
+      <input type="checkbox" id="Unattempted">Unattempted</input>
 
 	  <button id="generateTest">Generate Test</button>
 	</div>
@@ -248,13 +247,7 @@
             checkboxes.forEach(checkbox => {
                 selectedTopics.push(checkbox.value);
             });
-            //Validations
-            if (selectedSubject == "") {alert("Please select a subject.");return;}
-            if (selectedGrade.length == 0) {alert("Please select a grade.");return;}
-            if (selectedTopics.length == 0) {alert("Please select at least one topic.");return;}
-            if (numQuestions == "") {alert("Please select the number of questions.");return;}
-            if (getCheckedDifficultyLevels().length == 0) {alert("Please select at least one difficulty level.");return;}
-            if (document.getElementById("Solved").checked == false && document.getElementById("Unsolved").checked == false && document.getElementById("Unattempted").checked == false) {alert("Please select at least one Include Filter.");return;}
+
             // Create JSON object
             let selectedData = {
                 Subject: selectedSubject,
@@ -262,14 +255,9 @@
                 Topics: selectedTopics,//unused for now
                 Subtopics: selectedTopics,
                 Level: getCheckedDifficultyLevels(),
-                flagSolved: document.getElementById("Solved").checked,
-                flagUnsolved: document.getElementById("Unsolved").checked,
-                flagUnattempted: document.getElementById("Unattempted").checked,
                 nQuestions: numQuestions,
                 userid: email
             };
-            //alert("solved:"+selectedData.flagSolved+" unsolved:"+selectedData.flagUnsolved+" unattempted:"+selectedData.flagUnattempted);
-            //return;
             //alert(JSON.stringify(selectedData))
             // Create an AJAX request
             var xhr = new XMLHttpRequest();

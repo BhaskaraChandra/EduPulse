@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .burger-menu {
+            display: none;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #2c3e50;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .sidebar label {
+            display: block;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .sub-options {
+            padding-left: 20px;
+            display: block;
+        }
+        .sidebar a {
+            display: block;
+            padding: 8px 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .profile-section {
+            text-align: center;
+            padding: 20px 0;
+            color: white;
+        }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #6699ff;
+            color: #FFFFFF;
+        }
+        .dashboard-content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar" id="sidebar">
+        <div class="profile-section">
+            <p class="load-content"><strong>{{ user.tenantName }}</strong></p>
+            <img src="{{ user.profile.profile_pic.url }}" alt="" class="profile-pic">
+            <p class="load-content"><strong>{{ user.userName }}</strong></p>
+            <input type = "hidden" id='user-data' value='{{ user }}'>
+
+        </div>
+        <hr>
+        <a href="{% url 'tenantGroups' %}" class="load-content" >Groups</a>
+        <a href="{% url 'groupUsers' %}" class="load-content">Users</a>
+        <a href="{% url 'settings' %}" class="load-content">Settings</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+    <div class="dashboard-content" id="dashboard-content"></div>
+    <script>
+        var userDataText = document.getElementById('user-data').value;
+        userDataText = userDataText.replace(/'/g, '"');
+        userData = JSON.parse(userDataText);
+        sessionStorage.setItem('curUser',userDataText)
+    $(document).ready(function() {
+        $(".load-content").click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr("href");
+            $("#dashboard-content").load(url, function() {
+                // Initialize tenant groups page after loading
+                if (typeof initializeGroupsPage === 'function') {
+                    initializeGroupsPage();
+                }
+            });
+        });
+    });
+    </script>
+
+</body>
+
+</html>

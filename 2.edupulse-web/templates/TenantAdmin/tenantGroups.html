@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>tenantGroups Management</title>
+    <style>
+        .create-group-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 300px;
+        }
+        .create-group-popup input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .create-group-popup button {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <button id="createGroupBtn" type="button" style="margin: 10px; padding: 8px 15px; background: #2c3e50; color: white;">Create Group</button>
+    
+    <div class="viewpopus" id="viewgroups">
+        <h2>Groups for the tenant: {{ user.tenantName }}</h2>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th>Group Name</th>
+                </tr>
+            </thead>
+            <tbody id="groupDetailsforTenants">
+                <!-- Groups will be listed here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Create Group Popup -->
+    <div class="create-group-popup" id="createGroupPopup">
+        <h3>Create New Group</h3>
+        <form id="createGroupForm" autocomplete="off">
+            <input type="text" id="groupName" placeholder="Group Name" required>
+            <button type="submit">Create Group</button>
+            <button type="button" id="closeGroupPopupBtn">Close</button>
+        </form>
+    </div>
+
+    <!--script src="{% static 'jsapi.js' %}"></script-->
+
+    <script>
+        (function() {
+            const userData = JSON.parse(sessionStorage.getItem('curUser'));
+            const tenantName = userData?.tenantName || '{{ user.tenantName }}';
+            const createGroupPopup = document.getElementById('createGroupPopup');
+            const createGroupBtn = document.getElementById('createGroupBtn');
+            const closeGroupPopupBtn = document.getElementById('closeGroupPopupBtn');
+            const createGroupForm = document.getElementById('createGroupForm');
+            const groupDetailsforTenants = document.getElementById('groupDetailsforTenants');
+
+            function resetGroupForm() {
+                createGroupForm.reset();
+            }
+
+            function initializePage() {
+                // Load groups
+                loadGroups();
+
+                createGroupBtn.addEventListener('click', () => {
+                    createGroupPopup.style.display = 'block';
+                    resetGroupForm();
+                });
+
+                closeGroupPopupBtn.addEventListener('click', () => {
+                    createGroupPopup.style.display = 'none';
+                    resetGroupForm();
+                });
+
+                createGroupForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const groupName = document.getElementById('groupName').value;
+
+                    if (!groupName) {
+                        alert('Please enter a group name');
+                        return;
+                    }
+
+                    postAPIRequest("{% url 'addGroupToTenant' %}", {
+                        groupName: groupName,
+                        tenantName: tenantName
+                    })
+                    .then(response => {
+                        if (response.status === 'success' || response.success) {
+                            alert('Group created!');
+                            loadGroups();
+                            createGroupPopup.style.display = 'none';
+                            resetGroupForm();
+                        } else {
+                            alert('Failed to create group.');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                    });
+                });
+            }
+
+            function loadGroups() {
+                postAPIRequest("{% url 'getGroupsForTenant' %}", {
+                    "tenantName": tenantName
+                })
+                .then((groups) => {
+                    groupDetailsforTenants.innerHTML = '';
+                    document.getElementById('viewgroups').style.display = 'block';
+
+                    let groupList = Array.isArray(groups) ? groups : (groups.groups || []);
+                    
+                    if (groupList && groupList.length > 0) {
+                        groupList.forEach((group) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td style="text-align: center;">${group}</td>
+                            `;
+                            groupDetailsforTenants.appendChild(row);
+                        });
+                    } else {
+                        groupDetailsforTenants.innerHTML = `
+                            <tr>
+                                <td colspan="2" style="text-align: center;">No groups found</td>
+                            </tr>
+                        `;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('Failed to load groups: ' + error.message);
+                });
+            }
+
+            initializePage();
+        })();        
+// COMMON Functions below Soon to be moved to jsapi.js to a common location
+function postAPIRequest(api, input) {
+  return new Promise((resolve, reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', api, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+    xhr.send(JSON.stringify(input));
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          //alert(xhr.responseText)
+          var admins = JSON.parse(xhr.responseText);
+          resolve(admins);
+        } else {
+          let msg = xhr.statusText || 'Request failed';
+          // Try to parse error message from response
+          try {
+            const errObj = JSON.parse(xhr.responseText);
+            if (errObj && errObj.error) {
+              msg = errObj.error;
+            }
+          } catch (e) {}
+          reject(new Error(msg));
+        }
+      }
+    };
+  });
+}
+
+
+// Helper function to get the CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+    </script>
+</body>
+</html>

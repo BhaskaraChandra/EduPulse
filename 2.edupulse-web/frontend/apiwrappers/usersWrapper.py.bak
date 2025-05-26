@@ -1,7 +1,8 @@
+import jwt
 from pydantic import BaseModel
 import requests
 
-from frontend.apiwrappers.commons import jwt_required, verify_jwt_token
+from frontend.apiwrappers.commons import verify_jwt_token
 
 from .appConfig import appConfig
 config = appConfig()
@@ -31,13 +32,6 @@ userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
 
 headers = {'Content-Type': 'application/json'}
-def hitTest(hdrs={},**kwargs):
-    api=""
-    print("calling hittest:",userssServiceUrl+api)
-    response = requests.get(userssServiceUrl+api, headers=headers)
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    print("HitTestResponse:",response.json())
-    return response.json() 
 
 def authenticate_userV2(username, password):
     api="users/authenticateV2"
@@ -76,10 +70,9 @@ def createTenant(tenantName):
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json()
 
-@jwt_required 
-def getTenants(hdrs={},**kwargs):
+def getTenants():
     api="tenants/"
-    response = requests.get(userssServiceUrl+api, headers=hdrs)
+    response = requests.get(userssServiceUrl+api, headers=headers)
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json() 
 
@@ -94,89 +87,40 @@ class User(BaseModel):
     tenantName: str = ""
     password: str = ""
 
-@jwt_required 
-def createUser(username, email, hashed_password, tenantName, userGroup, userType,hdrs={}, **kwargs):
-    userObj = User(userEmail=email, userName=username, password=hashed_password, 
-                   tenantName=tenantName, userGroup=userGroup, userType=userType)
+def createUser(username, email, hashed_password, tenantName, userType):
+    userObj = User(userEmail=email, userName=username, password=hashed_password, tenantName=tenantName, userType=userType)
     api="users/"
     print("Dbg: Createuser api about to be called ")
-    response = requests.post(userssServiceUrl+api, headers=hdrs, json=userObj.model_dump())
+    response = requests.post(userssServiceUrl+api, headers=headers, json=userObj.model_dump())
     response.raise_for_status()  # Raise an exception for HTTP errors
     print("Createuser Response:",response.json())
     return response.json()
     pass
 
-@jwt_required 
-def updateUser(email,  hashed_password = "", profilePic="", hdrs={},**kwargs):
+def updateUser(email,  hashed_password = "", profilePic=""):
     userObj = User(userEmail=email, profilePic=profilePic, password=hashed_password)
     api="users/" #PUT request to update the non blank fields of user.
     #print("Dbg: Update User api about to be called ")
-    response = requests.put(userssServiceUrl+api, headers=hdrs, json=userObj.model_dump())
+    response = requests.put(userssServiceUrl+api, headers=headers, json=userObj.model_dump())
     response.raise_for_status()  # Raise an exception for HTTP errors
     print("Update User Response:",response.json())
     return response.json()
 
-@jwt_required 
-def addTenantAdmin(username, email, hashed_password, tenantName, hdrs={}, **kwargs) :
-    return createUser(username, email, hashed_password, tenantName,"NA-TenantAdmin","tenantadmin")
+def addTenantAdmin(username, email, hashed_password, tenantName) :
+    return createUser(username, email, hashed_password, tenantName,"tenantadmin")
     pass
 
-@jwt_required 
-def getUsersForTenantAdmin(adminUser_id,hdrs={}, **kwargs):
+def getUsersForTenantAdmin(adminUser_id):
     api="users/"
     #api = f"users/{adminUser_id}"
-    response = requests.get(userssServiceUrl+api, headers=hdrs,params={"tenant_admin_email": adminUser_id})
+    response = requests.get(userssServiceUrl+api, headers=headers,params={"tenant_admin_email": adminUser_id})
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json() 
 
-@jwt_required 
-def getTenantadminForTenant(tenantName, hdrs={}, **kwargs):
+def getTenantadminForTenant(tenantName):
     api="get_tenant_admins_for_tenant/"
-    response = requests.get(userssServiceUrl+api, headers=hdrs,params={"tenantName": tenantName})
+    response = requests.get(userssServiceUrl+api, headers=headers,params={"tenantName": tenantName})
     response.raise_for_status()  # Raise an exception for HTTP errors
     print("getAdminsfromTenant Response:",response.json())
     return response.json()
 #############################################################################################
-#UserGroups related wrappers
-#############################################################################################
-@jwt_required 
-def createUserGroup(userGroupName, tenantName, hdrs={}, **kwargs):
-    api="createGroupForTenant/"
-    response = requests.post(userssServiceUrl+api, headers=hdrs, params={"userGroupName": userGroupName, "tenantName": tenantName})
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    print(api,response.json())
-    return response.json()
-
-@jwt_required 
-#def getUserGroupsForTenant(tenantName,hdrs={}, **kwargs):
-def getUserGroupsForTenant(tenantName,hdrs={}, **kwargs):
-    api="getGroupsForTenant/"
-    response = requests.get(userssServiceUrl+api, headers=hdrs,params={"tenantName": tenantName})
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    print(api,response.json())
-    return response.json()
-
-@jwt_required 
-def getUsersInGroup(userGroupName, tenantName, hdrs={}, **kwargs):
-    api="getUsersInGroup/"
-    response = requests.get(userssServiceUrl+api, headers=hdrs, params={"userGroupName": userGroupName, "tenantName": tenantName})
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    print(api,response.json())
-    return response.json()
-
-@jwt_required 
-def addUserToGroup(userEmail, userGroupName, tenantName, hdrs={}, **kwargs):
-    api="addUserToGroup/"
-    response = requests.post(userssServiceUrl+api, headers=hdrs, params={"userEmail": userEmail, "userGroupName": userGroupName, "tenantName": tenantName})
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    print(api,response.json())
-    return response.json()
-#testing the API
-# def testAPI():
-#     print("Testing API with MockData")
-#     createUserGroup("testgroup2","dummyytenant")
-#     getUserGroupsForTenant("dummyytenant")
-#     addUserToGroup("testuser@gmail.com","testgroup2","dummyytenant")
-#     getUsersInGroup("testgroup2","dummyytenant")
-
-#testAPI()

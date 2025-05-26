@@ -15,8 +15,8 @@ def generate_test(request):
     json_data = json.loads(request.body)# Get the JSON data from the request
     #print(json_data)
     try:
-        ret = testsWrapper.generateQuickTest(json_data,jwt = request.session["jwt"])
-        #print("received:",ret)
+        ret = testsWrapper.generateQuickTest(json_data)
+        print("received:",ret)
         #return ret
         # Return a JSON response
         return JsonResponse(ret.json(), safe=False)
@@ -31,7 +31,7 @@ def generate_test(request):
 def get_active_quick_test(request, curUser_email):
     #json_data = json.loads(request.body)# Get the JSON data from the request
     #print(curUser_email)
-    ret = testsWrapper.getActiveQuickTest(curUser_email,jwt = request.session["jwt"])
+    ret = testsWrapper.getActiveQuickTest(curUser_email)
     #print("DBG:Active Test Received at ViewTests:",ret.json())
     # Return a JSON response
     return JsonResponse(ret.json(), safe=False)
@@ -46,7 +46,7 @@ def livetest(request):
 def testSummary(request):
     qidsList = json.loads(request.body)
     #print(qidsList)
-    qsSummary = testsWrapper.getTestSummary(qidsList,jwt = request.session["jwt"])
+    qsSummary = testsWrapper.getTestSummary(qidsList)
     return JsonResponse(qsSummary.json(), safe=False)
     return render(request, 'testSummary.html')
 
@@ -55,7 +55,7 @@ def testSummary(request):
 def submit_test(request):
     json_data = json.loads(request.body)# Get the JSON data from the request
     #print(json_data)
-    testResult = testsWrapper.submitTest(json_data,jwt = request.session["jwt"])
+    testResult = testsWrapper.submitTest(json_data)
     #print("Rendering the testSummary")
     #return render(request, 'testSummary.html', {'testResult1': testResult.json()})
     #return render(request, 'testSummary.html')
@@ -66,7 +66,7 @@ def submit_test(request):
 
 def history_view(request):
     user_email = request.session.get("user").get("userEmail")
-    tests = testsWrapper.getTestsHistory(user_email,jwt = request.session["jwt"])
+    tests = testsWrapper.getTestsHistory(user_email)
     #print(f"TestsHistory for user:{user_email}\n",tests.json())
     #request.session["tests_history"] = tests.json()
     #request.session.modified = True  # Ensure session updates
@@ -74,7 +74,7 @@ def history_view(request):
 
 def metrics_view(request):
     user_email = request.session.get("user").get("userEmail")
-    metrics = testsWrapper.getUserMetrics(user_email,jwt = request.session["jwt"])
+    metrics = testsWrapper.getUserMetrics(user_email)
     #print(f"Metrics for user:{user_email}\n",metrics.json())
     return render(request, 'scoreboard.html',{'user_metrics': json.dumps(metrics.json(), ensure_ascii=False, indent=4)})
 
@@ -88,7 +88,7 @@ def create_test_view(request):
     print("Create Test View")
     userObj = request.session.get("user")
     #above method to get topics metadata is no longer being used, as the below method is being used.
-    user_questions = questionsWrapper.get_user_questions_metadata(userObj["userEmail"],jwt = request.session["jwt"])
+    user_questions = questionsWrapper.get_user_questions_metadata(userObj["userEmail"])
     for subject,subObj in user_questions.items():
         if subject in ("_id", "_metrics"): continue
         #print("subject:",subject,"subObj:", subObj)
@@ -130,7 +130,7 @@ def manage_topics_view(request):
     #print("Manage Topics View")
     userObj = request.session.get("user")
     #print("User Object:", userObj)
-    userTopicsMetadata = questionsWrapper.get_user_questions_metadata(userObj["userEmail"],jwt = request.session["jwt"])
+    userTopicsMetadata = questionsWrapper.get_user_questions_metadata(userObj["userEmail"])
     #print("Global Topics:", topicsMetadata)
     #print("User Topics:", userTopicsMetadata)
     end_time = time.time()
@@ -149,7 +149,7 @@ def save_selected_topics(request):
             data = json.loads(request.body)
             selected_topics = data.get("selected_topics", [])
             #print("Selected Topics:", json.dumps(selected_topics, indent=4))
-            questionsWrapper.save_selected_topics(userObj["userEmail"],selected_topics,jwt = request.session["jwt"])
+            questionsWrapper.save_selected_topics(userObj["userEmail"],selected_topics)
             # NOTE: use the below reference code to send any data to the frontend.
             #request.session["selected_topics"] = structured_data
             #request.session.modified = True  # Ensure session updates

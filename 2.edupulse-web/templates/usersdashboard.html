@@ -45,7 +45,7 @@
         }
         .profile-section {
             text-align: center;
-            padding: 20px 0;
+            padding: 0px 0;
             color: white;
         }
         .profile-pic {
@@ -63,35 +63,42 @@
             margin-left: 270px;
             padding: 20px;
         }
+        .sidebar-menu {
+            height: 400px;
+            overflow-y:auto;
+        }
+
     </style>
 </head>
 <body>
     <div class="sidebar" id="sidebar">
         <div class="profile-section">
             <p class="load-content"><strong>{{ user.tenantName }}</strong></p>
-            <img src="{{ user.profile.profile_pic.url }}" alt="" class="profile-pic">
+            <img src="{{ user.profilePic }}" alt="" class="profile-pic">
             <p class="load-content"><strong>{{ user.userName }}</strong></p>
             <p>Score: 200117</p>
             <input type = "hidden" id='user-data' value='{{ user }}'>
 
         </div>
         <hr>
-        <label>Tests</label>
-        <div class="sub-options">
-            <a href="{% url 'create_test' %}" class="load-content">Practice Test</a>
-            <!--a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a-->
-            <a href="{% url 'history' %}" class="load-content">History</a>
-        </div>
-        <label>Topics</label>
-        <div class="sub-options">
-            <a href="{% url 'manage_topics' %}" class="load-content">Manage Topics</a>
-        </div>
-        <a href="{% url 'metrics' %}" class="load-content">Score Board</a>
-        <!--a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
-        <a href="{% url 'my_progress' %}" class="load-content">My Progress</a>
-        <a href="{% url 'compare' %}" class="load-content">Compare</a-->
-        <!--a href="{% url 'settings' %}" class="load-content">Settings</a-->
-        <a href="{% url 'logout' %}">Logout</a>
+        <div class="sidebar-menu">
+            <label>Tests</label>
+            <div class="sub-options">
+                <a href="{% url 'create_test' %}" class="load-content">Practice Test</a>
+                <!--a href="{% url 'daily_challenge' %}" class="load-content">Daily Challenge</a-->
+                <a href="{% url 'history' %}" class="load-content">History</a>
+            </div>
+            <label>Topics</label>
+            <div class="sub-options">
+                <a href="{% url 'manage_topics' %}" class="load-content">Manage Topics</a>
+            </div>
+            <a href="{% url 'metrics' %}" class="load-content">Score Board</a>
+            <!--a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
+            <a href="{% url 'my_progress' %}" class="load-content">My Progress</a>
+            <a href="{% url 'compare' %}" class="load-content">Compare</a-->
+	        <a href="{% url 'settings' %}" class="load-content">Settings</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>    
     </div>
     <div class="dashboard-content" id="dashboard-content"></div>
     <script>

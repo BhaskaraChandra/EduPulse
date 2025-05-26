@@ -105,15 +105,16 @@
                 <i class="fa fa-user"></i>
                 <input type="text" name="username" placeholder="Username" required>
             </div>
-            <span class="text-danger">{{ Error }}</span>
             <div class="input-group">
                 <i class="fa fa-lock"></i>
                 <input type="password" name="password" placeholder="Password" value="a">
-            </div>
+            </div> 
+            <span class="text-danger">{{ Error }}</span>
 
             <button type="submit" class="btn">Login</button>
 
-            <a href="#" class="link">Forgot Password?</a>
+            <!--a href="#" class="link">Forgot Password?</a-->
+            <span >{{ nActiveUsers }}</span>
         </form>
     </div>
 </body>

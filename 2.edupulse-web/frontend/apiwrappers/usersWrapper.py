@@ -2,6 +2,8 @@ import jwt
 from pydantic import BaseModel
 import requests
 
+from .commons import jwt_required, verify_jwt_token
+
 from .appConfig import appConfig
 config = appConfig()
 
@@ -17,7 +19,7 @@ import os
 questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
-def verify_jwt_token(token):
+'''def verify_jwt_token(token):
     #return token
     try:
         sk=os.environ.get('sk')
@@ -27,7 +29,7 @@ def verify_jwt_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
-
+'''
 
 headers = {'Content-Type': 'application/json'}
 

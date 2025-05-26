@@ -1,4 +1,7 @@
 from django.contrib import messages
+from django.contrib.sessions.models import Session
+from datetime import datetime
+
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
@@ -11,27 +14,26 @@ from frontend.apiwrappers import usersWrapper
 
 
 def login_view(request):
+    active_sessions = Session.objects.filter(expire_date__gte=datetime.now())
+    nSessions = active_sessions.count() 
+    print("Active Sessions:",nSessions)
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
         #password = "temp"
         user,jswt = usersWrapper.authenticate_userV2(username, password)
+        request.session["jwt"]=jswt
+
         #print(user)
         if user:
-            # Get hashed password from MongoDB
-            #hashed_password = user["password"]  # Stored as a hashed value
-            #print(user["usertype"])
-            # Compare the stored hashed password with the entered plain-text password
-            #below should be handled in a more secure way.
-            #if True or bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
             if True :
                 request.session["user_id"] = str(user["_id"])  # Store session
                 if(user["userType"]=="superadmin"):
-                    tenants_data = usersWrapper.getTenants()
+                    tenants_data = usersWrapper.getTenants(jwt = request.session["jwt"])
                     return render(request, "superadmin_dashboard.html", {"tenant_data": tenants_data})
                 elif(user["userType"]=="tenantadmin"):
                     print('tenantadmin')
-                    request.session["tenantName"]=user["tenantName"]
+                    request.session["user"]=user
                     return redirect("tenantdashboard")  # Redirect to the homepage or dashboard
                 elif(user["userType"]=="consumer"):
                     #print('consumer')
@@ -46,7 +48,7 @@ def login_view(request):
         else:
             return render(request, "login.html",{'Error': "Invalid username or password"})
 
-    return render(request, "login.html")
+    return render(request, "login.html",{'nActiveUsers': f"Currently Active: {nSessions} users"})
 
 def tenantdashboard(request):
     return render(request,"tenantadmin_dashboard.html")

@@ -19,16 +19,16 @@ import os
 questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
 
-def verify_jwt_tokenLocal(token):
-    #return token
-    try:
-        sk=os.environ.get('sk')
-        payload = jwt.decode(token, sk, algorithms=['HS256'])
-        return payload
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
+# def verify_jwt_tokenLocal(token):
+#     #return token
+#     try:
+#         sk=os.environ.get('sk')
+#         payload = jwt.decode(token, sk, algorithms=['HS256'])
+#         return payload
+#     except jwt.ExpiredSignatureError:
+#         return None
+#     except jwt.InvalidTokenError:
+#         return None
 
 
 headers = {'Content-Type': 'application/json'}
@@ -36,14 +36,14 @@ headers = {'Content-Type': 'application/json'}
 def authenticate_userV2(username, password):
     api="users/authenticateV2"
     #hitTest()
-    print("calling authenticate_userv2:",userssServiceUrl+api)
+    #print("calling authenticate_userv2:",userssServiceUrl+api)
     try:
         response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password},timeout=10)
-        print("response:",response.json())
+        #print("response:",response.json())
         if response.status_code == 200:
             jswt = response.json()
             user = verify_jwt_token(jswt)
-            print("user:",user)
+            #print("user:",user)
             if user:
                 return user,jswt
             else:

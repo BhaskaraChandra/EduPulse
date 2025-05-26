@@ -7,16 +7,16 @@ import requests
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from frontend.apiwrappers import usersWrapper
+from frontend.apiwrappers import testsWrapper, usersWrapper
 
 
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        #password = "temp"
-        user = usersWrapper.authenticate_userV2(username, password)
-        #print(user)
+        password = "temp"
+        user = usersWrapper.authenticate_user(username, password)
+
         if user:
             # Get hashed password from MongoDB
             hashed_password = user["password"]  # Stored as a hashed value
@@ -37,12 +37,11 @@ def login_view(request):
                     user.pop("_id");user.pop("password");#user.pop("created_by");user.pop("usertype")
                     #print(user)
                     request.session["user"]=user
-                    #usersWrapper.updateUser(user["userEmail"],profilePic="UPDATED BASE 64 string")
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
             else:
-                return render(request, "login.html",{'Error': "Invalid username or password"})
+                messages.error(request, "Invalid username or password")
         else:
-            return render(request, "login.html",{'Error': "Invalid username or password"})
+            messages.error(request, "Invalid username or password")
 
     return render(request, "login.html")
 
@@ -103,6 +102,7 @@ def SubmitTenant(request):
             except Exception as e:
                 messages.error(request, f"Error adding Tenant: {e}")
     pass
+
 def SubmitConsumer(request):
     user_id = request.session.get("user_id")  
     if request.method == "POST":
@@ -117,6 +117,9 @@ def SubmitConsumer(request):
             email = request.POST.get("email")
             password = request.POST.get("password")
             tenantName = request.POST.get("tenant")
+            # username = request.POST.get("username")
+            # email = request.POST.get("email")
+            # password = request.POST.get("password")
             tenantName = request.session.get("tenantName") #request.POST.get("tenantName")
             #print("DBG: after getting the values")
             if username and email and password:
@@ -177,22 +180,3 @@ def sidebar(request, option=None):
 
 def settings_view(request):
     return render(request, 'settings.html')
-
-def getTenantadminForTenant(request):
-    try:
-        tenantName = request.session.get("tenantName")
-        if not tenantName:
-            # Try to get tenantName from POST data
-            if request.method == "POST":
-                import json
-                data = json.loads(request.body.decode("utf-8"))
-                tenantName = data.get("tenantName")
-        if not tenantName:
-            print("Error: tenantName not found in session or POST data")
-            return JsonResponse({"error": "Tenant name not found"}, status=400)
-        adminsData = usersWrapper.getTenantadminForTenant(tenantName)
-        print("getAdminDetails Response:", adminsData)
-        return JsonResponse(adminsData, safe=False)
-    except Exception as e:
-        print(f"Error in getTenantadminForTenant: {e}")
-        return JsonResponse({"error": str(e)}, status=500)

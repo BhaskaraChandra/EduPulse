@@ -56,9 +56,7 @@ def authenticate_userV2(username, password):
 
 def authenticate_user(username, password):
     api="users/authenticate"
-    print("calling authenticate_user:",userssServiceUrl+api)
     response = requests.post(userssServiceUrl+api, headers=headers, json={"userEmail": username, "password": password})
-    print("authenticate_user response:",response.json())
     if response.status_code == 200:
         return response.json()
     else:

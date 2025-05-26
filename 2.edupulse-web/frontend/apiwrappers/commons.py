@@ -33,7 +33,7 @@ def safe_int(value):
     except ValueError:
         return 0
 '''
-#import jwt
+import jwt
 sk=os.environ.get('sk')
 print("sk:",sk)
 # Generate JWT token

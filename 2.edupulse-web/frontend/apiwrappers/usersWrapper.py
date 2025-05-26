@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import requests
 
-from .commons import jwt_required, verify_jwt_token
+from frontend.apiwrappers.commons import jwt_required, verify_jwt_token
 
 from .appConfig import appConfig
 config = appConfig()

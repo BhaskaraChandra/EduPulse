@@ -1,5 +1,6 @@
 from functools import wraps
 import functools
+import os
 from wsgiref import headers
 #import time
 
@@ -33,7 +34,7 @@ def safe_int(value):
         return 0
 '''
 import jwt
-
+sk=os.environ.get('sk')
 # Generate JWT token
 def generate_jwt_token(user):
     payload = {
@@ -48,15 +49,13 @@ def generate_jwt_token(user):
         'profilePic': user['profilePic']
 
     }
-    secret_key = 'your_secret_key_here_IntentionallyDidntChangeIt'
-    token = jwt.encode(payload, secret_key, algorithm='HS256')
+    token = jwt.encode(payload, sk, algorithm='HS256')
     return token
 
 # Verify JWT token
 def verify_jwt_token(token):
-    secret_key = 'your_secret_key_here_IntentionallyDidntChangeIt'
     try:
-        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+        payload = jwt.decode(token, sk, algorithms=['HS256'])
         return payload
     except jwt.ExpiredSignatureError:
         return None

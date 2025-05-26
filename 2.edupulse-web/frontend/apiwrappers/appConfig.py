@@ -9,7 +9,7 @@ class appConfig:
         return cls._instance
 
     def init_config(self):
-        self.local_service = True
+        self.local_service = False
         self.base_urls = {
             "questions": "https://epsvc-qt.onrender.com/",
             "users": "https://epsvc-u.onrender.com/",

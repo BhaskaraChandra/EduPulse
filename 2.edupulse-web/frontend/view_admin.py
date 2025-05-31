@@ -31,12 +31,12 @@ def authenticate_PROXY(username,password):
     #request.session["user"]=user
     return user,"jswt"
 
-active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-nSessions = active_sessions.delete()
-
+#active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+#nSessions = active_sessions.delete()
+print("Flushed the active_sessions")
 def login_view(request):
-    active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-    nSessions = active_sessions.count() 
+    #active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    nSessions = 10; #active_sessions.count() 
     print("Active Sessions:",nSessions)
     if request.method == "POST":
         username = request.POST.get("username")

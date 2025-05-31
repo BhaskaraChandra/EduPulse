@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .burger-menu {
+            display: none;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #2c3e50;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .sidebar label {
+            display: block;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .sub-options {
+            padding-left: 20px;
+            display: block;
+        }
+        .sidebar a {
+            display: block;
+            padding: 8px 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .profile-section {
+            text-align: center;
+            padding: 0px 0;
+            color: white;
+        }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #6699ff;
+            color: #FFFFFF;
+        }
+        .dashboard-content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+        .sidebar-menu {
+            height: 400px;
+            overflow-y:auto;
+        }
+        .scrollable-container {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+    </style>
+</head>
+<body>
+  <div class="dashboard-content" id="dashboard-content">
+    <div class="chatbot-wrapper">
+      <div class="chatbot-container" id="chatbot-container">
+        <div class="ai-profile-header">
+          <span class="ai-name">AI Assistant</span>
+        </div>
+        <div class="chat-message bot-message">
+          <div id="initial-bot-message" class="typewriter-effect"></div>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type your message..." />
+        <button id="send-button" class="send-button">Get Started</button>
+      </div>
+    </div>
+  </div>
+<style>
+    .dashboard-content {
+      margin-left: 250px;
+      padding: 20px;
+      display: flex;
+      justify-content: flex-end;
+      height: 100vh;
+      box-sizing: border-box;
+      width: calc(100% - 250px);
+    }
+
+    .chatbot-wrapper {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .chatbot-container {
+      flex-grow: 1;
+      background-color: #d0e8ff; /* Changed background to light blue */
+      border-radius: 10px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      color: #333;
+    }
+
+    .ai-profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .ai-profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      border: 2px solid #4CAF50;
+    }
+
+    .ai-name {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .chat-message {
+      margin-bottom: 15px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: #d4fcd7;
+      color: #000;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: #fff8dc;
+      color: #000;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.95em;
+    }
+
+    .typewriter-effect {
+      border-right: 2px solid #444;
+      white-space: pre-wrap;
+      animation: blink 0.7s step-end infinite;
+      display: inline-block;
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .chat-input-container {
+      display: flex;
+      padding-top: 10px;
+      border-top: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    .chat-input {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    .send-button {
+      padding: 10px 14px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      background-color: #388e3c;
+    }
+</style>	
+<script>
+  formLoad();
+  function formLoad()
+  {
+    let charIndex = 0;
+    const initialIntroText =
+      `Welcome to Edupulse, your personalized AI-powered learning companion! This platform helps you assess and improve your skills, providing actionable insights and tailored recommendations to boost your performance in competitive exams. With our AI assistant, you'll receive:\n\n`;
+
+    const bulletPoints = [
+      "Personalized learning paths",
+      "Real-time feedback and analysis",
+      "Targeted practice tests to boost confidence"
+    ];
+
+    const typingSpeed = 10;
+    const initialBotMessageDiv = document.getElementById("initial-bot-message");
+    charIndex = 0;
+    //alert("page loaded")
+    typeIntroText();
+    function typeIntroText() {
+      if (charIndex < initialIntroText.length) {
+        initialBotMessageDiv.textContent += initialIntroText.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeIntroText, typingSpeed);
+      } else {
+        addBulletPoints(0);
+      }
+    }
+    function addBulletPoints(index) {
+      if (index === 0) {
+        // create and append ul
+        const ul = document.createElement('ul');
+        ul.style.paddingLeft = '20px';
+        ul.style.marginTop = '0';
+        initialBotMessageDiv.appendChild(ul);
+      }
+
+      if (index < bulletPoints.length) {
+        const ul = initialBotMessageDiv.querySelector('ul');
+        const li = document.createElement('li');
+        ul.appendChild(li);
+
+        let liText = '';
+        let charPos = 0;
+
+        function typeLiChar() {
+          if (charPos < bulletPoints[index].length) {
+            liText += bulletPoints[index].charAt(charPos);
+            li.textContent = liText;
+            charPos++;
+            setTimeout(typeLiChar, typingSpeed);
+          } else {
+            // after finishing this bullet, go to next
+            setTimeout(() => addBulletPoints(index + 1), typingSpeed * 5);
+          }
+        }
+
+        typeLiChar();
+      } else {
+        initialBotMessageDiv.classList.remove('typewriter-effect');
+      }
+    }
+
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    const chatbotContainer = document.getElementById('chatbot-container');
+
+    sendButton.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+      const userMessage = chatInput.value.trim();
+      if (userMessage) {
+        appendMessage(userMessage, 'user-message');
+        chatInput.value = '';
+        setTimeout(() => {
+          simulateBotResponse(userMessage);
+        }, 500);
+      }
+    }
+
+    function appendMessage(text, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('chat-message', type);
+      const span = document.createElement('span');
+      messageDiv.appendChild(span);
+      chatbotContainer.appendChild(messageDiv);
+      chatbotContainer.scrollTop = chatbotContainer.scrollHeight;
+
+      let idx = 0;
+      function typeChar() {
+        if (idx < text.length) {
+          span.textContent += text.charAt(idx);
+          idx++;
+          setTimeout(typeChar, 20);
+        }
+      }
+      typeChar();
+    }
+
+    function simulateBotResponse(userText) {
+      let response = "I received your message: '" + userText + "'.";
+      if (/hello|hi/i.test(userText)) {
+        response = "Hi there! Welcome to Edupulse. How can I help you today?";
+      } else if (/score/i.test(userText)) {
+        response = "Your current score is 200117. Want to review your history?";
+      } else if (/practice/i.test(userText)) {
+        response = "Sure! What topic would you like to practice today?";
+      } else if (/logout/i.test(userText)) {
+        response = "Logging out... see you again soon!";
+      }
+
+      appendMessage(response, 'bot-message');
+    }
+  }//End Formload
+
+</script>
+
+</body>
+</html>

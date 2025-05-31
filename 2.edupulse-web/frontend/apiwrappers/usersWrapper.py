@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 import requests
 
@@ -9,26 +10,9 @@ config = appConfig()
 questionsServiceUrl = config.questions_service_url
 userssServiceUrl = config.users_service_url
 
-# l-ocalService = False
-# if localService:
-#     questionsServiceUrl = "http://localhost:9117/"
-#     userssServiceUrl = "http://localhost:9117/"
-
 import os
 questionsServiceUrl = os.environ.get('qsvc',questionsServiceUrl)
 userssServiceUrl = os.environ.get('usvc',userssServiceUrl)
-
-# def verify_jwt_tokenLocal(token):
-#     #return token
-#     try:
-#         sk=os.environ.get('sk')
-#         payload = jwt.decode(token, sk, algorithms=['HS256'])
-#         return payload
-#     except jwt.ExpiredSignatureError:
-#         return None
-#     except jwt.InvalidTokenError:
-#         return None
-
 
 headers = {'Content-Type': 'application/json'}
 def hitTest(hdrs={},**kwargs):
@@ -170,6 +154,14 @@ def addUserToGroup(userEmail, userGroupName, tenantName, hdrs={}, **kwargs):
     response = requests.post(userssServiceUrl+api, headers=hdrs, params={"userEmail": userEmail, "userGroupName": userGroupName, "tenantName": tenantName})
     response.raise_for_status()  # Raise an exception for HTTP errors
     print(api,response.json())
+    return response.json()
+
+@jwt_required 
+def getGroupwiseRanks(tenantName, userGroups: List[str], hdrs={}, **kwargs):
+    api="getGroupwiseRanks/"
+    response = requests.post(userssServiceUrl+api, headers=hdrs, params={"userGroupName": userGroups, "tenantName": tenantName})
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    #print(api,response.json())
     return response.json()
 #testing the API
 # def testAPI():

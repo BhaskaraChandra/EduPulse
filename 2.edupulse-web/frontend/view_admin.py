@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.sessions.models import Session
-from datetime import datetime
+#from datetime import datetime
+from django.utils import timezone
 
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -12,9 +13,29 @@ from django.views.decorators.csrf import csrf_exempt
 
 from frontend.apiwrappers import usersWrapper
 
+def authenticate_PROXY(username,password):
+    user = {}
+    if password == "fail":
+        return None,None
+    user["userName"] = username
+    if password == "fail":
+        return None,None
+    user["userType"] = "consumer"
+    if password == "tenantadmin":
+        user["userType"] = password
+    user["userEmail"] = "proxyuser@proxy.com"
+    user["userGroup"] = "CSE-1st Year"
+    user["profilePic"] = ""
+    user["tenantName"] = "PROXY"
+    user["_id"] = user["userEmail"]
+    #request.session["user"]=user
+    return user,"jswt"
+
+active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+nSessions = active_sessions.delete()
 
 def login_view(request):
-    active_sessions = Session.objects.filter(expire_date__gte=datetime.now())
+    active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
     nSessions = active_sessions.count() 
     print("Active Sessions:",nSessions)
     if request.method == "POST":
@@ -22,6 +43,7 @@ def login_view(request):
         password = request.POST.get("password")
         #password = "temp"
         user,jswt = usersWrapper.authenticate_userV2(username, password)
+        #user,jswt = authenticate_PROXY(username, password)
         request.session["jwt"]=jswt
 
         #print(user)
@@ -41,7 +63,7 @@ def login_view(request):
                     #print(user)
                     request.session["user"]=user
                     #usersWrapper.updateUser(user["userEmail"],profilePic="UPDATED BASE 64 string")
-                    print("redirecting to user_dashboard.html")
+                    #print("redirecting to user_dashboard.html")
                     return redirect("user_dashboard")  # Redirect to the homepage or dashboard
             else:
                 return render(request, "login.html",{'Error': "Invalid username or password"})
@@ -186,6 +208,10 @@ def tenantGroups(request):
     print("loading TenantGroupsPage")
     #return render(request, 'TenantAdmin/groupUsers.html', {'user': request.session.get("user")})
     return render(request, 'TenantAdmin/tenantGroups.html', {'user': request.session.get("user")})
+
+def Rankcard(request):
+    print("loading RankcardPage")
+    return render(request, 'TenantAdmin/Rankcard.html', {'user': request.session.get("user")})
 
 def groupUsers(request):
     return render(request, 'TenantAdmin/groupUsers.html', {'user': request.session.get("user")})
@@ -385,3 +411,19 @@ def updateUser(request):
     retJson = "{}"
     return JsonResponse(retJson, safe=False)
     pass
+
+def aiassistant(request):
+    return render(request, 'ai_assistant.html')
+    
+
+#Sample POST request
+@require_http_methods(['POST'])
+@csrf_exempt
+def getGroupwiseRanks(request):
+    input = json.loads(request.body)
+    tenantName = input.get('tenantName')
+    userGroups = input.get('userGroups')
+
+    retJson = usersWrapper.getGroupwiseRanks(tenantName,userGroups,jwt = request.session["jwt"])
+    return JsonResponse(retJson, safe=False)
+    

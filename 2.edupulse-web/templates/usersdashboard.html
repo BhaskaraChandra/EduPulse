@@ -76,11 +76,14 @@
             <p class="load-content"><strong>{{ user.tenantName }}</strong></p>
             <img src="{{ user.profilePic }}" alt="" class="profile-pic">
             <p class="load-content"><strong>{{ user.userName }}</strong></p>
+            <p class="load-content"><strong>{{ user.userGroup }}</strong></p>
             <p>Score: 200117</p>
             <input type = "hidden" id='user-data' value='{{ user }}'>
 
         </div>
-        <hr>
+
+        <a href="{% url 'aiassistant' %}" class="load-content">AI Assistant</a>
+        <hr>    
         <div class="sidebar-menu">
             <label>Assessments</label>
             <div class="sub-options">
@@ -100,25 +103,17 @@
                 <a href="{% url 'settings' %}" class="load-content">My Profile</a>
             </div>
             <a href="{% url 'logout' %}">Logout</a>
-
-            <!--label>Topics</label>
-            <div class="sub-options">
-                
-            </div-->
-            
-            <!--a href="{% url 'dashboards' %}" class="load-content">Dashboards</a>
-            <a href="{% url 'my_progress' %}" class="load-content">My Progress</a>
-            <a href="{% url 'compare' %}" class="load-content">Compare</a-->
-	        
-        </div>    
-    </div>
+        
+        </div>          
+    </div>    
     <div class="dashboard-content" id="dashboard-content"></div>
     <script>
         var userDataText = document.getElementById('user-data').value;
         userDataText = userDataText.replace(/'/g, '"');
         userData = JSON.parse(userDataText);
         sessionStorage.setItem('curUser',userDataText);
-        $(document).ready(function() {
+        $("#dashboard-content").load("{% url 'aiassistant' %}");//Loading ai assistant by default
+        $(document).ready(function() {//Click event of any side bar menu item
             $(".load-content").click(function(e) {
                 e.preventDefault();  // Prevent full page reload
                 var url = $(this).attr("href");
@@ -126,8 +121,5 @@
             });
         });
     </script>
-
 </body>
-
 </html>
-

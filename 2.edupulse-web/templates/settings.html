@@ -44,6 +44,7 @@
             overflow: hidden;
         }
 
+        /* change 1-tanmay
         .profile-section::before {
             content: '';
             position: absolute;
@@ -53,6 +54,7 @@
             height: 4px;
             background: linear-gradient(90deg, #3b82f6, #2563eb);
         }
+        */
 
         .profile-header {
             display: flex;
@@ -287,7 +289,7 @@
 </head>
 
     <div class="content" id="dashboard-content">
-        <h2>Settings</h2>   <button class="save-btn" id = "SaveSettingsBtn">Save</button>
+        <h2>My Profile Settings</h2>   
 
         <div class="profile-section">
             <div class="profile-header">
@@ -312,6 +314,8 @@
                 <button class="profile-btn remove-btn" onclick="removeProfilePicture()">
                     <i class="fas fa-trash"></i> Remove
                 </button>
+
+                <button class="save-btn" id = "SaveProfilePic">Save</button> <!-- change 4-tanmay -->
             </div>
         </div>
     </div>
@@ -428,7 +432,7 @@
             cropper = null;
         };
 
-        document.getElementById('SaveSettingsBtn').onclick = function() {
+        document.getElementById('SaveProfilePic').onclick = function() {  // change 4-tanmay
             //alert("save Button");
             //let userLocal = JSON.parse(localStorage.getItem('user')) || {};
             let curUser = JSON.parse(sessionStorage.getItem('curUser')) || {};
@@ -488,6 +492,7 @@
             });
         });
     </script>
+
 <script>
 function postAPIRequest(api, input) {
   return new Promise((resolve, reject) => {
@@ -536,5 +541,6 @@ function getCookie(name) {
     return cookieValue;
 }
 </script>
+
 </body>
 </html>

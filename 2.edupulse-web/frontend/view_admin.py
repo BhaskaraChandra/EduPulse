@@ -1,7 +1,7 @@
 from django.contrib import messages
-from django.contrib.sessions.models import Session
+#from django.contrib.sessions.models import Session
 #from datetime import datetime
-from django.utils import timezone
+#from django.utils import timezone
 
 from django.http import JsonResponse
 from django.shortcuts import redirect, render

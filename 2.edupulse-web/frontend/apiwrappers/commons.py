@@ -1,4 +1,4 @@
-from functools import wraps
+#from functools import wraps
 import functools
 import os
 from wsgiref import headers
@@ -35,6 +35,7 @@ def safe_int(value):
 '''
 import jwt
 sk=os.environ.get('sk')
+print(f"sk with length {len(sk)} identified!")
 # Generate JWT token
 def generate_jwt_token(user):
     payload = {
